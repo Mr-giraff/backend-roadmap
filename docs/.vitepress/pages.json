@@ -1,0 +1,157 @@
+[
+  {
+    "route": "/01-Java语言与JVM基础/README/",
+    "title": "Java 语言与 JVM 基础 Roadmap",
+    "output": "01-Java语言与JVM基础/README/index.md"
+  },
+  {
+    "route": "/01-Java语言与JVM基础/典型案例/",
+    "title": "Java 语言与 JVM 基础典型案例",
+    "output": "01-Java语言与JVM基础/典型案例/index.md"
+  },
+  {
+    "route": "/02-工程构建与研发流程/README/",
+    "title": "工程构建与研发流程 Roadmap",
+    "output": "02-工程构建与研发流程/README/index.md"
+  },
+  {
+    "route": "/02-工程构建与研发流程/典型案例/",
+    "title": "工程构建与研发流程典型案例",
+    "output": "02-工程构建与研发流程/典型案例/index.md"
+  },
+  {
+    "route": "/03-HTTP与Spring服务开发/README/",
+    "title": "HTTP 与 Spring 服务开发 Roadmap",
+    "output": "03-HTTP与Spring服务开发/README/index.md"
+  },
+  {
+    "route": "/03-HTTP与Spring服务开发/典型案例/",
+    "title": "HTTP 与 Spring 服务开发典型案例",
+    "output": "03-HTTP与Spring服务开发/典型案例/index.md"
+  },
+  {
+    "route": "/04-分层架构与业务建模/README/",
+    "title": "分层架构与业务建模 Roadmap",
+    "output": "04-分层架构与业务建模/README/index.md"
+  },
+  {
+    "route": "/04-分层架构与业务建模/典型案例/",
+    "title": "分层架构与业务建模典型案例",
+    "output": "04-分层架构与业务建模/典型案例/index.md"
+  },
+  {
+    "route": "/05-数据库设计与SQL/README/",
+    "title": "数据库设计与 SQL Roadmap",
+    "output": "05-数据库设计与SQL/README/index.md"
+  },
+  {
+    "route": "/05-数据库设计与SQL/典型案例/",
+    "title": "数据库设计与 SQL 典型案例",
+    "output": "05-数据库设计与SQL/典型案例/index.md"
+  },
+  {
+    "route": "/06-事务与数据一致性/README/",
+    "title": "事务与数据一致性 Roadmap",
+    "output": "06-事务与数据一致性/README/index.md"
+  },
+  {
+    "route": "/06-事务与数据一致性/典型案例/",
+    "title": "事务与数据一致性典型案例",
+    "output": "06-事务与数据一致性/典型案例/index.md"
+  },
+  {
+    "route": "/07-并发与异步编程/README/",
+    "title": "并发与异步编程 Roadmap",
+    "output": "07-并发与异步编程/README/index.md"
+  },
+  {
+    "route": "/07-并发与异步编程/典型案例/",
+    "title": "并发与异步编程典型案例",
+    "output": "07-并发与异步编程/典型案例/index.md"
+  },
+  {
+    "route": "/08-缓存与消息队列/README/",
+    "title": "缓存与消息队列 Roadmap",
+    "output": "08-缓存与消息队列/README/index.md"
+  },
+  {
+    "route": "/08-缓存与消息队列/典型案例/",
+    "title": "缓存与消息队列典型案例",
+    "output": "08-缓存与消息队列/典型案例/index.md"
+  },
+  {
+    "route": "/09-分布式系统与服务协作/README/",
+    "title": "分布式系统与服务协作 Roadmap",
+    "output": "09-分布式系统与服务协作/README/index.md"
+  },
+  {
+    "route": "/09-分布式系统与服务协作/典型案例/",
+    "title": "分布式系统与服务协作典型案例",
+    "output": "09-分布式系统与服务协作/典型案例/index.md"
+  },
+  {
+    "route": "/10-系统设计/README/",
+    "title": "系统设计 Roadmap",
+    "output": "10-系统设计/README/index.md"
+  },
+  {
+    "route": "/10-系统设计/典型案例/",
+    "title": "系统设计典型案例",
+    "output": "10-系统设计/典型案例/index.md"
+  },
+  {
+    "route": "/11-测试与质量保障/README/",
+    "title": "测试与质量保障 Roadmap",
+    "output": "11-测试与质量保障/README/index.md"
+  },
+  {
+    "route": "/11-测试与质量保障/典型案例/",
+    "title": "测试与质量保障典型案例",
+    "output": "11-测试与质量保障/典型案例/index.md"
+  },
+  {
+    "route": "/12-安全与权限/README/",
+    "title": "安全与权限 Roadmap",
+    "output": "12-安全与权限/README/index.md"
+  },
+  {
+    "route": "/12-安全与权限/典型案例/",
+    "title": "安全与权限典型案例",
+    "output": "12-安全与权限/典型案例/index.md"
+  },
+  {
+    "route": "/13-部署运维与故障排查/README/",
+    "title": "部署运维与故障排查 Roadmap",
+    "output": "13-部署运维与故障排查/README/index.md"
+  },
+  {
+    "route": "/13-部署运维与故障排查/典型案例/",
+    "title": "部署运维与故障排查典型案例",
+    "output": "13-部署运维与故障排查/典型案例/index.md"
+  },
+  {
+    "route": "/15-大数据组件与数据链路/README/",
+    "title": "大数据组件与数据链路 Roadmap",
+    "output": "15-大数据组件与数据链路/README/index.md"
+  },
+  {
+    "route": "/15-大数据组件与数据链路/典型案例/",
+    "title": "大数据组件与数据链路典型案例",
+    "output": "15-大数据组件与数据链路/典型案例/index.md"
+  },
+  {
+    "route": "/参考资料/学习版本与中文资料/",
+    "title": "学习版本与中文资料",
+    "output": "参考资料/学习版本与中文资料/index.md"
+  },
+  {
+    "route": "/参考资料/示例验证说明/",
+    "title": "示例验证说明",
+    "output": "参考资料/示例验证说明/index.md"
+  },
+  {
+    "route": "/",
+    "title": "后端入门计划",
+    "output": "index.md"
+  }
+]

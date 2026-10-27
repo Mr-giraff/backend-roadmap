@@ -1,0 +1,271 @@
+---
+{"title":"部署运维与故障排查典型案例"}
+---
+
+# 部署运维与故障排查典型案例
+
+## 技能迁移表
+
+| 前端已经会的事 | 后端对应能力 | 需要补上的差异 |
+| --- | --- | --- |
+| 构建 dist 并确认版本 | 构建 JAR、确认进程与制品 | 进程可能仍加载旧代码或另一套配置 |
+| Console、Network、性能面板 | 日志、指标、链路与线程证据 | 需要跨请求、实例和服务定位，不能任意暂停 |
+| 回退前端文件 | 回滚代码与配置 | 数据库和远端副作用不一定随代码回退 |
+| 通过 URL 看页面是否可用 | 健康与业务验证 | 端口、进程存活和业务正确是不同层次 |
+| 导出数据 | 备份与恢复演练 | 能生成文件，还要证明可以恢复并继续使用 |
+
+先学单进程的运行与证据，再综合发布和恢复。本章操作只面向自己启动的本地示例或独立学习库，不使用公司地址、账号和运行 PID。
+
+## 一 进程与端口说明不同事实
+
+进程是正在运行的程序，端口是它可能监听的网络入口。程序没有启动、只监听本机、入口路由错误，会有不同现象。
+
+| 观察 | 能证明什么 | 还不能证明什么 |
+| --- | --- | --- |
+| 找到 Java PID | 有一个 Java 进程 | 就是目标服务，业务也正确 |
+| 18080 正在监听 | 某进程接收该端口连接 | 配置、数据库和所有接口正常 |
+| `/work` 返回预期版本 | 当前请求执行了对应逻辑 | 其他接口、权限和数据都正确 |
+
+先查看进程列表和端口监听，不必提前知道目标 PID：
+
+```bash
+ps -ax -o pid=,args=
+lsof -nP -iTCP:18080 -sTCP:LISTEN
+```
+
+下一节启动示例时再由 `$!` 获取准确的 demo_pid，后续操作始终核对归属。macOS 通常可用 lsof；Linux 也可用 `ss -ltnp`，显示其他账号进程时可能需要额外权限。
+
+请求还可能停在 DNS、TCP 连接、TLS 或 HTTP 层。先用明确的错误定位边界，不把所有失败都叫网络异常；本章示例使用本机 HTTP，没有 TLS。
+
+## 二 制品、配置与进程需要分别确认
+
+制品是实际交付的文件，配置决定它如何运行，进程是文件加载后的执行实例。源码改了，不代表旧进程自动更新。
+
+[OpsDemo.java](/assets/13-部署运维与故障排查/examples/OpsDemo.java) 是完整的本地学习程序，使用 JDK 内置 HTTP 服务能力：
+
+| 路径 | 功能 |
+| --- | --- |
+| `/healthz` | 返回进程可处理该探测请求的信号 |
+| `/readyz` | 根据演示 ready 配置返回就绪状态 |
+| `/work` | 返回版本，可通过配置模拟处理延迟 |
+
+它只监听 `127.0.0.1:18080`。同一终端按顺序执行；后续示例共享 demo_dir 和 demo_pid：
+
+```bash
+cd ./13-部署运维与故障排查
+demo_dir=/tmp/roadmap-ops-lab
+mkdir -p "$demo_dir/classes"
+javac --release 25 -encoding UTF-8 -d "$demo_dir/classes" examples/OpsDemo.java
+java -Ddemo.version=v1 -cp "$demo_dir/classes" OpsDemo > "$demo_dir/v1.log" 2>&1 &
+demo_pid=$!
+ps -p "$demo_pid" -o pid=,args=
+```
+
+上述主线命令需要 JDK 25。公司服务的诊断工具按其实际运行 JDK 选择。先等日志出现 listening，再请求：
+
+```bash
+cat "$demo_dir/v1.log"
+curl --fail-with-body http://127.0.0.1:18080/work
+```
+
+预期响应为 `version=v1`。端口已被占用时应停止这次操作，确认占用者；不要结束不属于本例的进程来“腾位置”。
+
+构建成 JAR 或镜像后，也要记录源码提交、构建标识、运行 JDK和配置版本。镜像是打包内容，容器是运行实例，持久卷保存的文件有自己的生命周期。
+
+## 三 存活、就绪与业务结果分开验证
+
+存活探测帮助判断进程是否仍能工作；就绪探测判断是否应接收流量。真实服务应按职责检查必要依赖，不能所有探测都返回固定成功。
+
+先验证当前演示进程：
+
+```bash
+curl -i http://127.0.0.1:18080/healthz
+curl -i http://127.0.0.1:18080/readyz
+```
+
+预期分别为 `200 ALIVE`、`200 READY`。下面只停止第二节自己启动并确认过的进程：
+
+```bash
+ps -p "$demo_pid" -o pid=,args=
+kill -TERM "$demo_pid"
+wait "$demo_pid"
+java -Ddemo.version=v2 -Ddemo.ready=false -cp "$demo_dir/classes" OpsDemo > "$demo_dir/v2.log" 2>&1 &
+demo_pid=$!
+```
+
+等新进程日志出现 listening 后再次检查：
+
+| 请求 | 预期状态和内容 | 解释 |
+| --- | --- | --- |
+| `/healthz` | 200 ALIVE | 进程可以处理探测 |
+| `/readyz` | 503 NOT_READY | 本例声明尚未就绪 |
+| `/work` | 503 NOT_READY | 本例也主动拒绝业务处理 |
+
+这里 ready 是启动时的演示开关，没有连接真实数据库。Kubernetes 的存活、就绪和启动探针有不同作用，实际接入时再配置，不要求为本例搭建集群。
+
+## 四 发布先定义观察条件，再定义回滚
+
+发布不只确认“新进程起来了”，还要确认版本、配置和关键业务。先写出这次练习的放行与停止条件：
+
+| 检查 | 放行条件 | 不符合时的动作 |
+| --- | --- | --- |
+| 运行版本 | `/work` 显示目标版本 | 核对启动文件与配置 |
+| 就绪 | `/readyz` 为 200 | 不接入业务流量 |
+| 业务结果 | 样本输入得到预期结果 | 暂停发布或恢复旧版本 |
+| 错误与延迟 | 在事先声明的测试范围内 | 记录证据，决定止损与回滚 |
+
+本例 v2 未就绪，因此切回 v1。每次先核对 demo_pid 仍指本例的 OpsDemo，再执行：
+
+```bash
+kill -TERM "$demo_pid"
+wait "$demo_pid"
+java -Ddemo.version=v1 -cp "$demo_dir/classes" OpsDemo > "$demo_dir/rollback.log" 2>&1 &
+demo_pid=$!
+```
+
+等启动日志后验证 `/readyz` 和 `/work`。这次只改启动配置，足以练习“发现未就绪、停止推进、恢复并验证”。真实发布还要考虑旧新实例共存、接口和事件兼容。
+
+| 回退对象 | 是否会自动撤销其他变化 |
+| --- | --- |
+| 代码或镜像 | 不会自动撤销数据库写入 |
+| 配置 | 不会自动取消已经完成的远程操作 |
+| 数据库结构 | 可能不兼容旧代码，需事先设计 |
+| 错误业务数据 | 需要数据修复、补偿或恢复方案 |
+
+## 五 日志、指标与追踪互相补充
+
+日志记录一次事件，指标概括一段时间的表现，追踪串起同一请求的多个步骤。它们回答的内容不同。
+
+给学习请求添加一个只用于关联日志的编号：
+
+```bash
+curl -H 'X-Request-Id: lesson-42' http://127.0.0.1:18080/work
+rg 'requestId=lesson-42' "$demo_dir/rollback.log"
+```
+
+预期日志包含该编号、路径、状态码、耗时和版本。本例只接受有限格式的编号；它不代表身份，也不赋予权限。
+
+| 证据 | 本例或实际服务中的例子 | 用来确认什么 |
+| --- | --- | --- |
+| 日志 | requestId、status、elapsedMs、version | 某请求在哪一步失败、运行哪个版本 |
+| 指标 | 每分钟请求数、错误率、延迟分布、队列长度 | 问题是否持续、影响多大、资源是否饱和 |
+| Trace | 入口 → 数据库 → 远端调用各段耗时 | 时间消耗在哪一段，哪个依赖异常 |
+
+本程序输出请求日志，没有接入指标后端或 OpenTelemetry，表中后两项需要在后续实验中实际采集。
+
+告警应说明用户影响、阈值、持续时间、负责人和诊断入口。例如“成功率连续五分钟低于目标”，比每次短暂 CPU 波动都报警更容易决定行动。
+
+## 六 慢请求先分辨等待在哪里
+
+延迟可以来自计算、锁、线程排队、数据库或下游。看到客户端超时，先选能区分这些原因的证据。
+
+本例可让 `/work` 延迟两秒。停止自己的当前进程后，以新配置启动：
+
+```bash
+ps -p "$demo_pid" -o pid=,args=
+kill -TERM "$demo_pid"
+wait "$demo_pid"
+java -Ddemo.version=slow -Ddemo.delayMs=2000 -cp "$demo_dir/classes" OpsDemo > "$demo_dir/slow.log" 2>&1 &
+demo_pid=$!
+```
+
+等启动后运行：
+
+```bash
+curl --max-time 1 http://127.0.0.1:18080/work
+```
+
+客户端约一秒结束等待，但处理线程可能仍在等待两秒结束。用匹配运行 JDK 的工具观察自己拥有的进程：
+
+```bash
+jcmd "$demo_pid" VM.version
+jcmd "$demo_pid" Thread.print
+```
+
+请求仍在执行时，线程栈可能显示 Thread.sleep；线程快照取晚了则看不到。诊断应结合多次采样，而非把某次未看到等待当作没有等待。
+
+| 相似现象 | 更有区分力的证据 | 不应直接采用的结论 |
+| --- | --- | --- |
+| CPU 很高且请求慢 | 多次线程采样、热点方法与 CPU 时间 | 一定是数据库慢 |
+| CPU 低但数据库调用长 | 慢 SQL、锁等待、连接池指标与调用段 | 增加线程就会更快 |
+| 下游调用时间长 | 对应 Trace、连接/读取超时、下游日志 | 调用方超时就代表对方没执行 |
+| 大量任务排队 | 活跃线程、队列、连接与拒绝数 | 无限增加队列可以解决过载 |
+
+内存问题再区分堆、线程栈、元空间、本地内存与 GC。大堆转储可能造成停顿、占磁盘并包含业务数据，实际操作要先确认环境和容量。
+
+## 七 备份要通过恢复验证
+
+备份产生文件，恢复才证明这份文件能重新形成可用数据。RTO 是允许恢复多长时间，RPO 是允许丢失多长时间范围内的数据。
+
+以下另需本机独立 MySQL 8 学习实例和可创建学习库的账号 roadmap；密码由 `-p` 交互输入。只创建本例专用新库，不导入已有业务库。
+
+```sql
+CREATE DATABASE roadmap_ops_source;
+USE roadmap_ops_source;
+CREATE TABLE purchase (
+    id BIGINT PRIMARY KEY,
+    amount DECIMAL(10,2) NOT NULL
+) ENGINE=InnoDB;
+INSERT INTO purchase VALUES (1, 10.50), (2, 20.50);
+SELECT COUNT(*), SUM(amount) FROM purchase;
+```
+
+预期为 2 条、合计 31.00。暂停这份练习数据的写入后，在终端备份：
+
+```bash
+mysqldump -h 127.0.0.1 -u roadmap -p --single-transaction roadmap_ops_source > "$demo_dir/backup.sql"
+```
+
+先确认备份命令成功，再在 MySQL 中创建一个全新恢复库：
+
+```sql
+CREATE DATABASE roadmap_ops_restore;
+```
+
+随后从终端恢复：
+
+```bash
+mysql -h 127.0.0.1 -u roadmap -p roadmap_ops_restore < "$demo_dir/backup.sql"
+mysql -h 127.0.0.1 -u roadmap -p roadmap_ops_restore \
+  -e 'SHOW CREATE TABLE purchase; SELECT COUNT(*), SUM(amount) FROM purchase; SELECT * FROM purchase ORDER BY id;'
+```
+
+应恢复出相同主键和字段、2 条记录、合计 31.00，应用使用恢复库后也应得到同样结果。只看 SQL 文件存在或体积不为零不能替代这些检查。
+
+记录备份点、恢复开始结束时间，再在源库新增一条记录，比较恢复库缺了哪条；这能解释当前恢复点的数据损失范围。跨数据库与对象文件的恢复还需要一致的恢复点、文件存在性和业务对账。
+
+## 八 综合案例 从失败发布到故障恢复
+
+先给一份练习声明目标：本地版本切换五分钟内恢复、数据库回到已记录备份点；这些是练习目标，不是平台已达到的指标。
+
+| 步骤 | 注入的情况 | 需要提交的证据 |
+| --- | --- | --- |
+| 发布 v2 | ready=false | 版本、探测结果、停止推进的理由 |
+| 回到 v1 | 切换启动配置 | 恢复后探测和关键请求 |
+| 慢请求 | delayMs=2000 | 客户端超时与线程/日志时间线 |
+| 数据恢复 | 导入独立恢复库 | 表结构、数量、金额及应用读取 |
+
+每次故障先确认影响和最近变更，提出可验证的原因，再执行能说明目的的止损动作。重启恢复不能单独证明根因已经找到。
+
+练习结束只停止本例进程：先用 ps 核对 demo_pid 的命令行，再发送 TERM 并等待退出。无需删除任何数据库或清空机器目录。
+
+## 九 练习与验收
+
+1. 对一个请求串起版本、配置、进程、端口、日志和返回结果。
+2. 说明“进程存活、未就绪、业务正常”的差别，并给出对应响应。
+3. 对慢 SQL、慢下游、线程池耗尽分别列出两种相互印证的证据；具备对应学习环境后再注入故障。
+4. 实际恢复一次隔离备份，核对结构、记录和业务读取，并记录 RTO、恢复点与缺失范围。
+
+本地 OpsDemo 已有 Java 8 兼容目标编译记录，Java 25 目标尚未执行，也未在这里启动端口；HTTP、jcmd 采样、数据库备份和恢复均为待在独立学习环境执行的实验。
+
+通用 Java 学习按 Java 25；公司业务案例保留 Java 8 兼容要求。中文主读顺序与环境边界见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+
+## 参考资料
+
+- **中文主读基础**：[廖雪峰 日志入门](https://liaoxuefeng.com/books/java/exception/jdk-logging/index.html)：认识日志与代码位置；JVM 诊断、发布和恢复继续读专项资料。
+- **Java 补充**：[Dev.java 核心 JDK 工具](https://dev.java/learn/jvm/core-tools/)与 [JFR、监控和排查](https://dev.java/learn/jvm/monitoring-troubleshooting/)。
+- **Java 25 规范核对（英文）**：[JDK 25 故障排查指南](https://docs.oracle.com/en/java/javase/25/troubleshoot/)：工具匹配实际运行 JDK；公司 Java 8 服务使用对应版本工具和文档。
+- **运行专项（英文）**：[OpenTelemetry](https://opentelemetry.io/docs/concepts/observability-primer/)、[Kubernetes 探针](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)、[Docker 镜像](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-an-image/)。
+- **恢复专项（英文）**：[MySQL mysqldump](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html)、[Google SRE 服务目标](https://sre.google/sre-book/service-level-objectives/)。
+
+[返回 Roadmap](/13-部署运维与故障排查/README/) · [返回总纲](/)

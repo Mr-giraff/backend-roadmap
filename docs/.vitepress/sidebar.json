@@ -1,0 +1,216 @@
+[
+  {
+    "text": "学习总览",
+    "link": "/"
+  },
+  {
+    "text": "01 Java 语言与 JVM 基础",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "学习路线",
+        "link": "/01-Java语言与JVM基础/README/"
+      },
+      {
+        "text": "讲解与案例",
+        "link": "/01-Java语言与JVM基础/典型案例/"
+      }
+    ]
+  },
+  {
+    "text": "02 工程构建与研发流程",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "学习路线",
+        "link": "/02-工程构建与研发流程/README/"
+      },
+      {
+        "text": "讲解与案例",
+        "link": "/02-工程构建与研发流程/典型案例/"
+      }
+    ]
+  },
+  {
+    "text": "03 HTTP 与 Spring 服务开发",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "学习路线",
+        "link": "/03-HTTP与Spring服务开发/README/"
+      },
+      {
+        "text": "讲解与案例",
+        "link": "/03-HTTP与Spring服务开发/典型案例/"
+      }
+    ]
+  },
+  {
+    "text": "04 分层架构与业务建模",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "学习路线",
+        "link": "/04-分层架构与业务建模/README/"
+      },
+      {
+        "text": "讲解与案例",
+        "link": "/04-分层架构与业务建模/典型案例/"
+      }
+    ]
+  },
+  {
+    "text": "05 数据库设计与 SQL",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "学习路线",
+        "link": "/05-数据库设计与SQL/README/"
+      },
+      {
+        "text": "讲解与案例",
+        "link": "/05-数据库设计与SQL/典型案例/"
+      }
+    ]
+  },
+  {
+    "text": "06 事务与数据一致性",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "学习路线",
+        "link": "/06-事务与数据一致性/README/"
+      },
+      {
+        "text": "讲解与案例",
+        "link": "/06-事务与数据一致性/典型案例/"
+      }
+    ]
+  },
+  {
+    "text": "07 并发与异步编程",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "学习路线",
+        "link": "/07-并发与异步编程/README/"
+      },
+      {
+        "text": "讲解与案例",
+        "link": "/07-并发与异步编程/典型案例/"
+      }
+    ]
+  },
+  {
+    "text": "08 缓存与消息队列",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "学习路线",
+        "link": "/08-缓存与消息队列/README/"
+      },
+      {
+        "text": "讲解与案例",
+        "link": "/08-缓存与消息队列/典型案例/"
+      }
+    ]
+  },
+  {
+    "text": "09 分布式系统与服务协作",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "学习路线",
+        "link": "/09-分布式系统与服务协作/README/"
+      },
+      {
+        "text": "讲解与案例",
+        "link": "/09-分布式系统与服务协作/典型案例/"
+      }
+    ]
+  },
+  {
+    "text": "10 系统设计",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "学习路线",
+        "link": "/10-系统设计/README/"
+      },
+      {
+        "text": "讲解与案例",
+        "link": "/10-系统设计/典型案例/"
+      }
+    ]
+  },
+  {
+    "text": "11 测试与质量保障",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "学习路线",
+        "link": "/11-测试与质量保障/README/"
+      },
+      {
+        "text": "讲解与案例",
+        "link": "/11-测试与质量保障/典型案例/"
+      }
+    ]
+  },
+  {
+    "text": "12 安全与权限",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "学习路线",
+        "link": "/12-安全与权限/README/"
+      },
+      {
+        "text": "讲解与案例",
+        "link": "/12-安全与权限/典型案例/"
+      }
+    ]
+  },
+  {
+    "text": "13 部署运维与故障排查",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "学习路线",
+        "link": "/13-部署运维与故障排查/README/"
+      },
+      {
+        "text": "讲解与案例",
+        "link": "/13-部署运维与故障排查/典型案例/"
+      }
+    ]
+  },
+  {
+    "text": "15 大数据组件与数据链路",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "学习路线",
+        "link": "/15-大数据组件与数据链路/README/"
+      },
+      {
+        "text": "讲解与案例",
+        "link": "/15-大数据组件与数据链路/典型案例/"
+      }
+    ]
+  },
+  {
+    "text": "参考资料",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "学习版本与中文资料",
+        "link": "/参考资料/学习版本与中文资料/"
+      },
+      {
+        "text": "示例验证说明",
+        "link": "/参考资料/示例验证说明/"
+      }
+    ]
+  }
+]

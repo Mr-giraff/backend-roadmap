@@ -1,0 +1,312 @@
+---
+{"title":"大数据组件与数据链路典型案例"}
+---
+
+# 大数据组件与数据链路典型案例
+
+## 技能迁移表
+
+| 前端已有经验 | 后端与数据能力 | 需要补上的差异 |
+| --- | --- | --- |
+| 展示订单数、金额与维度 | 定义指标口径与数据粒度 | 先约定一行代表什么、重复和取消怎样处理 |
+| 读取接口 schema | 理解表、字段、分区与元数据 | 还要对应真实文件位置、格式和版本 |
+| 对数组过滤、分组、求和 | SQL 清洗与分布式聚合 | 数据需要跨执行节点交换，资源与倾斜影响耗时 |
+| 定时刷新页面 | 批处理与流处理 | 数据持续变化时，还要定义事件时间与迟到规则 |
+| 观察接口完成状态 | 追踪作业、运行实例和数据结果 | 提交、执行成功、结果可见是不同状态 |
+| 排查页面数据不对 | 数据质量、血缘和对账 | 需要逐层确认输入、口径、任务、权限与时效 |
+
+先逐个理解数据、存储、元数据、计算与调度，再用订单金额和点击窗口两个例子组合。Java 语言与客户端学习主线为 25；Spark、Flink、Hive、Hadoop 按各自版本支持的 JDK 独立建环境，不能因主线升级而强行切换引擎运行 JDK。SQL 样例分别用于 Spark SQL 和 Flink 1.17 学习环境，不是可以混在 MySQL 中执行的一份脚本。
+
+## 一 一行代表什么，决定能怎样统计
+
+“订单数”需要先确定数据粒度，即一行代表一个订单、一个订单明细，还是一次状态变化。
+
+| 原始记录 | 订单编号 | 商品 | 金额分 |
+| --- | --- | --- | --- |
+| 1 | 101 | A | 6000 |
+| 2 | 101 | B | 4000 |
+
+上表是两个订单明细，`COUNT(*)` 是 2，`COUNT(DISTINCT order_id)` 是 1。如果把它当作两笔订单，SQL 即使执行成功，业务结果也错了。
+
+在本篇批处理例子中，先约定：一行描述一个订单的最终状态，金额单位为分，输入都属于同一个统计日；完全相同的重复行只算一次，取消订单不计入。
+
+这是一个小数据契约：粒度、状态、单位、时间和去重规则都必须明确。真实业务存在多版本状态时，还需按业务键与版本确定有效记录，不能直接照搬 DISTINCT。
+
+## 二 存储保存数据，元数据说明怎样读取
+
+前端的 schema 描述字段；数据平台中的元数据还描述位置和格式。例如：
+
+```text
+表名：lesson_orders
+字段：order_id、region、amount_cents、status
+格式：Parquet
+位置：学习存储中的 /study/lesson_orders/
+分区：dt=2026-10-26
+```
+
+| 角色 | 保存或处理什么 | 典型组件 |
+| --- | --- | --- |
+| 文件存储 | 实际数据文件 | HDFS、对象存储 |
+| 元数据目录 | 表字段、类型、位置和分区 | Hive Metastore 等 |
+| 计算引擎 | 读取并处理数据 | Spark、Flink 等 |
+| 分析服务 | 面向分析提供查询 | StarRocks、ClickHouse 等 |
+
+这是职责分类，不要求每个角色都必须独立部署。有的引擎自己同时管理存储和元数据。
+
+Hive 外部表 DDL 可以表达“这份描述对应哪个位置”。下面只用于独立学习空间，前提是有 Hive Metastore 与相应文件系统：
+
+```sql
+CREATE EXTERNAL TABLE lesson_orders (
+    order_id BIGINT,
+    region STRING,
+    amount_cents BIGINT,
+    status STRING
+)
+PARTITIONED BY (dt STRING)
+STORED AS PARQUET
+LOCATION 'hdfs:///study/lesson_orders';
+```
+
+这个声明不会自动把订单写进目录，也不能证明查询已有数据。文件、分区登记和读取权限仍要分别确认；app 的模型记录也不能替代这些实际数据。
+
+## 三 先用固定输入学批处理
+
+批处理面对一份有边界的输入，完成一次计算。先不接外部数据源，在 Spark SQL 中直接定义样本视图：
+
+```sql
+CREATE OR REPLACE TEMP VIEW raw_orders AS
+SELECT * FROM VALUES
+    (101, 'east', 10000, 'PAID'),
+    (102, 'east', 5000, 'PAID'),
+    (101, 'east', 10000, 'PAID'),
+    (103, 'south', 8000, 'PAID'),
+    (104, 'south', 7000, 'CANCELLED')
+AS t(order_id, region, amount_cents, status);
+```
+
+VALUES 给出全部输入，AS t 后面的名称给出列定义。TEMP VIEW 是当前会话中的临时视图，不代表结果已持久保存。
+
+先筛掉取消订单，再去掉本例完全相同的重复行：
+
+```sql
+CREATE OR REPLACE TEMP VIEW clean_orders AS
+SELECT DISTINCT order_id, region, amount_cents
+FROM raw_orders
+WHERE status = 'PAID';
+```
+
+应剩下三行：
+
+| order_id | region | amount_cents |
+| --- | --- | --- |
+| 101 | east | 10000 |
+| 102 | east | 5000 |
+| 103 | south | 8000 |
+
+按地区汇总：
+
+```sql
+SELECT region, COUNT(*) AS order_count, SUM(amount_cents) AS amount_cents
+FROM clean_orders
+GROUP BY region
+ORDER BY region;
+```
+
+预期结果：
+
+| region | order_count | amount_cents |
+| --- | --- | --- |
+| east | 2 | 15000 |
+| south | 1 | 8000 |
+
+这与前端先 filter、再去重、再按 region 分组的业务思路一致。先手算 23000 分的合计，再让引擎验证。
+
+完整脚本见 [batch.sql](/assets/15-大数据组件与数据链路/examples/batch.sql)。在已有 Spark SQL 学习环境，可从本章节目录执行 `spark-sql -f examples/batch.sql`。第一次先核对所用版本是否支持示例语法，不使用公司生产空间。
+
+## 四 分布式执行把同一计算拆给多个进程
+
+数据量大时，Spark 会把计算任务分给执行进程。先认职责，不急着调整参数：
+
+| 名称 | 职责 | 与本例的关系 |
+| --- | --- | --- |
+| Driver | 组织应用和执行计划 | 接收 SQL，安排工作并跟踪结果 |
+| Executor | 执行分配的计算任务 | 处理输入的一部分数据 |
+| Stage / Task | 组织执行阶段和具体任务 | 受数据分区及交换边界影响 |
+| 集群资源管理器 | 给应用分配计算资源 | 可以是 YARN、Kubernetes 等，按环境选择 |
+
+Spark 也可以在本地模式运行，学习 SQL 不要求先搭建完整集群。
+
+按 region 汇总时，相同地区的数据需要在逻辑上汇合；执行节点之间的数据重分布称为 shuffle。它可能消耗网络、磁盘和内存。
+
+在定义完前面视图后查看计划：
+
+```sql
+EXPLAIN
+SELECT region, SUM(amount_cents)
+FROM clean_orders
+GROUP BY region;
+```
+
+观察聚合和数据交换的位置，算子名称与优化策略按版本和配置核对。若大多数订单都属于 east，还要调查是否少数任务特别慢；“加 Executor”不一定解决数据倾斜。
+
+## 五 流处理需要规定时间与窗口
+
+流处理面对不断到来的事件，不能一直等“所有数据都到齐”。先定义事件与一分钟窗口：
+
+| user_id | event_time |
+| --- | --- |
+| 1 | 2026-10-26 10:00:10.000 |
+| 2 | 2026-10-26 10:00:20.000 |
+| 3 | 2026-10-26 10:01:01.000 |
+
+按事件发生时间统计，`[10:00,10:01)` 应为 2 次，`[10:01,10:02)` 应为 1 次。左闭右开表示恰好 10:01 的事件进入后一个窗口。
+
+- 事件时间：数据里记录的实际发生时刻。
+- 处理时间：执行程序收到并处理它的时刻。
+- Watermark：系统对事件时间进度的估计，用来推进窗口计算，不是所有数据已经到齐的证明。
+
+### 定义一个可读取的最小事件表
+
+本例使用 Flink 1.17 的 filesystem 与 CSV；连接器和格式需在学习环境可用。先把[样本文件](/assets/15-大数据组件与数据链路/examples/clicks.csv)复制到约定位置：
+
+```bash
+cd ./15-大数据组件与数据链路
+cp examples/clicks.csv /tmp/study15-clicks.csv
+```
+
+在独立 Flink SQL Client 会话执行：
+
+```sql
+SET 'execution.runtime-mode' = 'streaming';
+
+CREATE TEMPORARY TABLE lesson_clicks (
+    user_id INT,
+    event_time TIMESTAMP(3),
+    WATERMARK FOR event_time AS event_time - INTERVAL '5' SECOND
+) WITH (
+    'connector' = 'filesystem',
+    'path' = 'file:///tmp/study15-clicks.csv',
+    'format' = 'csv',
+    'csv.timestamp-format.standard' = 'SQL'
+);
+```
+
+单机学习时这个本地文件可被执行进程读取；若执行在集群节点，路径必须在实际执行节点可读，不能只放在个人电脑上。
+
+窗口查询：
+
+```sql
+SELECT window_start, window_end, COUNT(*) AS click_count
+FROM TABLE(
+    TUMBLE(TABLE lesson_clicks, DESCRIPTOR(event_time), INTERVAL '1' MINUTE)
+)
+GROUP BY window_start, window_end;
+```
+
+TUMBLE 按固定长度、不重叠的窗口分组。有限文件输入结束、窗口完成后，预期两个计数分别为 2 和 1；SQL Client 的行变化标识与显示格式可能不同。
+
+完整脚本见 [window.sql](/assets/15-大数据组件与数据链路/examples/window.sql)。这个有限输入适合核对窗口边界，不能单独证明持续流的恢复和迟到行为。
+
+### 再单独观察迟到
+
+假设持续输入中已经发出了 `10:01:05` 的 Watermark，10:00—10:01 的窗口已经关闭，此时才收到事件时间为 `10:00:18` 的记录，它就不能直接按“仍在当前窗口内”处理。
+
+需要明确允许迟到多久、超时如何补算或对账。静态文件读得很快，Watermark 的实际发出时机会影响观察；不能靠调整文件行顺序就声称复现了迟到实验。
+
+## 六 状态恢复与外部写入要一起检查
+
+Flink 的有状态计算会保存运行状态；Checkpoint 用于恢复到一致的处理位置，Savepoint 常用于受控升级等操作。
+
+最小失败时间线：
+
+```text
+读取事件 → 更新内部累计值 → 写入外部数据库 → 进程停止
+```
+
+如果恢复后重读事件，而外部数据库已经写过一次，最终会不会重复，取决于 Source、Checkpoint 和 Sink 的协作方式。
+
+| 要核对的环节 | 具体问题 |
+| --- | --- |
+| 输入 | 能否从已知位置重读，重复事件如何标识 |
+| 内部状态 | 从哪个 Checkpoint 恢复，恢复范围是什么 |
+| 输出 | 写入是否事务化或幂等，提交与检查点如何配合 |
+| 对账 | 怎样确认少算、重算以及恢复是否完成 |
+
+框架内部的一致性保证不自动等于所有外部副作用都恰好执行一次。实际实验需使用选定连接器并注入故障验证。
+
+## 七 调度和分析引擎解决不同问题
+
+| 层次 | 最小例子 | 需要观察什么 |
+| --- | --- | --- |
+| 平台任务调度 | 每天等待上游完成后提交订单汇总 | 依赖、参数、重试、补数和实例状态 |
+| 集群资源调度 | 分配执行容器或进程 | 队列、CPU、内存与等待资源时间 |
+| 引擎内部调度 | 安排各执行任务 | 执行计划、分区、shuffle、背压 |
+| 分析引擎 | 查询已经导入的地区汇总 | 表模型、导入状态、查询时效与权限 |
+
+StarRocks/ClickHouse 与 Hive/Spark 不是“相同 SQL 换一个地址”。数据模型、类型、更新、事务和权限可能不同。兼容 MySQL 协议也不表示完整兼容 MySQL 语义。
+
+给两种引擎做对比时，使用同一输入和查询，分别记录实际 DDL、导入、执行反馈、结果与限制。先选一种运行通一条链路，再扩展到第二种。
+
+## 八 质量与血缘让结果可以解释
+
+沿订单样本建立最小质量检查：
+
+| 检查 | 样本预期 | 发现偏差时先检查 |
+| --- | --- | --- |
+| 原始行数 | 5 | 采集与读取位置 |
+| 取消订单数 | 1 | 状态口径与解析 |
+| 有效且去重的订单数 | 3 | 重复规则及清洗步骤 |
+| 汇总总额 | 23000 分 | 金额单位、关联重复与过滤 |
+
+血缘说明结果从哪里来、经过哪些转换。这里可以完整写成：
+
+```text
+raw_orders 的五条固定记录
+ → 过滤 PAID
+ → 本例完全重复行去重
+ → 按 region 聚合
+ → east 15000、south 8000
+```
+
+再记录脚本版本、输入批次、统计日、时区和运行编号，才能让别人重现结果。
+
+若页面读到旧数据，按源数据更新时间、清洗结果、作业实例、输出分区、分析引擎导入、查询缓存顺序核对。找到第一处变旧的位置，比先重跑所有任务更有依据。
+
+## 九 综合案例 从口径走到可核对的结果
+
+组合前面已经学过的内容：
+
+| 步骤 | 本例产物 | 能证明什么 |
+| --- | --- | --- |
+| 定义口径 | 最终状态订单、金额分、同一统计日 | 计算规则明确 |
+| 准备输入 | 五行固定样本 | 输入可重复 |
+| 批处理 | 三条有效订单、两行汇总 | 过滤、去重与汇总可核对 |
+| 流处理 | 三个时间事件、两个分钟窗口 | 窗口边界有明确预期 |
+| 保存与服务 | 持久化表、文件、导入及查询契约需在具体环境实现 | 临时视图不冒充已发布数据资产 |
+| 质量与追踪 | 行数、金额、脚本和运行标识 | 出错可以回溯到具体步骤 |
+
+目录选择案例只涉及部分平台调用，不替代这些引擎执行实验。
+
+## 十 练习与验收
+
+1. 再加一条与 102 完全相同的原始记录，预测原始行数与最终总额，运行批处理核对。
+2. 给同一订单加入不同金额或新状态，指出为什么 DISTINCT 已不足够，并定义有效版本选择规则。
+3. 将点击时间改成恰好 10:01:00，预测窗口归属，再用学习环境验证。
+4. 对一个持续流注入重复、迟到和重启，分别保存输入序列、Watermark、状态及输出证据。
+5. 人为停止某个更新环节，依链路定位第一处旧数据，恢复后对账。
+
+验收包括口径、输入、SQL、预期与实际结果、版本和失败定位。结果正确、结果及时、服务可访问分别验证。
+
+通用 Java 学习按 Java 25；公司业务案例保留 Java 8 兼容要求。中文主读顺序与环境边界见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+
+## 参考与验证范围
+
+- **中文前置主读**：[廖雪峰 SQL](https://liaoxuefeng.com/books/sql/introduction/index.html)与 [JDBC](https://liaoxuefeng.com/books/java/jdbc/index.html)：掌握查询和数据访问；它们不覆盖 Hive/Spark/Flink 引擎机制。
+- **中文专项主读**：[Flink 1.17 窗口](https://nightlies.apache.org/flink/flink-docs-release-1.17/zh/docs/dev/table/sql/queries/window-tvf/)、[StarRocks 架构](https://docs.starrocks.io/zh/docs/introduction/Architecture/)：对应时间窗口和分析引擎。
+- **Java 补充**：[Dev.java](https://dev.java/learn/)：Java 客户端与运行背景；引擎运行 JDK 仍按对应版本单独核对。
+- **英文专项**：[Hadoop/YARN](https://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/YARN.html)、[Hive Quickstart](https://hive.apache.org/development/quickstart/)、[Spark 集群](https://spark.apache.org/docs/latest/cluster-overview.html)与 [SQL 内联表](https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-inline-table.html)：按实际引擎版本查阅。
+- **Flink 连接器核对（英文）**：[文件系统](https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/filesystem/)、[CSV](https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/formats/csv/)。
+
+固定样本的统计与窗口预期可独立核算。本文未启动 Spark、Hive、Flink 或分析引擎；SQL 执行、资源调度、检查点恢复和端到端语义需在对应学习环境实测。
+
+[返回 Roadmap](/15-大数据组件与数据链路/README/) · [返回总纲](/)

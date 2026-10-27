@@ -1,0 +1,331 @@
+---
+{"title":"HTTP 与 Spring 服务开发典型案例"}
+---
+
+# HTTP 与 Spring 服务开发典型案例
+
+## 技能迁移表
+
+| 前端已有经验 | 后端对应能力 | 需要补上的差异 |
+| --- | --- | --- |
+| 用 fetch 或请求库调用 API | 接收 HTTP 请求并返回响应 | 参数要从协议转换为 Java 数据 |
+| 定义路径、查询参数和 JSON | Controller 的映射与参数绑定 | 在到达业务代码前，框架就可能拒绝输入 |
+| 用普通函数与对象协作 | Service 与构造器依赖注入 | 对象由谁创建、使用哪一个实现需要明确 |
+| 用环境配置控制行为 | Spring 配置读取 | 覆盖规则和生效环境由服务端工程决定 |
+| 请求拦截与统一错误提示 | Filter、Interceptor、异常处理与 AOP | 它们工作在不同位置，不能互相代替 |
+
+先学协议与对象协作，再学习框架如何连接它们。通用学习主线采用 Java 25，完整工程固定 Spring Boot 3.5.16，Spring Framework 6.2.x 由 Boot 依赖管理。Java 8 业务案例保留原项目的依赖和语法限制，详见[学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+
+## 一 请求和响应是一份明确的约定
+
+HTTP 请求由方法、地址、请求头和可选请求体组成。你已经会定义接口，先把一次前端调用还原成协议内容：
+
+```javascript
+fetch('/hello?name=Vue');
+```
+
+对应的请求可表示为：
+
+```http
+GET /hello?name=Vue HTTP/1.1
+Host: localhost:18083
+```
+
+本例约定成功响应为：
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{"message":"Hello, Vue"}
+```
+
+| 部分 | 本例含义 |
+| --- | --- |
+| GET | 读取问候结果，不修改业务数据 |
+| /hello | 选择要调用的资源或操作入口 |
+| name=Vue | 查询参数，提供名字 |
+| 200 | HTTP 层面成功 |
+| JSON message | 本接口约定的响应内容 |
+
+POST、PUT、DELETE 的选择还要结合资源语义；HTTP 方法声明为幂等，不会自动把重复业务写入变成安全操作。
+
+## 二 先用普通 Java 说明对象协作
+
+依赖注入的前提，是一个对象确实需要另一个对象。先定义本节全部类型：
+
+```java
+interface GreetingFormatter {
+    String format(String name);
+}
+class PlainGreetingFormatter implements GreetingFormatter {
+    private final String prefix;
+    PlainGreetingFormatter(String prefix) { this.prefix = prefix; }
+    public String format(String name) { return prefix + ", " + name; }
+}
+class GreetingService {
+    private final GreetingFormatter formatter;
+    GreetingService(GreetingFormatter formatter) { this.formatter = formatter; }
+    String greet(String name) { return formatter.format(name); }
+}
+```
+
+使用代码放在 main 内：
+
+```java
+GreetingFormatter formatter = new PlainGreetingFormatter("Hello");
+GreetingService service = new GreetingService(formatter);
+System.out.println(service.greet("Vue"));
+```
+
+输出 `Hello, Vue`。构造器收到需要的对象，这已经是“从外部提供依赖”的思路；并不要求先使用 Spring。
+
+前端把一个请求函数传入业务函数，也是在明确依赖来自哪里。Spring 增加的是对象注册、创建、选择与生命周期管理。
+
+## 三 Spring 容器创建对象并提供依赖
+
+由 Spring 管理的对象称为 Bean。先提供格式化对象，再让容器把它交给 Service。
+
+下面是配置类的完整代码；使用上一节已经定义的 GreetingFormatter 和 PlainGreetingFormatter，实际工程把这些类型放在同一个 `study.web` 包中：
+
+```java
+package study.web;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class GreetingConfig {
+    @Bean
+    GreetingFormatter greetingFormatter(@Value("${lesson.prefix:Hello}") String prefix) {
+        return new PlainGreetingFormatter(prefix);
+    }
+}
+```
+
+Service 改成由框架注册的版本：
+
+```java
+package study.web;
+import org.springframework.stereotype.Service;
+
+@Service
+public class GreetingService {
+    private final GreetingFormatter formatter;
+    public GreetingService(GreetingFormatter formatter) {
+        this.formatter = formatter;
+    }
+    public String greet(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("name must not be blank");
+        }
+        return formatter.format(name.trim());
+    }
+}
+```
+
+| 写法 | 谁负责什么 |
+| --- | --- |
+| Configuration 与 Bean | 告诉容器怎样创建格式化对象 |
+| Service | 将业务类注册到扫描范围内的容器 |
+| 构造器参数 | 声明 Service 需要 GreetingFormatter |
+| Value | 读取配置，未提供时本例使用 Hello |
+
+单构造器的注入在这个版本中不必再写 Autowired。若同一接口有多个候选 Bean，需要明确选择；若自己 new 一个对象，它不会因此自动得到容器注入。
+
+## 四 Controller 把 HTTP 请求交给 Java 方法
+
+Controller 声明路径与方法对应关系，并把协议参数交给业务代码。以下类所用的 Service 已在前面定义：
+
+```java
+package study.web;
+import java.util.Collections;
+import java.util.Map;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class GreetingController {
+    private final GreetingService service;
+    public GreetingController(GreetingService service) { this.service = service; }
+
+    @GetMapping("/hello")
+    public Map<String, String> hello(@RequestParam(name = "name", defaultValue = "Vue") String name) {
+        return Collections.singletonMap("message", service.greet(name));
+    }
+}
+```
+
+`RestController` 使方法返回值通过消息转换器写入响应体；本例 Map 被转换成 JSON。`GetMapping` 匹配 GET 路径，RequestParam 从查询参数取值。
+
+| 调用 | 参数值 | 返回内容 |
+| --- | --- | --- |
+| GET /hello?name=Vue | Vue | `{"message":"Hello, Vue"}` |
+| GET /hello | 默认 Vue | 同上 |
+| GET /hello?name=Learner | Learner | `{"message":"Hello, Learner"}` |
+
+Vue Router 匹配页面导航；这里匹配的是服务器收到的 HTTP 请求。两者都使用路径，但执行位置与职责不同。
+
+## 五 路径参数与 JSON 请求体分别从哪里来
+
+### 1. 路径参数表示路径中的一部分
+
+在 Controller 中增加下列方法，并导入 PathVariable：
+
+```java
+@GetMapping("/echo/{id}")
+public Map<String, String> echo(@org.springframework.web.bind.annotation.PathVariable("id") Long id) {
+    return Collections.singletonMap("id", id.toString());
+}
+```
+
+GET /echo/12 返回 `{"id":"12"}`；GET /echo/abc 在参数转换阶段得到 400，本方法不会正常执行。这里是回显输入，不表示某个编号资源真的存在。
+
+### 2. RequestBody 把 JSON 转成请求对象
+
+先定义完整的请求类型 `GreetingRequest.java`：
+
+```java
+package study.web;
+import jakarta.validation.constraints.NotBlank;
+
+public class GreetingRequest {
+    @NotBlank
+    private String name;
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+}
+```
+
+然后在 Controller 中增加方法：
+
+```java
+@org.springframework.web.bind.annotation.PostMapping(
+        value = "/greetings", consumes = "application/json")
+public Map<String, String> create(
+        @jakarta.validation.Valid @org.springframework.web.bind.annotation.RequestBody GreetingRequest request) {
+    return Collections.singletonMap("message", service.greet(request.getName()));
+}
+```
+
+前端请求：
+
+```javascript
+fetch('/greetings', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ name: 'Vue' })
+});
+```
+
+响应为 `{"message":"Hello, Vue"}`。NotBlank 定义名称约束，Valid 在绑定后的请求对象上触发校验；它们不检查租户或资源归属，权限在 12 学习。
+
+此处使用完整注解名称，是为了让片段直接看见所需类型。实际文件已通过 import 简写，不必两种形式同时写。
+
+## 六 区分框架拒绝与业务拒绝
+
+错误可能发生在方法执行前，也可能来自业务方法。对照四种可重复输入：
+
+| 输入 | 预期状态 | 发生位置 |
+| --- | --- | --- |
+| GET /missing | 404 | 没有对应路径 |
+| POST /hello | 405 | 路径存在，但方法不匹配 |
+| POST /greetings，Content-Type 为 text/plain | 415 | 不支持这个请求媒体类型 |
+| POST /greetings，JSON 为 `{"name":""}` | 400 | 对象校验失败 |
+| GET /echo/abc | 400 | 路径值不能转换成 Long |
+
+业务主动抛出的 IllegalArgumentException 还需要明确转换为响应。下面是完整的异常处理类：
+
+```java
+package study.web;
+import java.util.Collections;
+import java.util.Map;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+public class ApiErrors {
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> invalid(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+    }
+}
+```
+
+GET /hello?name=%20%20 进入 Service 后被拒绝，得到 400 和 `{"error":"name must not be blank"}`。未预期的系统异常应留日志并返回合适的系统错误，不应全部伪装成成功。
+
+## 七 看清请求链与扩展位置
+
+典型同步 MVC 请求经过：容器 → Filter → DispatcherServlet → MVC 拦截器 → Controller → Service。返回时再沿相应链路收尾。
+
+| 扩展点 | 作用范围 | 适合先观察的现象 |
+| --- | --- | --- |
+| Filter | Servlet 请求链 | 请求是否进入应用、请求标识与通用头 |
+| Interceptor | MVC 处理链 | 匹配了哪个处理方法 |
+| AOP | 通过代理调用的方法 | 方法调用前后增强；自调用等边界需单独理解 |
+| ControllerAdvice | Controller 层异常映射 | 某类错误怎样变成响应 |
+
+它们不等价于完整认证授权体系。生产身份、跨线程上下文与异步请求要沿用平台安全与执行模型，不能只添加一个拦截器就视为完成。
+
+请求发出前还可能卡在 DNS、TCP、TLS 或连接池。先记录“是否到达应用”，再分配连接等待、建立连接、读取响应和总时限；网络与资源排查在 13 深入。
+
+## 八 综合案例 启动一个完整 HTTP 工程
+
+前面的类型已按完整文件整理到 [examples/hello-http](/assets/03-HTTP与Spring服务开发/examples/hello-http/pom.xml)。它只用内存对象，不连接数据库或公司平台。
+
+POM 的业务依赖为 `spring-boot-starter-web` 与 `spring-boot-starter-validation`，父版本固定 3.5.16，Java 编译目标为 25。完整入口 `Application.java`：
+
+```java
+package study.web;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+入口在 study.web 包中，相关类型也在此包下，便于组件扫描找到。完整 POM、Controller 和其他类均已给出；需事先准备 JDK 25、Maven 以及依赖缓存或获准访问的仓库。
+
+```bash
+cd ./03-HTTP与Spring服务开发/examples/hello-http
+mvn package
+java -jar target/hello-http-1.0-SNAPSHOT.jar
+```
+
+另开终端，在本地验证：
+
+```bash
+curl -i 'http://localhost:18083/hello?name=Vue'
+curl -i -H 'Content-Type: application/json' -d '{"name":"Vue"}' http://localhost:18083/greetings
+curl -i -H 'Content-Type: text/plain' -d 'Vue' http://localhost:18083/greetings
+```
+
+前两项应返回 200 和 message，第三项应返回 415。`application.properties` 设置 `server.port=18083` 和 `lesson.prefix=Hello`；把前缀改成 Hi 后重启，再核对配置与响应。
+
+## 九 练习与验收
+
+1. 用第六节输入表验证状态码，并通过断点记录是否进入 Controller 和 Service。
+2. 给 POST 请求增加一个可选备注字段，旧请求不传仍应有效；不要顺便接受客户端提交的内部角色或租户字段。
+3. 将配置前缀改成 Hi，再故意移除格式化 Bean，区分“运行结果改变”和“启动依赖缺失”。
+4. 模拟客户端提前超时，确认服务端最终是否执行；不能由客户端报错推断服务端已经回滚。
+
+验收保存请求、响应、断点或日志位置、实际配置和运行版本。只看 HTTP 200 或只看注解存在，都不足以证明完整行为。
+
+## 参考资料与验证范围
+
+- **中文主读**：[廖雪峰 Spring 开发](https://liaoxuefeng.com/books/java/spring/index.html)、[IoC 容器](https://liaoxuefeng.com/books/java/spring/ioc/index.html)与 [Spring MVC](https://liaoxuefeng.com/books/java/spring/web/mvc/index.html)：按对象协作、注入、绑定和异常顺序阅读。
+- **中文主读**：[廖雪峰 Spring Boot 开发](https://liaoxuefeng.com/books/java/springboot/index.html)：补启动、配置和打包；示例依赖以本章固定版本为准。
+- **现代 Java 补充**：[Dev.java](https://dev.java/learn/)：对象、注解、异常与 JVM 背景，可配合浏览器翻译。
+- **框架核对**：[Spring Boot 3.5 系统要求](https://docs.spring.io/spring-boot/3.5/system-requirements.html)、[Spring MVC 6.2](https://docs.spring.io/spring-framework/reference/6.2/web/webmvc.html)与 [Spring 容器](https://docs.spring.io/spring-framework/reference/6.2/core/beans.html)：本例锁定 Boot 3.5.16，使用 Java 25；Framework 6.2.x 由 Boot 管理，官方当前要求 6.2.19 或以上。
+- **协议核对**：[HTTP 语义 RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html)。
+- **Java 8 兼容核查**：[Spring Boot 2.7 文档](https://docs.spring.io/spring-boot/docs/2.7.18/reference/htmlsingle/)仅用于相应遗留项目；不能把本章的 Java 25 与 Jakarta 配置直接复制回去。
+
+本例的 POM、Jakarta 注解和文档已按 Java 25 / Boot 3.5.16 静态核对。当前环境未检测到 JDK 25，尚未构建、启动 Spring 或执行 HTTP 集成测试；预期结果需在所列环境中验证。
+
+[返回 Roadmap](/03-HTTP与Spring服务开发/README/) · [返回总纲](/)

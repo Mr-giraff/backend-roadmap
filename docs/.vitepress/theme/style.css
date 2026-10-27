@@ -1,0 +1,21 @@
+.mermaid-diagram {
+  margin: 24px 0;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.mermaid-diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.review-link {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--vp-c-divider);
+  font-size: 14px;
+}
+
+.review-link a {
+  color: var(--vp-c-brand-1);
+}
