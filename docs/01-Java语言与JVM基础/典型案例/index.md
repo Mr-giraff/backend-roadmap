@@ -233,7 +233,16 @@ change(counter);
 System.out.println(counter.value);
 ```
 
-输出 **2**。参数起初与调用方指向同一对象，修改字段会影响这个对象；参数重新赋值，只改变方法内参数的指向。final 约束变量，允许这里修改对象字段。
+输出 **2**。跟着代码看两个对象和两个变量：
+
+1. `main` 创建对象 A，设置 `A.value = 1`，然后把对象 A 的引用传给 `change`。Java 传递的是引用的副本，所以方法内的参数 `counter` 和 `main` 中的变量是两个变量，但最初都指向对象 A。
+2. `counter.value = 2` 修改的是对象 A 的字段。此时 `main` 中的变量仍指向 A，因此也能看到这个修改。
+3. `counter = new Counter()` 创建对象 B，并让**方法内的参数**指向 B。`main` 中的变量仍指向 A。
+4. `counter.value = 99` 修改的是对象 B，不影响对象 A。方法结束后，`main` 读取的仍是 A 的字段，所以输出 `2`。
+
+`final` 约束的是 `main` 中的变量不能重新指向其他对象，并不禁止修改对象的字段。方法内的参数是另一个变量，可以重新赋值。
+
+延伸阅读：[廖雪峰 Java 教程：方法（参数绑定）](https://liaoxuefeng.com/books/java/oop/basic/method/index.html)；[Dev.java：调用方法和构造方法（Passing Reference Data Type Arguments）](https://dev.java/learn/language/oop/classes-objects/calling-methods-constructors/)。
 
 ## 五 继承、接口与枚举
 

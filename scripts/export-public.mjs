@@ -8,9 +8,9 @@ export function exportPublic(source, website) {
   const files = [];
   function walk(dir) {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      if (entry.name.startsWith('.')) continue;
+      if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
       const file = path.join(dir, entry.name);
-      if (entry.isSymbolicLink()) throw new Error('公开目录不允许包含符号链接');
+      if (entry.isSymbolicLink()) throw new Error('源目录不允许包含符号链接');
       if (entry.isDirectory()) walk(file);
       else if (entry.isFile()) files.push(file);
     }
@@ -18,15 +18,16 @@ export function exportPublic(source, website) {
   walk(root);
   const notes = files.filter(file => file.endsWith('.md')).flatMap(file => {
     const note = matter(fs.readFileSync(file, 'utf8'));
-    if (note.data['dg-publish'] === false) return [];
+    if (note.data.publish !== true) return [];
     const relative = path.relative(root, file).split(path.sep).join('/');
-    const home = note.data['dg-home'] === true;
+    const home = note.data.home === true;
     const title = note.data.title || note.content.match(/^# (.+)$/m)?.[1] || path.basename(file, '.md');
     return [{ file, relative, home, title, content: note.content, route: home ? '/' : '/' + relative.replace(/\.md$/, '') + '/' }];
   });
-  if (notes.filter(note => note.home).length !== 1) throw new Error('公开目录必须有且只有一个首页');
+  if (notes.filter(note => note.home).length !== 1) throw new Error('必须有且只有一个公开首页');
   const noteMap = new Map(notes.map(note => [note.file, note]));
-  const assets = new Set(files.filter(file => !file.endsWith('.md')));
+  const assetRoots = notes.flatMap(note => ['examples', 'images'].map(dir => path.join(path.dirname(note.file), dir) + path.sep));
+  const assets = new Set(files.filter(file => !file.endsWith('.md') && assetRoots.some(dir => file.startsWith(dir))));
   const pages = notes.map(note => {
     const content = note.content.replace(/(!?)\[([^\]]*)\]\(<?([^\n)]+?)>?\)/g, (match, image, label, target) => {
       if (/^[a-z][a-z\d+.-]*:/i.test(target)) {
@@ -38,10 +39,10 @@ export function exportPublic(source, website) {
       const fragment = hash === -1 ? '' : target.slice(hash);
       if (!link) return match;
       const resolved = path.resolve(path.dirname(note.file), decodeURIComponent(link));
-      if (!resolved.startsWith(root + path.sep)) throw new Error('链接超出公开目录：' + note.relative);
+      if (!resolved.startsWith(root + path.sep)) throw new Error('链接超出源目录：' + note.relative);
       const linked = noteMap.get(resolved);
       if (linked) return `[${label}](${linked.route}${fragment})`;
-      if (!assets.has(resolved)) throw new Error('找不到公开链接：' + note.relative + ' -> ' + target);
+      if (!assets.has(resolved)) throw new Error('链接指向未公开文档或附件：' + note.relative + ' -> ' + target);
       const assetPath = path.relative(root, resolved).split(path.sep).join('/');
       return `${image}[${label}](/assets/${assetPath}${fragment})`;
     });
@@ -80,5 +81,5 @@ export function exportPublic(source, website) {
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
   const website = fileURLToPath(new URL('../', import.meta.url));
-  console.log(JSON.stringify(exportPublic(path.resolve(website, '../公开发布'), website)));
+  console.log(JSON.stringify(exportPublic(path.resolve(website, '..'), website)));
 }
