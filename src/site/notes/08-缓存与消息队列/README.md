@@ -142,4 +142,4 @@ flowchart TD
 - **缓存专项（英文）**：[Redis 字符串](https://redis.io/docs/latest/develop/data-types/strings/)、[EXPIRE](https://redis.io/docs/latest/commands/expire/)、[内存淘汰](https://redis.io/docs/latest/develop/reference/eviction/)。
 - **消息专项（英文）**：[RabbitMQ 确认](https://www.rabbitmq.com/docs/confirms)、[管理 HTTP API](https://www.rabbitmq.com/docs/http-api-reference)、[死信](https://www.rabbitmq.com/docs/dlx)：按服务与客户端版本核对，接入教程不代替可靠性语义。
 
-[返回总纲](../后端入坑计划.md)
+[返回总纲](../后端入门计划.md)

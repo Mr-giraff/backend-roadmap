@@ -120,4 +120,4 @@ flowchart TD
 - **协议核对**：[HTTP 语义 RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html)。
 - **Java 8 兼容核查**：[Spring Boot 2.7 文档](https://docs.spring.io/spring-boot/docs/2.7.18/reference/htmlsingle/)仅用于相应遗留项目；不能把本章的 Java 25 与 Jakarta 配置直接复制回去。
 
-[返回总纲](../后端入坑计划.md)
+[返回总纲](../后端入门计划.md)

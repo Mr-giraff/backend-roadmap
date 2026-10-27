@@ -127,4 +127,4 @@ flowchart TD
 - **框架核对**：[Spring 6.2 声明式事务](https://docs.spring.io/spring-framework/reference/6.2/data-access/transaction/declarative.html)与 [DataSourceTransactionManager 6.2.19](https://docs.spring.io/spring-framework/docs/6.2.19/javadoc-api/org/springframework/jdbc/datasource/DataSourceTransactionManager.html)：代理、传播、线程与资源边界。
 - **Java 8 兼容核查**：[Spring 5.2 事务文档](https://docs.spring.io/spring-framework/docs/5.2.6.RELEASE/spring-framework-reference/data-access.html#transaction-declarative)用于对照相应遗留版本，不作为 Java 25 学习工程依赖。
 
-[返回总纲](../后端入坑计划.md)
+[返回总纲](../后端入门计划.md)

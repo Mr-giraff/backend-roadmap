@@ -144,4 +144,4 @@ flowchart TD
 - **运行专项（英文）**：[OpenTelemetry](https://opentelemetry.io/docs/concepts/observability-primer/)、[Kubernetes 探针](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)、[Docker 镜像](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-an-image/)。
 - **恢复专项（英文）**：[MySQL mysqldump](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html)、[Google SRE 服务目标](https://sre.google/sre-book/service-level-objectives/)。
 
-[返回总纲](../后端入坑计划.md)
+[返回总纲](../后端入门计划.md)

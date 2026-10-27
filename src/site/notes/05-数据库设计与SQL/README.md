@@ -141,4 +141,4 @@ flowchart TD
 - **专项核对（英文）**：[MySQL CREATE TABLE](https://dev.mysql.com/doc/refman/8.0/en/create-table.html)、[SELECT](https://dev.mysql.com/doc/refman/8.0/en/select.html)、[EXPLAIN](https://dev.mysql.com/doc/refman/8.0/en/explain.html)：约束、查询计划和版本行为。
 - **迁移与事务边界（英文）**：[Flyway 版本化迁移](https://documentation.red-gate.com/fd/versioned-migrations-273973333.html)、[MySQL 隐式提交](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html)：工具按工程选型。
 
-[返回总纲](../后端入坑计划.md)
+[返回总纲](../后端入门计划.md)

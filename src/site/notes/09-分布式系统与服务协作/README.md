@@ -146,4 +146,4 @@ flowchart TD
 - **一致性与确认（英文）**：[Transactional Outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)、[RabbitMQ 确认](https://www.rabbitmq.com/docs/confirms)。
 - **进阶原始资料（英文）**：[CAP 论文](https://www.comp.nus.edu.sg/~gilbert/pubs/BrewersConjecture-SigAct.pdf)、[Raft 论文](https://raft.github.io/raft.pdf)：中文案例并不替代模型与保证的精确定义。
 
-[返回总纲](../后端入坑计划.md)
+[返回总纲](../后端入门计划.md)
