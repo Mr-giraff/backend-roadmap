@@ -129,15 +129,17 @@ flowchart TD
 | --- | --- | --- |
 | Redis 运行与性能 | 本页缓存基础、[13](../13-部署运维与故障排查/README.md) | 热键、大键、慢命令、连接池、序列化体积、持久化与故障切换 |
 | 缓存一致性 | [06](../06-事务与数据一致性/README.md)、[09](../09-分布式系统与服务协作/README.md) | 失效失败恢复、版本与事件驱动更新、按业务选择强一致路径 |
-| 真实客户端集成 | [03](../03-HTTP与Spring服务开发/README.md)、[07](../07-并发与异步编程/README.md) | Java 8 兼容客户端、AMQP 手动确认、prefetch 和并发上限 |
+| 真实客户端集成 | [03](../03-HTTP与Spring服务开发/README.md)、[07](../07-并发与异步编程/README.md) | 与 Java 25/框架版本兼容的客户端、AMQP 手动确认、prefetch 和并发上限；公司 Java 8 另选兼容版本 |
 | 消息双写与恢复 | [09](../09-分布式系统与服务协作/README.md) | Outbox、幂等消费、补偿和对账 |
 | 消息产品差异 | 一套队列实验完成后 | Kafka 分区/偏移量/消费组与 RabbitMQ 队列/确认的差异 |
 
+通用 Java 学习按 Java 25；公司业务案例保留 Java 8 兼容要求。中文主读顺序与环境边界见 [学习版本与中文资料](../参考资料/学习版本与中文资料.md)。
+
 ## 参考资料
 
-- [Redis 基本数据类型](https://redis.io/docs/latest/develop/data-types/strings/)与 [淘汰机制](https://redis.io/docs/latest/develop/reference/eviction/)。
-- [RabbitMQ 确认机制](https://www.rabbitmq.com/docs/confirms)。
-- [RabbitMQ 管理 HTTP API](https://www.rabbitmq.com/docs/http-api-reference)。
-- [RabbitMQ 死信](https://www.rabbitmq.com/docs/dlx)。
+- **中文主读**：[廖雪峰 访问 Redis](https://liaoxuefeng.com/books/java/springboot/integration/redis/index.html)与 [集成 RabbitMQ](https://liaoxuefeng.com/books/java/springboot/integration/rabbitmq/index.html)：先读客户端接入和业务例子。
+- **Java 补充**：[Dev.java](https://dev.java/learn/)：Java API 与并发基础，不能替代下面的消息和缓存保证。
+- **缓存专项（英文）**：[Redis 字符串](https://redis.io/docs/latest/develop/data-types/strings/)、[EXPIRE](https://redis.io/docs/latest/commands/expire/)、[内存淘汰](https://redis.io/docs/latest/develop/reference/eviction/)。
+- **消息专项（英文）**：[RabbitMQ 确认](https://www.rabbitmq.com/docs/confirms)、[管理 HTTP API](https://www.rabbitmq.com/docs/http-api-reference)、[死信](https://www.rabbitmq.com/docs/dlx)：按服务与客户端版本核对，接入教程不代替可靠性语义。
 
 [返回总纲](../后端入坑计划.md)

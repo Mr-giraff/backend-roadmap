@@ -109,11 +109,13 @@ flowchart TD
 | 复杂领域建模 | 规则确实复杂后 | 业务语言、实体、值对象、聚合、限界上下文；比较事务脚本和领域模型 |
 | 读写分离与演进 | [10 系统设计](../10-系统设计/README.md)、[11 测试](../11-测试与质量保障/README.md) | 理解 CQRS、事件溯源、六边形各自用途，先固定行为再逐步调整，不先拆微服务 |
 
+通用 Java 学习按 Java 25；公司业务案例保留 Java 8 兼容要求。中文主读顺序与环境边界见 [学习版本与中文资料](../参考资料/学习版本与中文资料.md)。
+
 ## 参考资料
 
-- [Service Layer](https://martinfowler.com/eaaCatalog/serviceLayer.html)。
-- [Repository](https://martinfowler.com/eaaCatalog/repository.html)。
-- [Data Transfer Object](https://martinfowler.com/eaaCatalog/dataTransferObject.html)。
-- [DDD 架构指南](https://learn.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/ddd-oriented-microservice)。
+- **中文主读**：[廖雪峰 面向对象编程](https://liaoxuefeng.com/books/java/oop/index.html)与 [IoC 容器](https://liaoxuefeng.com/books/java/spring/ioc/index.html)：先理解对象协作和依赖，再看业务分层。
+- **Java 补充**：[Dev.java](https://dev.java/learn/)：对象、接口与现代 Java 类型；不能用语言特性代替业务边界设计。
+- **专项核对（英文）**：[Service Layer](https://martinfowler.com/eaaCatalog/serviceLayer.html)、[Repository](https://martinfowler.com/eaaCatalog/repository.html)、[DTO](https://martinfowler.com/eaaCatalog/dataTransferObject.html)：职责和模式原意。
+- **进阶参考**：[Microsoft DDD 指南](https://learn.microsoft.com/zh-cn/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/ddd-oriented-microservice)：中文概念说明，语言示例不直接迁入 Java。
 
 [返回总纲](../后端入坑计划.md)

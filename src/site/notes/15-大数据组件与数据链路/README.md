@@ -14,7 +14,7 @@
 
 ## 目标与前置条件
 
-目标是讲清一条数据链路各组件的职责，能验证计算口径、运行过程与数据结果，并定位错误或时效问题。
+目标是讲清一条数据链路各组件的职责，能验证计算口径、运行过程与数据结果，并定位错误或时效问题。Java 语言与客户端学习主线为 25；Spark、Flink、Hive、Hadoop 按各自版本支持的 JDK 独立建环境，不能因主线升级而强行切换引擎运行 JDK。
 
 先具备 [05 SQL](../05-数据库设计与SQL/README.md)基础；恢复与端到端一致性补 [09](../09-分布式系统与服务协作/README.md)。
 
@@ -139,12 +139,14 @@ flowchart TD
 | 治理与资产 | 12 | 元数据采集、责任人、资产目录、敏感字段、脱敏及审计 |
 | 变更与修复 | 06、09、13 | 回填、补数、重跑、版本发布和下游重复消费或中间状态的影响 |
 
+通用 Java 学习按 Java 25；公司业务案例保留 Java 8 兼容要求。中文主读顺序与环境边界见 [学习版本与中文资料](../参考资料/学习版本与中文资料.md)。
+
 ## 参考资料
 
-- [Hadoop / YARN](https://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/YARN.html)。
-- [Hive Quickstart](https://hive.apache.org/development/quickstart/)。
-- [Spark 集群概览](https://spark.apache.org/docs/latest/cluster-overview.html)。
-- [Flink 1.17 SQL 窗口](https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/dev/table/sql/queries/window-tvf/)。
-- [StarRocks 架构](https://docs.starrocks.io/docs/introduction/Architecture/)。
+- **中文前置主读**：[廖雪峰 SQL](https://liaoxuefeng.com/books/sql/introduction/index.html)与 [JDBC](https://liaoxuefeng.com/books/java/jdbc/index.html)：掌握查询和数据访问；它们不覆盖 Hive/Spark/Flink 引擎机制。
+- **中文专项主读**：[Flink 1.17 窗口](https://nightlies.apache.org/flink/flink-docs-release-1.17/zh/docs/dev/table/sql/queries/window-tvf/)、[StarRocks 架构](https://docs.starrocks.io/zh/docs/introduction/Architecture/)：对应时间窗口和分析引擎。
+- **Java 补充**：[Dev.java](https://dev.java/learn/)：Java 客户端与运行背景；引擎运行 JDK 仍按对应版本单独核对。
+- **英文专项**：[Hadoop/YARN](https://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/YARN.html)、[Hive Quickstart](https://hive.apache.org/development/quickstart/)、[Spark 集群](https://spark.apache.org/docs/latest/cluster-overview.html)与 [SQL 内联表](https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-inline-table.html)：按实际引擎版本查阅。
+- **Flink 连接器核对（英文）**：[文件系统](https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/filesystem/)、[CSV](https://nightlies.apache.org/flink/flink-docs-release-1.17/docs/connectors/table/formats/csv/)。
 
 [返回总纲](../后端入坑计划.md)

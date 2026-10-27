@@ -134,12 +134,14 @@ flowchart TD
 | 多服务故障 | [09](../09-分布式系统与服务协作/README.md) | 预算、过载传播、采样追踪、异步积压与恢复 |
 | 多机与数据恢复 | 一次独立恢复成功后 | 多系统恢复点、对象文件、消息、补偿与对账，按实际需要深入容灾 |
 
+通用 Java 学习按 Java 25；公司业务案例保留 Java 8 兼容要求。中文主读顺序与环境边界见 [学习版本与中文资料](../参考资料/学习版本与中文资料.md)。
+
 ## 参考资料
 
-- [JDK 故障排查](https://docs.oracle.com/javase/8/docs/technotes/guides/troubleshoot/)。
-- [OpenTelemetry 可观测性](https://opentelemetry.io/docs/concepts/observability-primer/)。
-- [Kubernetes 探针](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)。
-- [Docker 镜像](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-an-image/)。
-- [MySQL mysqldump](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html)。
+- **中文主读基础**：[廖雪峰 日志入门](https://liaoxuefeng.com/books/java/exception/jdk-logging/index.html)：认识日志与代码位置；JVM 诊断、发布和恢复继续读专项资料。
+- **Java 补充**：[Dev.java 核心 JDK 工具](https://dev.java/learn/jvm/core-tools/)与 [JFR、监控和排查](https://dev.java/learn/jvm/monitoring-troubleshooting/)。
+- **Java 25 规范核对（英文）**：[JDK 25 故障排查指南](https://docs.oracle.com/en/java/javase/25/troubleshoot/)：工具匹配实际运行 JDK；公司 Java 8 服务使用对应版本工具和文档。
+- **运行专项（英文）**：[OpenTelemetry](https://opentelemetry.io/docs/concepts/observability-primer/)、[Kubernetes 探针](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)、[Docker 镜像](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-an-image/)。
+- **恢复专项（英文）**：[MySQL mysqldump](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html)、[Google SRE 服务目标](https://sre.google/sre-book/service-level-objectives/)。
 
 [返回总纲](../后端入坑计划.md)

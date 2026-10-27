@@ -119,12 +119,13 @@ flowchart TD
 | 文件和网络出口 | 本页输入边界；结合 [13](../13-部署运维与故障排查/README.md) | 上传下载隔离、DNS/重定向/目标范围与出口联合约束，避免片段检查冒充完整防护 |
 | 数据安全与审计治理 | 本页秘密及 [15](../15-大数据组件与数据链路/README.md) | 敏感数据、加密与密钥、审计权限和保留周期，按平台能力拆场景验证 |
 
+通用 Java 学习按 Java 25；公司业务案例保留 Java 8 兼容要求。中文主读顺序与环境边界见 [学习版本与中文资料](../参考资料/学习版本与中文资料.md)。
+
 ## 参考资料
 
-- [OWASP Authorization](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)。
-- [OWASP REST Security](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html)。
-- [OWASP SQL Injection Prevention](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html)。
-- [OWASP Password Storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)。
-- [OWASP SSRF Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html)。
+- **中文主读**：[廖雪峰 加密与安全](https://liaoxuefeng.com/books/java/security/index.html)：编码、哈希、口令与证书基础，认证授权规则仍按本路线与安全指南学习。
+- **Java 补充**：[Dev.java 安全学习入口](https://dev.java/learn/)：JDK 加密、证书与安全工具背景。
+- **授权与协议专项（英文）**：[OWASP Authorization](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)、[REST Security](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html)。
+- **输入与秘密专项（英文）**：[SQL Injection Prevention](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html)、[Password Storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)、[SSRF Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html)。
 
 [返回总纲](../后端入坑计划.md)

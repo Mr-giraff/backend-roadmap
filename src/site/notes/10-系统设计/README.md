@@ -126,11 +126,13 @@ flowchart TD
 | 发布与演进 | 02、11、13 | 新旧版本共存、结构迁移、灰度、回滚与观测验证 |
 | 数据产品设计 | 15 | 指标口径、时效、质量和多引擎约束对产品方案的影响 |
 
+通用 Java 学习按 Java 25；公司业务案例保留 Java 8 兼容要求。中文主读顺序与环境边界见 [学习版本与中文资料](../参考资料/学习版本与中文资料.md)。
+
 ## 参考资料
 
-- [Google SRE 服务目标](https://sre.google/sre-book/service-level-objectives/)。
-- [Google SRE 过载处理](https://sre.google/sre-book/handling-overload/)。
-- [AWS Well-Architected](https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html)。
-- [OpenTelemetry 概念](https://opentelemetry.io/docs/concepts/observability-primer/)。
+- **中文主读案例**：[廖雪峰 项目架构设计](https://liaoxuefeng.com/books/java/springcloud/architecture/index.html)：学习从业务拆职责，结合本路线的容量、失败和验证方法，不视为完整系统设计教材。
+- **Java 原型补充**：[Dev.java](https://dev.java/learn/)：需要编写 Java 验证程序时查阅；容量、SLO 与恢复设计按专项资料学习。
+- **可靠性与容量（英文）**：[Google SRE 服务目标](https://sre.google/sre-book/service-level-objectives/)、[过载处理](https://sre.google/sre-book/handling-overload/)。
+- **评审维度（英文）**：[AWS Well-Architected](https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html)、[OpenTelemetry 可观测性](https://opentelemetry.io/docs/concepts/observability-primer/)。
 
 [返回总纲](../后端入坑计划.md)

@@ -132,12 +132,13 @@ flowchart TD
 | 数据演进与恢复 | 迁移基础及 [13](../13-部署运维与故障排查/README.md) | 大表 DDL、归档、备份恢复与对账，评估停机和数据丢失目标 |
 | 架构扩展 | 本页与 [09](../09-分布式系统与服务协作/README.md) | 复制延迟、读写分离、分区分片及跨分区查询的代价 |
 
+通用 Java 学习按 Java 25；公司业务案例保留 Java 8 兼容要求。中文主读顺序与环境边界见 [学习版本与中文资料](../参考资料/学习版本与中文资料.md)。
+
 ## 参考资料
 
-- [MySQL CREATE TABLE](https://dev.mysql.com/doc/refman/8.0/en/create-table.html)：结构与约束。
-- [MySQL 索引](https://dev.mysql.com/doc/refman/8.0/en/optimization-indexes.html)：访问结构与代价。
-- [MySQL EXPLAIN](https://dev.mysql.com/doc/refman/8.0/en/explain.html)：计划分析。
-- [JDBC 参数查询](https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html)：安全传参。
-- [Flyway 版本化迁移](https://documentation.red-gate.com/fd/versioned-migrations-273973333.html)：迁移工具示例，版本跟随工程。
+- **中文主读**：[廖雪峰 SQL 教程](https://liaoxuefeng.com/books/sql/introduction/index.html)与 [JDBC 编程](https://liaoxuefeng.com/books/java/jdbc/index.html)：查询、关系与 Java 数据访问。
+- **Java 补充**：[Dev.java](https://dev.java/learn/)：Java 类型与资源管理背景；SQL 语义按数据库文档核对。
+- **专项核对（英文）**：[MySQL CREATE TABLE](https://dev.mysql.com/doc/refman/8.0/en/create-table.html)、[SELECT](https://dev.mysql.com/doc/refman/8.0/en/select.html)、[EXPLAIN](https://dev.mysql.com/doc/refman/8.0/en/explain.html)：约束、查询计划和版本行为。
+- **迁移与事务边界（英文）**：[Flyway 版本化迁移](https://documentation.red-gate.com/fd/versioned-migrations-273973333.html)、[MySQL 隐式提交](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html)：工具按工程选型。
 
 [返回总纲](../后端入坑计划.md)

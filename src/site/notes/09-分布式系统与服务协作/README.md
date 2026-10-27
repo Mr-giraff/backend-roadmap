@@ -136,11 +136,14 @@ flowchart TD
 
 先比较唯一约束、条件更新、幂等状态机，再决定是否需要分布式锁；不要求手写共识协议或自建注册中心。
 
+通用 Java 学习按 Java 25；公司业务案例保留 Java 8 兼容要求。中文主读顺序与环境边界见 [学习版本与中文资料](../参考资料/学习版本与中文资料.md)。
+
 ## 参考资料
 
-- [AWS 超时、重试与随机退避](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/)。
-- [AWS Transactional Outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)。
-- [Spring Cloud 公共抽象](https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/common-abstractions.html)：配置按项目版本核对。
-- [CAP 原始论文](https://www.comp.nus.edu.sg/~gilbert/pubs/BrewersConjecture-SigAct.pdf)、[Raft 原始论文](https://raft.github.io/raft.pdf)。
+- **中文主读**：[廖雪峰 Spring Cloud 开发](https://liaoxuefeng.com/books/java/springcloud/index.html)与 [项目架构设计](https://liaoxuefeng.com/books/java/springcloud/architecture/index.html)：用于理解服务职责与协作案例。
+- **Java 实现补充**：[Dev.java](https://dev.java/learn/)：语言、并发和运行背景；分布式一致性继续读专项资料。
+- **可靠调用（英文）**：[AWS 超时、重试与退避](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/)。
+- **一致性与确认（英文）**：[Transactional Outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)、[RabbitMQ 确认](https://www.rabbitmq.com/docs/confirms)。
+- **进阶原始资料（英文）**：[CAP 论文](https://www.comp.nus.edu.sg/~gilbert/pubs/BrewersConjecture-SigAct.pdf)、[Raft 论文](https://raft.github.io/raft.pdf)：中文案例并不替代模型与保证的精确定义。
 
 [返回总纲](../后端入坑计划.md)

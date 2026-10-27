@@ -15,7 +15,7 @@
 
 ## 前置条件与学习方法
 
-已有 JS 编程经验即可开始；与 [02 工程构建](../02-工程构建与研发流程/README.md)交叉完成编译和运行的入门部分。项目练习采用 Java 8 可用语法与 API；实际运行 JDK 按工程核对。
+已有 JS 编程经验即可开始；与 [02 工程构建](../02-工程构建与研发流程/README.md)交叉完成编译和运行的入门部分。独立学习主线使用 Java 25，版本与资料顺序见 [学习版本与中文资料](../参考资料/学习版本与中文资料.md)。旧项目另按其兼容目标核对。
 
 按下面四步推进，每完成一阶段再勾选对应能力：
 
@@ -53,8 +53,9 @@ flowchart TD
 - [ ] **实现** 声明基本类型与字符串，区分整数、布尔值、包装类型和 null。
 - [ ] **实现** 字符串拼接、长度读取与 equals 比较，知道字符串 `==` 比较什么。
 - [ ] **实现** 条件、循环和数组遍历；区分编译错误与运行异常。
+- [ ] **实现** 局部变量 var 类型推断与 switch 表达式，能够解释推断后的固定类型。
 
-过关证据：为类型不匹配、final 再赋值、文本比较各给出一个最小例子，预测并核对结果。
+主线补充：[现代写法阅读与对照](典型案例.md#java-25-主线补充)。过关证据：为类型不匹配、final 再赋值、文本比较各给出一个最小例子，预测并核对结果。
 
 ### 2. 方法、类与对象
 
@@ -65,6 +66,7 @@ flowchart TD
 - [ ] **实现** 参数、返回类型、void、static 方法与实例方法。
 - [ ] **实现** 字段、构造方法、访问修饰符和对象创建；知道字段与局部变量的区别。
 - [ ] **理解** 值传递、引用与对象可变性，解释修改字段与重新赋值参数的差别。
+- [ ] **实现** 用 record 表达简单数据载体，与普通类、构造方法和访问器比较。
 
 过关证据：写一个只有名称和问候方法的类；修改对象与替换方法参数后，说明调用方最终看到什么。
 
@@ -89,6 +91,7 @@ flowchart TD
 - [ ] **实现** 泛型类和类型参数，理解 `Box<String>` 限制的内容。
 - [ ] **实现** List 的增删查、Map 的 put/get、Set 的去重；知道接口和实现类分别是什么。
 - [ ] **理解** ArrayList、HashMap、HashSet 的典型用途；明确同键覆盖与元素去重的规则。
+- [ ] **实现** List.of、Set.of、Map.of，验证不可修改集合和可变元素的边界。
 
 过关证据：用最小样本分别证明按位置读取、按键读取和去重；错误元素类型按预期编译失败。
 
@@ -156,10 +159,10 @@ flowchart TD
 
 ## 参考资料
 
-- [Java 8 语言教程](https://docs.oracle.com/javase/tutorial/java/)：按概念查阅类型、方法、类、接口与泛型。
-- [Java 集合教程](https://docs.oracle.com/javase/tutorial/collections/)：集合接口、实现与基本算法。
-- [Java 8 基础类教程](https://docs.oracle.com/javase/tutorial/essential/)：异常、IO 与资源。
-- [Java 8 BigDecimal API](https://docs.oracle.com/javase/8/docs/api/java/math/BigDecimal.html)：深入数值契约。
-- [Dev.java](https://dev.java/learn/)：现代 Java 选学，示例按所用版本核对；var、List.of、文本块等不直接用于 Java 8 工程。
+- **中文主读：** [廖雪峰 Java 快速入门](https://liaoxuefeng.com/books/java/quick-start/index.html)、[面向对象](https://liaoxuefeng.com/books/java/oop/index.html)：对应类型、方法、类和接口。
+- **中文主读：** [泛型](https://liaoxuefeng.com/books/java/generics/index.html)、[集合](https://liaoxuefeng.com/books/java/collection/index.html)、[函数式编程](https://liaoxuefeng.com/books/java/functional/index.html)：对应容器类型与批量处理。
+- **Java 25 主线补充：** [廖雪峰记录类](https://liaoxuefeng.com/books/java/oop/core/record/index.html)、[switch 表达式](https://liaoxuefeng.com/books/java/quick-start/flow/switch/index.html)；[Dev.java 语言基础](https://dev.java/learn/language/constructs/)与[集合和 Stream](https://dev.java/learn/api/collections-and-streams/)用于补充现代特性和核对边界。
+- **精确语义查阅：** [Java 25 BigDecimal API](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/math/BigDecimal.html)；英文 API 用来核对具体方法，不替代中文入门主读。
+- **旧项目兼容查阅：** [Oracle Java 8 教程](https://docs.oracle.com/javase/tutorial/java/)，仅用于确认 Java 8 可用语法与 API。
 
 [返回总纲](../后端入坑计划.md)
