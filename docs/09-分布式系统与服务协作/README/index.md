@@ -11,11 +11,17 @@
 | 恢复与治理 | 控制资源、发现卡住工作并收尾 | 重试、状态刷新与错误提示 | 需要服务侧查询、补偿、对账和受控恢复 |
 | 复制与共识 | 在多个副本间定义可见与提交规则 | 多端同步仅有局部相似 | 网络分区、时钟和节点故障需要明确模型 |
 
+## 本阶段学习定位
+
+**按需深入。** 服务发现、配置和 RPC 上手先走 16；本路线用于幂等、部分成功、消息一致性和恢复等可靠性问题。
+
 ## 目标与前置条件
 
 能够为每个失败点说明“是否执行、是否提交、怎样确认、谁来恢复”，并验证重复请求不会增加错误业务结果。
 
-起步需要 [03 接口](/03-HTTP与Spring服务开发/README/)、[06 本地事务](/06-事务与数据一致性/README/)；消息部分先完成 [08 确认与幂等消费](/08-缓存与消息队列/README/)。结合 [07](/07-并发与异步编程/README/)理解线程、截止时间和资源边界。
+深入持久化与恢复时需要 [03 接口](/03-HTTP与Spring服务开发/README/)、[06 本地事务](/06-事务与数据一致性/README/)；消息部分先完成 [08 Kafka 消费位置与重复处理](/08-缓存与消息队列/README/)。结合 [07](/07-并发与异步编程/README/)理解线程、截止时间和资源边界。
+
+服务框架上手见 [16 微服务开发与注册配置](/16-微服务开发与注册配置/README/)。
 
 ## 学习顺序
 
@@ -143,7 +149,7 @@ flowchart TD
 - **中文主读**：[廖雪峰 Spring Cloud 开发](https://liaoxuefeng.com/books/java/springcloud/index.html)与 [项目架构设计](https://liaoxuefeng.com/books/java/springcloud/architecture/index.html)：用于理解服务职责与协作案例。
 - **Java 实现补充**：[Dev.java](https://dev.java/learn/)：语言、并发和运行背景；分布式一致性继续读专项资料。
 - **可靠调用（英文）**：[AWS 超时、重试与退避](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/)。
-- **一致性与确认（英文）**：[Transactional Outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)、[RabbitMQ 确认](https://www.rabbitmq.com/docs/confirms)。
+- **一致性与确认（英文）**：[Transactional Outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)、[Kafka 生产配置](https://kafka.apache.org/42/configuration/producer-configs/)与[消费位置](https://kafka.apache.org/42/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html)。
 - **进阶原始资料（英文）**：[CAP 论文](https://www.comp.nus.edu.sg/~gilbert/pubs/BrewersConjecture-SigAct.pdf)、[Raft 论文](https://raft.github.io/raft.pdf)：中文案例并不替代模型与保证的精确定义。
 
 [返回总纲](/)

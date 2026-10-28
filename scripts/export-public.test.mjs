@@ -85,3 +85,18 @@ test('editing the original document updates the generated site directly', t => {
   exportPublic(source, website);
   assert.match(fs.readFileSync(path.join(website, 'docs/01/README/index.md'), 'utf8'), /只修改这份原文/);
 });
+
+test('nested learning units keep the parent roadmap and distinct sidebar titles', t => {
+  const { source, website } = fixture(t);
+  fs.mkdirSync(path.join(source, '15/01-基础'), { recursive: true });
+  fs.writeFileSync(path.join(source, '15/README.md'), '---\npublish: true\n---\n# 大数据 Roadmap\n');
+  fs.writeFileSync(path.join(source, '15/01-基础/README.md'), '---\npublish: true\n---\n# 分布式计算基础 Roadmap\n');
+  fs.writeFileSync(path.join(source, '15/01-基础/典型案例.md'), '---\npublish: true\n---\n# 分布式计算基础典型案例\n');
+  exportPublic(source, website);
+  const sidebar = JSON.parse(fs.readFileSync(path.join(website, 'docs/.vitepress/sidebar.json'), 'utf8'));
+  const section = sidebar.find(item => item.text === '15 大数据');
+  assert.ok(section);
+  assert.deepEqual(section.items.map(item => item.text), [
+    '学习路线', '分布式计算基础 Roadmap', '分布式计算基础典型案例'
+  ]);
+});

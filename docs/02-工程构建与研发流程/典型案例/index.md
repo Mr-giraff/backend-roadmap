@@ -17,6 +17,8 @@
 
 先学工具与工程的基本概念，再读最后的双模块综合案例。独立示例以 JDK 25 为学习环境，保留显式类和 main 的基础写法；类、方法、异常和资源关闭可对照 [01 典型案例](/01-Java语言与JVM基础/典型案例/)。
 
+当前学习范围：前面先跑通最小工程；双模块案例后继续做 Maven 核心补练，把依赖声明、版本来源和实际加载的 JAR 对齐。
+
 ## 一 JDK 提供工具，JVM 负责执行程序
 
 JDK 是 Java 开发工具集合，包含编译器等工具以及运行所需能力。JVM 是执行 Java 字节码的运行环境。两个常用命令分别负责不同步骤：
@@ -396,6 +398,49 @@ java -cp "$demo_app_jar" study.application.Main
 3. 运行双模块工程时去掉公共 JAR，再补回。能根据缺失类的名称定位依赖，说明“代码包依赖”与“另一个服务调用”的区别。
 
 先用自己的话解释编译、打包、运行三步，再对照本文的输出验证。完整能力范围与进度仍按 [02 Roadmap](/02-工程构建与研发流程/README/)检查。
+
+## 十 Maven 核心补练 依赖版本从哪里来
+
+前面已经用 dependencies 引入公共模块。现在比较“管理版本”和“真正引入”两个动作，它们像前端集中约定依赖版本与某个应用实际引用依赖的区别。
+
+父 POM 可以集中管理公共模块版本，下面是位于 project 内的配置片段：
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>study.backend</groupId>
+            <artifactId>greeting-contract</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+继承此父 POM 的 application 仍要在自己的 dependencies 内声明：
+
+```xml
+<dependency>
+    <groupId>study.backend</groupId>
+    <artifactId>greeting-contract</artifactId>
+</dependency>
+```
+
+结果是：父配置提供版本，子模块决定使用它。只有 dependencyManagement、没有实际 dependency，不会让 GreetingRequest 自动进入类路径。已有示例采用子模块显式指定版本的写法，两种布局都需要核对最终解析结果。
+
+在双模块根目录，先安装学习产物，再查看 application：
+
+```bash
+mvn install
+mvn -pl application dependency:tree -Dincludes=study.backend:greeting-contract
+mvn -pl application help:effective-pom -Doutput=target/effective-pom.xml
+```
+
+依赖树用于确认解析出的 `study.backend:greeting-contract:jar:1.0-SNAPSHOT`；effective POM 用于查看继承、属性和插件合并后的配置。输出文件位于 application 的 target 目录。命令需要匹配的 JDK 25 与可用 Maven 插件；这里定义预期检查，不记为本机已执行。
+
+练习：在学习副本中使用上述集中版本配置，去掉 application 的版本声明，比较构建和依赖树；随后只移除 dependencyManagement 并观察缺失版本错误。每次只改一处，说明“版本没解析出来”和“运行时没有 JAR”的区别。
+
+进入微服务后，同样方法用于核对 Spring Cloud BOM、Dubbo 接口包和实际客户端版本。BOM 管版本，不证明框架组合或公司 Java 8 环境已兼容。[Maven 依赖管理](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html)
 
 ## 环境与参考资料
 

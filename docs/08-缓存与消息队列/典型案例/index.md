@@ -8,13 +8,13 @@
 
 | 前端已经会的事 | 后端对应能力 | 需要补上的差异 |
 | --- | --- | --- |
-| 暂存一次接口结果 | 缓存查询结果 | 多个服务实例共享结果，失效和权限范围要明确 |
-| 给数据设置有效期 | Redis TTL | 过期可能触发大量请求同时访问数据库 |
-| 发出事件，让其他模块处理 | 消息发布与消费 | 接收方可能是另一进程，也可能暂时不在线 |
-| 请求失败后重试 | 消息重投与幂等处理 | 同一业务可能已成功，不能再次产生副作用 |
-| 控制并发请求数 | 消费并发、预取与积压控制 | 需要同时保护线程、数据库连接和下游配额 |
+| 暂存一次接口结果 | Redis 缓存 | 多实例共享，失效与权限范围需明确 |
+| 给结果设置有效期 | TTL | 到期后可能同时产生大量数据库查询 |
+| 发出事件，让其他模块处理 | Kafka 生产与消费 | 接收方是另一进程，按消费组保存读取进度 |
+| 请求失败后重试 | 事件重放与幂等 | 同一事件可能已经成功，重放不能重复产生业务结果 |
+| 控制并发请求数 | 分区分工与消费能力 | 分区数、处理时限、数据库和下游容量共同限制速度 |
 
-先学缓存，再学消息。每节的命令只操作独立学习环境；需要已有本地 Redis、RabbitMQ 管理接口及测试账号。本文提供操作与预期结果，没有启动基础设施，也没有将预期写成实测结果。
+本章学到能使用和排查 Redis、Kafka。先逐点看最小例子，再组合场景。命令仅操作隔离的本地学习环境；缓存一致性与消息双写等复杂方案按需进入 [09](/09-分布式系统与服务协作/README/)。
 
 ## 一 缓存保存可重建的结果
 
@@ -105,92 +105,117 @@ TTL 是按时间失效；内存淘汰是在容量不足时按策略回收键。�
 
 ## 五 消息把工作交给独立消费者
 
-消息队列保存待处理的信息，让消费者稍后处理。与页面事件不同，发布者和消费者可以运行在不同进程中。
+Kafka 保存事件，消费者按自己的进度读取。生产者不必等待欢迎通知真正写入，代价是要分开跟踪事件与业务结果。
 
-先定义一条完整消息：
+先定义一条业务事件：
 
 ```json
 {"eventId":"evt-1","userId":7,"type":"WELCOME_REQUESTED"}
 ```
 
-这里 eventId 标识这次事件，userId 标识业务对象。两次投递同一个事件，应保留同一 eventId，不能每次重试都换编号。
+`eventId` 标识同一次业务事件；重复发送仍保留这个编号。`userId` 是业务对象，两者用途不同。
+
+| 名称 | 在本例里是什么 |
+| --- | --- |
+| producer | 注册服务，把事件写给 Kafka |
+| broker | 保存、复制并提供读取记录的 Kafka 服务进程 |
+| controller | 管理 Kafka 集群元数据与分区 leader 等协调工作；4.2 使用 KRaft |
+| topic | 一类事件的名称，例如 roadmap.welcome |
+| partition | topic 中的一条有序记录序列；不同分区可分给不同消费者 |
+| consumer / group | 读取程序 / 一组协作读取程序；各组保存独立进度 |
+| offset | 某分区内记录的位置，不能单独当成全局业务事件编号 |
 
 ```text
-发布者 → 交换机按路由键分发 → 队列保存消息 → 消费者处理
+注册服务 → topic 的某个 partition → 欢迎通知消费组 → 通知数据库
+                                      ↓
+                                  统计消费组
 ```
 
-本节使用 RabbitMQ 的 direct 交换机：路由键相同的绑定接收消息。下节先用管理 HTTP API 观察消息，业务消费则需要消息客户端的确认机制。
+两个消费组可分别处理同一批事件。同一个普通消费组内，一个分区同一时刻分配给一个消费者；增加消费者可以重新分工，超过分区数的消费者可能空闲。应用连接 broker，controller 负责集群协调，并不替应用执行通知业务。[Kafka 概念](https://kafka.apache.org/42/getting-started/introduction/)
 
-## 六 先观察一条消息怎样进入队列
+## 六 先观察一条消息怎样进入 Kafka
 
-以下命令采用所引 RabbitMQ HTTP API 文档的 publish PUT 接口，运行时应核对本地服务对应版本。只对已经启用管理插件的本地学习环境执行，guest:guest 是该环境的演示账号。
+以下命令在已经解压的 Kafka **4.2** 分发目录执行，假设独立学习 broker 在 `127.0.0.1:9092` 可用，且 topic 名未被其他练习使用。服务启动可按 [官方 Quick Start](https://kafka.apache.org/42/getting-started/quickstart/)准备；本章不自动格式化数据目录或搭建生产集群。4.2 官方支持 Java 25；公司 Java 8 工程另按实际框架和客户端版本选择依赖。
 
-先创建交换机、队列和绑定：
+创建两分区、单副本的学习 topic：
 
 ```bash
-curl --fail-with-body -u guest:guest -X PUT -H 'content-type: application/json' \
-  http://127.0.0.1:15672/api/exchanges/%2F/roadmap.events \
-  --data '{"type":"direct","durable":false,"auto_delete":false,"internal":false,"arguments":{}}'
-curl --fail-with-body -u guest:guest -X PUT -H 'content-type: application/json' \
-  http://127.0.0.1:15672/api/queues/%2F/roadmap.notify \
-  --data '{"durable":false,"auto_delete":false,"arguments":{"x-queue-type":"classic"}}'
-curl --fail-with-body -u guest:guest -X POST -H 'content-type: application/json' \
-  http://127.0.0.1:15672/api/bindings/%2F/e/roadmap.events/q/roadmap.notify \
-  --data '{"routing_key":"notify","arguments":{}}'
+bin/kafka-topics.sh --bootstrap-server 127.0.0.1:9092 \
+  --create --topic roadmap.welcome --partitions 2 --replication-factor 1
+bin/kafka-topics.sh --bootstrap-server 127.0.0.1:9092 \
+  --describe --topic roadmap.welcome
 ```
 
-`%2F` 表示虚拟主机 `/`。这里的演示队列和交换机没有配置重启持久化保证；不要用这些设置存放真实任务。
+预期看到两个分区。单副本便于观察；它不能容忍该副本所在 broker 的数据丢失。生产集群的副本、controller 和 broker 部署由运维方案决定。
 
-发布前面定义的事件，payload 是消息内容的字符串编码：
+打开一个终端启动生产者：
 
 ```bash
-curl --fail-with-body -u guest:guest -X PUT -H 'content-type: application/json' \
-  http://127.0.0.1:15672/api/exchanges/%2F/roadmap.events/publish \
-  --data '{"properties":{},"routing_key":"notify","payload":"{\"eventId\":\"evt-1\",\"userId\":7,\"type\":\"WELCOME_REQUESTED\"}","payload_encoding":"string"}'
+bin/kafka-console-producer.sh --bootstrap-server 127.0.0.1:9092 \
+  --topic roadmap.welcome --property parse.key=true --property key.separator=:
 ```
 
-预期得到 `{"routed":true}`，表示至少路由到一个队列，尚不能证明通知业务已完成。
-
-取出观察，并让它重新入队：
-
-```bash
-curl --fail-with-body -u guest:guest -X POST -H 'content-type: application/json' \
-  http://127.0.0.1:15672/api/queues/%2F/roadmap.notify/get \
-  --data '{"count":1,"ackmode":"ack_requeue_true","encoding":"auto","truncate":5000}'
-```
-
-响应数组应有这条 payload。再次取仍能看到它。将 ackmode 改为 `ack_requeue_false` 再取，它会被确认并移除，下一次应得到空数组。
-
-这个管理接口适合观察和排查，不应作为生产业务消费者；它把取消息与确认一起完成，不能演示“数据库提交之后才确认”的可靠消费。该顺序由下一节单独说明。
-
-## 七 发布确认与消费确认分别确认什么
-
-确认是对某一段工作完成的说明。RabbitMQ 的两种确认不能互相替代：
-
-| 确认 | 谁发给谁 | 能说明什么 |
-| --- | --- | --- |
-| 发布确认 | broker 发给发布者 | broker 已按协议处理发布；具体保证还取决于队列、持久化及复制配置 |
-| 消费确认 | 消费者发给 broker | 这次投递已经处理，可以从待确认状态移除 |
-
-消费者应先完成业务事务，再确认投递。假设业务是写入一条站内通知：
+输入下列一行，再用 Ctrl-D 退出：
 
 ```text
-收到 evt-1 → 开启数据库事务 → 写通知并提交 → 确认该投递
+7:{"eventId":"evt-1","userId":7,"type":"WELCOME_REQUESTED"}
 ```
 
-| 停止位置 | 数据库 | 恢复后消息可能怎样 |
-| --- | --- | --- |
-| 数据库提交前 | 没有通知 | 重投后重新处理 |
-| 数据库提交后、确认前 | 已有通知 | 仍可能重投，需要去重 |
-| 确认后 | 已有通知 | 该投递通常不再等待处理 |
+冒号左侧的 `7` 是 key，右侧 JSON 是 value。在默认按 key 选分区的配置下，同一 key、相同分区数会落到同一分区；这里不预设一定是 0 还是 1。业务若要求同一对象顺序，还需控制生产顺序、分区策略和消费处理方式。
 
-持久化消息、持久队列和发布确认都需要按实际配置验证；它们仍不会让外部业务自动只执行一次。
+另一个终端观察记录：
+
+```bash
+bin/kafka-console-consumer.sh --bootstrap-server 127.0.0.1:9092 \
+  --topic roadmap.welcome --group roadmap-welcome-observe \
+  --from-beginning --max-messages 1 \
+  --property print.partition=true --property print.offset=true --property print.key=true
+```
+
+新 topic 的预期是一条含分区、offset、key `7` 和 JSON 的记录；具体格式以本地工具输出为准。控制台读取只证明“事件能被读取”，不证明业务已写入通知。
+
+再用新的组 `roadmap-stat-observe` 执行同一命令，它也能读到该事件。`--from-beginning` 在该组没有可用已提交位置时选择较早的位置；已有提交时，它不会自动覆盖进度。Kafka 读取后仍按保留策略保存记录，其他消费组可以继续读取。控制台工具的自动提交行为也不能作为业务提交顺序的证据。
+
+## 七 写入结果与消费位置分别说明什么
+
+生产者发送结果、消费者当前位置、消费者已提交位置，回答三个不同问题：
+
+| 观察项 | 能说明什么 | 尚不能说明什么 |
+| --- | --- | --- |
+| 生产者收到成功结果 | 写入满足当前生产与 broker 配置的要求 | 通知业务已经完成 |
+| `poll` 返回记录 | 消费者已经取得这一批记录，读取位置已向前推进 | 业务处理成功或恢复位置已提交 |
+| 提交 offset 成功 | 此消费组记录了下次恢复的位置 | 外部数据库业务自动只执行一次 |
+
+例如某分区依次读到 offset `0、1、2`。只完成了 0、1 的业务时，可提交的下一位置是 **2**；若把 3 提交了，就把尚未完成的 2 也越过去了。各分区各有位置，不能把不同分区 offset 作大小比较。[位置与手动提交](https://kafka.apache.org/42/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html)
+
+业务消费者关闭自动提交，按下面的顺序处理。这里是行为伪代码，SQL 在下一节具体展开：
+
+```text
+enable.auto.commit = false
+poll 取得记录
+按分区逐条处理：
+    开启数据库事务
+    写入该事件的通知；已处理事件则核对已有结果
+    提交数据库事务
+    记录该分区已连续完成的位置
+提交这些分区的下一读取位置
+```
+
+| 停止位置 | 数据库 | 重启后的可能结果 |
+| --- | --- | --- |
+| 数据库提交前 | 没有通知 | 从旧提交位置重新读取并处理 |
+| 数据库提交后、offset 提交前 | 已有通知 | 再次读取同一事件，需要业务去重 |
+| offset 提交后 | 已有通知 | 从已提交位置继续，记录仍按 Kafka 保留策略保存 |
+
+**不提交 offset 并不会让当前进程下一次 `poll` 自动回到失败记录。** 失败时需要停止处理并重启，或明确暂停、调整位置后再重试；不能继续处理后续记录再越过失败位置提交。
+
+消费者加入、退出或处理过慢，可能引起分区重新分配。此时提交可能失败，业务却已经完成。初学先保持单线程顺序处理，理解恢复和去重；涉及并行、暂停和重平衡回调时再补专门实现。[消费配置](https://kafka.apache.org/42/configuration/consumer-configs/)
+
+生产者幂等与 `acks=all` 也不能替代上述数据库去重。它们保障的范围和结果还受副本等配置影响；“发送没有重复写入”不等于“外部业务恰好执行一次”。[生产配置](https://kafka.apache.org/42/configuration/producer-configs/)
 
 ## 八 用数据库保证同一事件只产生一条记录
 
-幂等处理要让重复事件得到同一业务结果。下面先把“通知”限定为数据库里的一条站内通知，不涉及真正发邮件。
-
-在独立 MySQL 8 学习库中创建：
+本例把通知限定为数据库里的一条站内通知。先在独立 MySQL 学习库中创建：
 
 ```sql
 CREATE TABLE inbox_notice (
@@ -200,7 +225,7 @@ CREATE TABLE inbox_notice (
 ) ENGINE=InnoDB;
 ```
 
-第一次消费 evt-1：
+第一次消费 `evt-1`：
 
 ```sql
 START TRANSACTION;
@@ -210,56 +235,65 @@ COMMIT;
 SELECT event_id, user_id FROM inbox_notice;
 ```
 
-预期只有 `evt-1, 7` 一行，再向 broker 确认投递。第二次直接 INSERT 同一 event_id 会遇到唯一键冲突；消费者应确认这是同一事件、回滚本次重复写入，并按既定重复策略确认消息。
+预期为一行 `evt-1, 7`，再提交该分区对应的下一消费位置。第二次直接插入同一 `event_id` 会触发唯一键冲突；消费者需识别这条约束冲突、回滚本次事务，再核对已有记录确实属于同一事件和相同业务内容。确认已成功处理后，才可以推进该事件的消费位置。其他数据库异常按失败处理。
 
-本例“去重标识”就是这张表的主键。业务若还要修改其他表，应在同一个本地事务中完成“去重记录 + 业务变更”，详见 [09](/09-分布式系统与服务协作/典型案例/)。真正的外部邮件或短信不能仅靠这张表证明恰好发送一次。
+若还要修改其他业务表，应将“去重记录＋业务修改”放在同一个本地事务。给真正的邮件或短信发送只加这张表，不能证明外部动作恰好一次；对应恢复问题按需进入 [09](/09-分布式系统与服务协作/典型案例/)。
 
-## 九 重试、死信、顺序与积压
+## 九 重试、顺序与积压
 
-重试处理暂时故障；死信保存被拒绝或到达配置限制的消息，供后续调查和恢复。先按失败原因选择动作：
+Kafka 记录不会因为业务失败就自动重新入队。应用或消费框架需要决定重试和隔离方式：
 
-| 失败 | 处理选择 | 需要记录什么 |
+| 情况 | 基础处理选择 | 边界 |
 | --- | --- | --- |
-| 下游短暂不可用 | 有限重试，增加间隔并分散重试时刻 | 事件编号、次数、下一次时间、总期限 |
-| 消息缺少必填字段 | 按规则拒绝并进入死信处理 | 原始事件、解析错误、处理结果 |
-| 已成功的事件重投 | 幂等返回，不重复写业务 | 去重证据及最终业务记录 |
+| 数据库短暂不可用 | 有限重试，保留未完成位置；必要时暂停对应分区 | 暂停和重试需维持消费协议要求，不能无限阻塞处理线程 |
+| 消息缺必填字段 | 记录错误并按明确策略停止或隔离 | 普通消费者没有自动死信流程；隔离后才推进原位置也有失败窗口 |
+| 相同事件再次读取 | 核对已有业务结果后按幂等规则处理 | 不能每次重放换 eventId |
 
-立即无限重新入队会让坏消息一直占用消费者。死信队列有数据也不代表已经恢复，需要告警、修复与受控重放，重放时保留原事件编号。
+重试 topic、隔离 topic 和受控重放属于后续实现选择；跨 topic 的转移与原位置提交不能凭两次普通调用就证明原子性。
 
-并行消费者处理速度不同，即使投递先后有序，完成顺序也可能改变。若只要求同一个订单有序，可按订单分组或用版本号拒绝旧事件；不要要求所有业务共用一条串行通道。
+顺序先按业务对象讨论。把同一用户的事件放在同分区，并按顺序处理，可以保持该分区的处理顺序；多个分区没有统一先后，异步并行也可能让业务完成顺序改变。增加分区数可能改变 key 的映射，因此不能只靠 key 对跨扩容过程作全程顺序承诺。
 
-假设积压 6000 条，每秒新增 20 条、处理 50 条，在速率稳定时预计清空时间为 `6000 ÷ (50 - 20) = 200 秒`。如果处理速度不高于新增速度，等待无法清空积压。
+查看消费组进度：
+
+```bash
+bin/kafka-consumer-groups.sh --bootstrap-server 127.0.0.1:9092 \
+  --describe --group roadmap-welcome-observe
+```
+
+关注各分区 `CURRENT-OFFSET`、`LOG-END-OFFSET` 和 `LAG`；刚创建且未提交的组可能没有可用位置。[消费组运维](https://kafka.apache.org/42/operations/basic-kafka-operations/)
+
+LAG 是位置差，不必等于精确的未处理业务条数，offset 也不保证连续。处理进程落后、已读但未提交、数据库变慢都可能影响观察。先结合处理速率和数据库结果定位，再决定是否增加消费者；单分区的热点不会自动被多个同组消费者共同分摊。
+
+若另有业务计数证明积压 6000 条，每秒新增 20 条、处理 50 条，在速率稳定时预计清空时间为 `6000 ÷ (50 - 20) = 200 秒`。处理速度不高于新增速度时，等待无法清空积压。
 
 ## 十 综合案例 商品展示与欢迎通知
 
-现在把已学内容放在同一个应用里，仍保留各自职责：
+把缓存和消息放回同一业务流程：
 
-| 用户动作 | 同步部分 | 后续工作 | 完成依据 |
+| 用户动作 | 应用处理 | 组件的职责 | 完成依据 |
 | --- | --- | --- | --- |
-| 查询商品 | 先读租户范围的缓存，未命中查库 | 回填并设置有效期 | 返回数据符合约定时效 |
-| 修改商品 | 提交数据库修改 | 使缓存失效并处理失败 | 权威数据正确，副本在约定窗口恢复 |
-| 新用户注册 | 保存用户，记录待通知事件 | 发布、消费、去重写站内通知 | 对应事件形成一条业务记录 |
+| 查询商品 | 缓存未命中时查询数据库 | Redis 保存租户范围的副本 | 数据符合约定时效 |
+| 修改商品 | 提交数据库，再使缓存失效 | Redis 副本按规则更新或重建 | 权威数据正确，副本可恢复 |
+| 新用户注册 | 保存用户并记录待通知事件 | Kafka 保存事件，欢迎通知组处理 | 对应 eventId 只有一条通知记录 |
+| 消费者重启 | 按已提交位置继续读取 | Kafka 保存组进度，数据库约束阻止重复写 | 重复事件不重复产生通知 |
 
-注册提交与消息发布之间仍有可能部分成功。这个缺口不能用“顺序调用两个方法”解决，下一条 [09 的 Outbox 案例](/09-分布式系统与服务协作/典型案例/)专门处理。
-
-验证综合场景时，分别制造热点失效、重复消息、确认前停止消费者和坏消息。每次保留缓存键、数据库结果、消息状态和处理日志。
+注册提交与事件发布之间的缺口，进入 [09 Outbox 与恢复](/09-分布式系统与服务协作/典型案例/)单独学习。基础练习先明确这个边界，不能把保存后直接发送的顺序调用当成完整一致性保证。
 
 ## 十一 练习与验收
 
-1. 两个租户都有商品 7，验证缓存键不会相互覆盖；声明并测量允许陈旧窗口。
-2. 用演示管理接口重入队同一消息，说明“再次收到”与“业务再次写入”的差别。
-3. 对 evt-1 重复写入，检查通知表仍只有一行；再解释确认前停止为何仍需要去重。
-4. 提交积压量、新增速率、消费速率和清空时间的对照，解释瓶颈来自哪里。
+1. 两个租户都有商品 7，验证键不会覆盖；用 SET/GET/TTL/DEL 留下值和过期的实际记录。
+2. 在独立 Kafka 4.2 环境创建两分区 topic，发布带 key 事件；两个不同组都能读取，并说明各组的独立进度。
+3. 在同组启动两个持续消费进程，观察分区分工；再增加第三个，解释分区数对并行度的限制。使用持续消费命令时去掉 `--max-messages 1`。
+4. 做消费位置与业务结果的两个实验：先用新组重读相同事件观察位置；再用真实业务消费者模拟“数据库提交后、offset 提交前停止”，检查通知仍只有一行。控制台读取不替代第二个实验。
+5. 记录暂停与恢复前后的各分区 LAG、处理速率和业务结果，解释瓶颈及恢复用时。
 
-验收必须有实际环境中的记录。本文命令和状态表经过静态核对，Redis、RabbitMQ、MySQL 的交互与故障实验没有在这里执行。
-
-通用 Java 学习按 Java 25；公司业务案例保留 Java 8 兼容要求。中文主读顺序与环境边界见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+验收需有实际环境记录。本文命令、SQL 与状态说明经过静态核对；没有启动 Redis、Kafka 或 MySQL，生产消费、重平衡与故障恢复均需在学习环境执行。Java 学习与公司兼容边界见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
 ## 参考资料
 
-- **中文主读**：[廖雪峰 访问 Redis](https://liaoxuefeng.com/books/java/springboot/integration/redis/index.html)与 [集成 RabbitMQ](https://liaoxuefeng.com/books/java/springboot/integration/rabbitmq/index.html)：先读客户端接入和业务例子。
-- **Java 补充**：[Dev.java](https://dev.java/learn/)：Java API 与并发基础，不能替代下面的消息和缓存保证。
-- **缓存专项（英文）**：[Redis 字符串](https://redis.io/docs/latest/develop/data-types/strings/)、[EXPIRE](https://redis.io/docs/latest/commands/expire/)、[内存淘汰](https://redis.io/docs/latest/develop/reference/eviction/)。
-- **消息专项（英文）**：[RabbitMQ 确认](https://www.rabbitmq.com/docs/confirms)、[管理 HTTP API](https://www.rabbitmq.com/docs/http-api-reference)、[死信](https://www.rabbitmq.com/docs/dlx)：按服务与客户端版本核对，接入教程不代替可靠性语义。
+- **中文主读**：[廖雪峰访问 Redis](https://liaoxuefeng.com/books/java/springboot/integration/redis/index.html)；消息专项直接读官方资料。
+- **Java 补充**：[Dev.java](https://dev.java/learn/)。
+- **Redis**：[字符串](https://redis.io/docs/latest/develop/data-types/strings/)、[过期](https://redis.io/docs/latest/commands/expire/)、[内存淘汰](https://redis.io/docs/latest/develop/reference/eviction/)。
+- **Kafka**：[4.2 Quick Start](https://kafka.apache.org/42/getting-started/quickstart/)、[Java 版本](https://kafka.apache.org/42/operations/java-version/)、[消费者 API](https://kafka.apache.org/42/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html)、[消费配置](https://kafka.apache.org/42/configuration/consumer-configs/)、[生产配置](https://kafka.apache.org/42/configuration/producer-configs/)、[消费组运维](https://kafka.apache.org/42/operations/basic-kafka-operations/)。
 
 [返回 Roadmap](/08-缓存与消息队列/README/) · [返回总纲](/)

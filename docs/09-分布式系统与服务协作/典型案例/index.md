@@ -16,6 +16,8 @@
 
 本章先用 HTTP 时间线与独立 MySQL 8 学习库解释概念，再把订单、Outbox 和消费结果串起来。SQL 是可执行的最小数据例子；跨进程通信、broker 交互和故障时序是明确标注的推演，不声称已有两个运行服务。
 
+当前学习范围：先在 16 跑清方法、网络和身份边界；本案例按遇到的问题学习未知结果、幂等、Outbox 或补偿，不把全套机制作为普通服务调用的前置。
+
 ## 一 先区分代码包与运行进程
 
 同一 JVM 内调用一个普通方法，不需要经过网络；另一个服务中的方法需要通过 HTTP、RPC 或消息通信。
@@ -232,7 +234,9 @@ COMMIT;
 SELECT * FROM fulfillment;
 ```
 
-预期为 `201, PENDING`。确认消费发生在提交之后；若提交后确认前停止，重投仍会发生，但第二次插入 consumed_event 被唯一键拒绝。核实为同一事件后回滚本次重复处理并确认投递，业务记录保持一份。
+预期为 `201, PENDING`。Kafka 消费者在数据库提交后，再提交该分区已完成记录的下一条 offset；若数据库提交后、位置提交前停止，恢复时可能重放，第二次插入 consumed_event 被唯一键拒绝。核实同一事件已完成后，结束本次重复事务，再推进消费位置，业务记录保持一份。
+
+该时间线采用单线程、每分区按顺序处理的前提。位置提交只能跨过已经完成的记录；不提交不会自动倒回失败记录，失败后的暂停、重试或定位恢复仍需消费循环或框架明确实现。见 [08 的位置与提交](/08-缓存与消息队列/典型案例/#七-写入结果与消费位置分别说明什么)。
 
 跨服务没有一个共同的本地事务。`@Transactional` 不能自动回滚已经完成的远程 HTTP、邮件或另一个服务的提交。
 
@@ -324,7 +328,7 @@ sequenceDiagram
 - **中文主读**：[廖雪峰 Spring Cloud 开发](https://liaoxuefeng.com/books/java/springcloud/index.html)与 [项目架构设计](https://liaoxuefeng.com/books/java/springcloud/architecture/index.html)：用于理解服务职责与协作案例。
 - **Java 实现补充**：[Dev.java](https://dev.java/learn/)：语言、并发和运行背景；分布式一致性继续读专项资料。
 - **可靠调用（英文）**：[AWS 超时、重试与退避](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/)。
-- **一致性与确认（英文）**：[Transactional Outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)、[RabbitMQ 确认](https://www.rabbitmq.com/docs/confirms)。
+- **一致性与确认（英文）**：[Transactional Outbox](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)、[Kafka 生产配置](https://kafka.apache.org/42/configuration/producer-configs/)与[消费位置](https://kafka.apache.org/42/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html)。
 - **进阶原始资料（英文）**：[CAP 论文](https://www.comp.nus.edu.sg/~gilbert/pubs/BrewersConjecture-SigAct.pdf)、[Raft 论文](https://raft.github.io/raft.pdf)：中文案例并不替代模型与保证的精确定义。
 
 [返回 Roadmap](/09-分布式系统与服务协作/README/) · [返回总纲](/)

@@ -67,11 +67,18 @@ export function exportPublic(source, website) {
   const sections = [...new Set(notes.filter(note => !note.home).map(note => note.relative.split('/')[0]))].sort();
   const sidebar = [{ text: '学习总览', link: '/' }, ...sections.map(section => {
     const children = notes.filter(note => !note.home && note.relative.startsWith(section + '/'));
-    const roadmap = children.find(note => note.relative.endsWith('/README.md'));
+    const roadmap = children.find(note => note.relative === section + '/README.md');
+    if (roadmap) {
+      children.splice(children.indexOf(roadmap), 1);
+      children.unshift(roadmap);
+    }
     return {
       text: roadmap ? section.slice(0, 2) + ' ' + roadmap.title.replace(/\s*Roadmap$/, '') : section,
       collapsed: false,
-      items: children.map(note => ({ text: note === roadmap ? '学习路线' : note.relative.endsWith('/典型案例.md') ? '讲解与案例' : note.title, link: note.route }))
+      items: children.map(note => ({
+        text: note === roadmap ? '学习路线' : note.relative === section + '/典型案例.md' ? '讲解与案例' : note.title,
+        link: note.route
+      }))
     };
   })];
   fs.writeFileSync(path.join(docs, '.vitepress/sidebar.json'), JSON.stringify(sidebar, null, 2) + '\n');

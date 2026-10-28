@@ -15,6 +15,21 @@
 
 目标是能定义和验证“身份 × 动作 × 资源”的权限边界。先掌握 [03](/03-HTTP与Spring服务开发/README/)请求处理基础，SQL 部分结合 [05](/05-数据库设计与SQL/README/)；纯 Java 授权规则只需 01。优先接入公司成熟安全体系，不要求重做登录或自制密码算法。
 
+## 起步专题 网关与账户认证
+
+本路线的认证、授权和信任边界前移到服务开发主线。完成 01/02 基础和 03 请求处理后即可开始；结合 [16 微服务开发](/16-微服务开发与注册配置/README/)追踪配置、服务发现和调用，不要求先完成完整 07/09。
+
+先读[认证链补充案例](/12-安全与权限/典型案例/#认证链补充-从登录到接口拒绝)，依次回答：请求怎样到达账户服务、谁验证凭据、谁产生可信身份、谁决定操作权限、下游怎样取得身份、退出后凭据怎样失效。
+
+| 起步任务 | 需要留下的理解 |
+| --- | --- |
+| 跟一次登录和后续请求 | 登录校验、凭据签发、凭据验证和业务处理分别在哪里 |
+| 分开网关、账户服务、业务服务 | 路由、身份有效性、接口许可和对象归属各由谁判断 |
+| 比较允许与拒绝 | 未认证、过期、已登录无权限、跨项目和身份丢失停在哪一步 |
+| 输出源码阅读记录 | 输入输出、方法与配置、两张时序图、事实与待验证问题分开 |
+
+SQL、上传、密钥治理等内容按实际场景继续学习。基本权限检查和日志不含秘密作为每个需求的交付条件。
+
 ## 学习方式与顺序
 
 按本页确定范围，再进入[典型案例](/12-安全与权限/典型案例/)逐个理解概念和最小示例，最后通过综合案例和练习验证。
@@ -114,8 +129,8 @@ flowchart TD
 
 | 深入主题 | 前置条件 | 后续能力 |
 | --- | --- | --- |
-| 跨服务身份 | [09](/09-分布式系统与服务协作/README/)、[07](/07-并发与异步编程/README/) | 代用户与服务身份、最小权限、传递和线程清理，防身份残留 |
-| 完整安全链 | 项目成熟框架及本页认证授权 | Token 验证、失效和撤销，CSRF/CORS 策略、接口及静态资源控制 |
+| 跨服务身份深入 | 起步见 [16](/16-微服务开发与注册配置/README/)；异步结合 [07](/07-并发与异步编程/README/)、恢复结合 [09](/09-分布式系统与服务协作/README/) | 代用户与服务身份、最小权限、线程清理和失败恢复 |
+| 安全链深入 | 本页起步认证链及项目成熟框架 | 多种登录协议、CSRF/CORS 策略、静态资源和完整入口覆盖 |
 | 文件和网络出口 | 本页输入边界；结合 [13](/13-部署运维与故障排查/README/) | 上传下载隔离、DNS/重定向/目标范围与出口联合约束，避免片段检查冒充完整防护 |
 | 数据安全与审计治理 | 本页秘密及 [15](/15-大数据组件与数据链路/README/) | 敏感数据、加密与密钥、审计权限和保留周期，按平台能力拆场景验证 |
 
@@ -124,6 +139,7 @@ flowchart TD
 ## 参考资料
 
 - **中文主读**：[廖雪峰 加密与安全](https://liaoxuefeng.com/books/java/security/index.html)：编码、哈希、口令与证书基础，认证授权规则仍按本路线与安全指南学习。
+- **网关与安全链专项**：[APISIX Route](https://apisix.apache.org/docs/apisix/terminology/route/)、[Consumer](https://apisix.apache.org/docs/apisix/terminology/consumer/)与 [Spring Security 过滤链](https://docs.spring.io/spring-security/reference/servlet/architecture.html)。协议、插件与实际配置分别核对。
 - **Java 补充**：[Dev.java 安全学习入口](https://dev.java/learn/)：JDK 加密、证书与安全工具背景。
 - **授权与协议专项（英文）**：[OWASP Authorization](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)、[REST Security](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html)。
 - **输入与秘密专项（英文）**：[SQL Injection Prevention](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html)、[Password Storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)、[SSRF Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html)。

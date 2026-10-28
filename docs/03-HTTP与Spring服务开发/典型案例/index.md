@@ -317,6 +317,12 @@ curl -i -H 'Content-Type: text/plain' -d 'Vue' http://localhost:18083/greetings
 
 验收保存请求、响应、断点或日志位置、实际配置和运行版本。只看 HTTP 200 或只看注解存在，都不足以证明完整行为。
 
+## 十 从单个接口进入微服务学习
+
+先用本章工程证明：请求能到达 Controller、依赖来自 Spring、配置影响返回值、错误能追到发生位置。接下来在 [16 的账户查询案例](/16-微服务开发与注册配置/典型案例/)中，把“当前进程调用一个对象”扩展为“通过代理调用另一个服务”。
+
+对照观察四项变化：配置可由 Nacos 导入，目标地址可由服务发现获取，普通接口字段可被注入为 Dubbo 代理，入口身份需要按约定跨服务传递并再次核实资源权限。当前的问候接口只覆盖单应用请求处理，不据此认定已经完成认证或跨服务联调。
+
 ## 参考资料与验证范围
 
 - **中文主读**：[廖雪峰 Spring 开发](https://liaoxuefeng.com/books/java/spring/index.html)、[IoC 容器](https://liaoxuefeng.com/books/java/spring/ioc/index.html)与 [Spring MVC](https://liaoxuefeng.com/books/java/spring/web/mvc/index.html)：按对象协作、注入、绑定和异常顺序阅读。

@@ -27,6 +27,12 @@ Java 25 是本计划选定的长期支持学习基线；LTS 信息见 [Oracle �
 
 基础代码继续保留传统 class/main 等跨版本写法，它们在 Java 25 中仍可使用。学习新语言并不要求把每段示例都改成新语法。
 
+## 本阶段学习优先级
+
+Java、Maven、Spring 和微服务框架反复回练；先掌握业务代码常用能力，再补现代写法。Spring Cloud、Dubbo、Nacos 使用专项官方资料，先读公司 POM 和生效配置，不能把现代框架片段直接复制到 Java 8 服务。
+
+Redis/Kafka 先做到会接入和解释关键行为。大数据进入分布式计算基础、Hive、Spark、Flink 四个单元，各用其支持的 JDK 和版本化文档。
+
 ## 现代特性放在对应知识之后
 
 | 先掌握 | 主线继续学习 | 回到 Java 8 时怎样处理 |
@@ -65,7 +71,8 @@ macOS/zsh 如需将环境变量提供给非交互脚本，按本项目约定写�
 | --- | --- | --- |
 | Java、集合、IO、并发 | 廖雪峰对应章节 | Dev.java、Java 25 API 与语言规范 |
 | Maven、JDBC、Spring、测试 | 廖雪峰对应章节 | Maven、Spring、JUnit 的版本化官方资料 |
-| 安全、缓存、消息 | 廖雪峰基础与相关集成章节 | OWASP、Redis、RabbitMQ 等专项官方资料 |
+| 微服务框架 | 廖雪峰 Spring Cloud 作为入门补充 | Spring Cloud、Dubbo、Nacos 的专项官方资料；按公司版本核对 |
+| 安全、缓存、消息 | 廖雪峰基础与 Redis 集成章节 | APISIX、Spring Security、OWASP、Redis、Kafka 的专项官方资料 |
 | 分布式、系统设计 | 廖雪峰 Spring Cloud 等案例作为中文切入 | 故障模型、一致性、容量与 SLO 继续以专项资料和实验验证 |
 | 大数据组件 | 廖雪峰 SQL/JDBC 作为前置，官方中文引擎文档作为专项主读 | 连接器、SQL 方言、恢复和运行 JDK 按引擎版本核对 |
 

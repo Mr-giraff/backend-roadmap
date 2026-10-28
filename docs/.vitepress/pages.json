@@ -130,6 +130,46 @@
     "output": "13-部署运维与故障排查/典型案例/index.md"
   },
   {
+    "route": "/15-大数据组件与数据链路/01-分布式计算基础/README/",
+    "title": "分布式计算基础 Roadmap",
+    "output": "15-大数据组件与数据链路/01-分布式计算基础/README/index.md"
+  },
+  {
+    "route": "/15-大数据组件与数据链路/01-分布式计算基础/典型案例/",
+    "title": "分布式计算基础典型案例",
+    "output": "15-大数据组件与数据链路/01-分布式计算基础/典型案例/index.md"
+  },
+  {
+    "route": "/15-大数据组件与数据链路/02-Hive/README/",
+    "title": "Hive Roadmap",
+    "output": "15-大数据组件与数据链路/02-Hive/README/index.md"
+  },
+  {
+    "route": "/15-大数据组件与数据链路/02-Hive/典型案例/",
+    "title": "Hive 典型案例",
+    "output": "15-大数据组件与数据链路/02-Hive/典型案例/index.md"
+  },
+  {
+    "route": "/15-大数据组件与数据链路/03-Spark/README/",
+    "title": "Spark Roadmap",
+    "output": "15-大数据组件与数据链路/03-Spark/README/index.md"
+  },
+  {
+    "route": "/15-大数据组件与数据链路/03-Spark/典型案例/",
+    "title": "Spark 典型案例",
+    "output": "15-大数据组件与数据链路/03-Spark/典型案例/index.md"
+  },
+  {
+    "route": "/15-大数据组件与数据链路/04-Flink/README/",
+    "title": "Flink Roadmap",
+    "output": "15-大数据组件与数据链路/04-Flink/README/index.md"
+  },
+  {
+    "route": "/15-大数据组件与数据链路/04-Flink/典型案例/",
+    "title": "Flink 典型案例",
+    "output": "15-大数据组件与数据链路/04-Flink/典型案例/index.md"
+  },
+  {
     "route": "/15-大数据组件与数据链路/README/",
     "title": "大数据组件与数据链路 Roadmap",
     "output": "15-大数据组件与数据链路/README/index.md"
@@ -138,6 +178,16 @@
     "route": "/15-大数据组件与数据链路/典型案例/",
     "title": "大数据组件与数据链路典型案例",
     "output": "15-大数据组件与数据链路/典型案例/index.md"
+  },
+  {
+    "route": "/16-微服务开发与注册配置/README/",
+    "title": "微服务开发与注册配置 Roadmap",
+    "output": "16-微服务开发与注册配置/README/index.md"
+  },
+  {
+    "route": "/16-微服务开发与注册配置/典型案例/",
+    "title": "微服务开发与注册配置典型案例",
+    "output": "16-微服务开发与注册配置/典型案例/index.md"
   },
   {
     "route": "/参考资料/学习版本与中文资料/",
