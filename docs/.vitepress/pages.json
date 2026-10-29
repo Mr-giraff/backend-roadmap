@@ -1,5 +1,10 @@
 [
   {
+    "route": "/00-能力模型与成长阶段/README/",
+    "title": "能力模型与成长阶段",
+    "output": "00-能力模型与成长阶段/README/index.md"
+  },
+  {
     "route": "/01-Java语言与JVM基础/README/",
     "title": "Java 语言与 JVM 基础 Roadmap",
     "output": "01-Java语言与JVM基础/README/index.md"
