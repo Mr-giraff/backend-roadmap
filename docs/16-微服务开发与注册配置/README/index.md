@@ -18,7 +18,7 @@
 
 目标是跑通并解释“入口请求 → 应用服务 → 账户服务”，知道配置和地址来自哪里，并能定位身份缺失、配置未生效、找不到提供方和调用超时。暂不要求先完成 [09](/09-分布式系统与服务协作/README/)的完整一致性实验。
 
-通用 Java 学习主线为 25；存量工程按实际 Java 8、Spring、Dubbo 和 Nacos 版本保持兼容。先记录 JDK、Boot、Cloud、Cloud Alibaba、Dubbo、Nacos 客户端及服务端组合，再选对应文档。Boot 与 Cloud 必须按[官方兼容关系](https://spring.io/projects/spring-cloud/#overview)匹配；Nacos 接入方式也按对应 Cloud Alibaba 版本核对。
+通用 Java 学习遵循本计划的统一基线；存量工程按实际 Java 8、Spring、Dubbo 和 Nacos 版本保持兼容。先记录 JDK、Boot、Cloud、Cloud Alibaba、Dubbo、Nacos 客户端及服务端组合，再选对应文档。Boot 与 Cloud 必须按[官方兼容关系](https://spring.io/projects/spring-cloud/#overview)匹配；Nacos 接入方式也按对应 Cloud Alibaba 版本核对。
 
 ## 学习顺序
 

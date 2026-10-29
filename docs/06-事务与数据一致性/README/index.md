@@ -21,7 +21,7 @@
 
 前置：[05](/05-数据库设计与SQL/README/)的查询、更新、约束与索引；Spring 部分需要 [03](/03-HTTP与Spring服务开发/README/)的容器与代理、[04](/04-分层架构与业务建模/README/)的业务入口。
 
-SQL 采用 MySQL 8.0.16+ InnoDB；学习主线使用 Java 25，Spring 例子采用 Framework 6.2.19，与 Boot 3.5.16 的依赖组合对齐。先完成数据库最小实验，再进入框架，不把远程一致性当本地事务入门的门槛。
+SQL 采用 MySQL 8.0.16+ InnoDB；学习主线使用当前学习 JDK，Spring 例子采用 Framework 6.2.19，与 Boot 3.5.16 的依赖组合对齐。先完成数据库最小实验，再进入框架，不把远程一致性当本地事务入门的门槛。
 
 版本与资料顺序见[学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
@@ -129,6 +129,6 @@ flowchart TD
 - **现代 Java 补充**：[Dev.java](https://dev.java/learn/)：异常、线程与对象模型；数据库和框架事务语义仍查下面的专项资料。
 - **数据库核对**：[MySQL 隔离级别](https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html)、[锁](https://dev.mysql.com/doc/refman/8.0/en/innodb-locking.html)与[死锁](https://dev.mysql.com/doc/refman/8.0/en/innodb-deadlocks.html)。
 - **框架核对**：[Spring 6.2 声明式事务](https://docs.spring.io/spring-framework/reference/6.2/data-access/transaction/declarative.html)与 [DataSourceTransactionManager 6.2.19](https://docs.spring.io/spring-framework/docs/6.2.19/javadoc-api/org/springframework/jdbc/datasource/DataSourceTransactionManager.html)：代理、传播、线程与资源边界。
-- **Java 8 兼容核查**：[Spring 5.2 事务文档](https://docs.spring.io/spring-framework/docs/5.2.6.RELEASE/spring-framework-reference/data-access.html#transaction-declarative)用于对照相应遗留版本，不作为 Java 25 学习工程依赖。
+- **Java 8 兼容核查**：[Spring 5.2 事务文档](https://docs.spring.io/spring-framework/docs/5.2.6.RELEASE/spring-framework-reference/data-access.html#transaction-declarative)用于对照相应遗留版本，不作为当前学习工程依赖。
 
 [返回总纲](/)

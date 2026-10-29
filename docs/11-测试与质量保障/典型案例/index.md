@@ -64,7 +64,7 @@ public class RuleCheck {
 
 ## 二 JUnit 把检查组织成可重复执行的测试
 
-JUnit 提供断言、测试发现和报告。纯 JUnit 学习工程固定 Java 25、JUnit 6.1.3 与 Surefire 3.5.5；后面的 MVC 工程单独使用 Boot 依赖管理。Java 8 业务项目仍使用兼容它的原有测试版本。
+JUnit 提供断言、测试发现和报告。纯 JUnit 学习工程采用统一学习 JDK，依赖固定为 JUnit 6.1.3 与 Surefire 3.5.5；后面的 MVC 工程单独使用 Boot 依赖管理。Java 8 业务项目仍使用兼容它的原有测试版本。
 
 下面测试所需的完整类是上一节的 NameRules，测试文件为 `NameRulesTest.java`：
 
@@ -97,7 +97,7 @@ class NameRulesTest {
   <modelVersion>4.0.0</modelVersion>
   <groupId>study</groupId><artifactId>quality-demo</artifactId><version>1.0-SNAPSHOT</version>
   <properties>
-    <maven.compiler.release>25</maven.compiler.release>
+    <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <dependencies>
@@ -183,7 +183,7 @@ examples/mvc-test/
 └── src/test/java/study/test/EchoControllerTest.java
 ```
 
-[完整 POM](/assets/11-测试与质量保障/examples/mvc-test/pom.xml)固定 Java 25、Spring Boot 3.5.16 依赖管理。web 提供 MVC 等类型，starter-test 提供 JUnit 和 Spring 测试能力；本节的测试依赖版本由父 POM 管理，不再手动指定前面纯 JUnit 工程的 6.1.3。
+[完整 POM](/assets/11-测试与质量保障/examples/mvc-test/pom.xml)采用统一学习 JDK及 Spring Boot 3.5.16 依赖管理。web 提供 MVC 等类型，starter-test 提供 JUnit 和 Spring 测试能力；本节的测试依赖版本由父 POM 管理，不再手动指定前面纯 JUnit 工程的 6.1.3。
 
 ```xml
 <project xmlns="http://maven.apache.org/POM/4.0.0">
@@ -197,7 +197,7 @@ examples/mvc-test/
     <artifactId>mvc-test</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
-        <java.version>25</java.version>
+        <java.version>21</java.version>
     </properties>
     <dependencies>
         <dependency>
@@ -317,11 +317,11 @@ standaloneSetup 在测试进程内验证 MVC，不监听真实 HTTP 端口，也
 
 ```bash
 mkdir -p /tmp/study-11-classes
-javac --release 25 -encoding UTF-8 -d /tmp/study-11-classes examples/*.java
+javac --release 21 -encoding UTF-8 -d /tmp/study-11-classes examples/*.java
 java -cp /tmp/study-11-classes RuleCheck
 ```
 
-以上主线命令需要 JDK 25。预期输出 `RuleCheck: PASS (trim, blank, duplicate, available)`。
+以上主线命令需要当前学习 JDK。预期输出 `RuleCheck: PASS (trim, blank, duplicate, available)`。
 
 | 证据 | 可以说明 |
 | --- | --- |
@@ -345,11 +345,11 @@ java -cp /tmp/study-11-classes RuleCheck
 
 - **中文主读**：[廖雪峰单元测试](https://liaoxuefeng.com/books/java/unit-test/index.html)：断言、Fixture、异常与参数化测试，先理解验证行为的方法。
 - **现代 Java 补充**：[Dev.java](https://dev.java/learn/)：类、接口、异常与 Lambda 背景；JUnit 的具体版本及构建要求查官方资料。
-- **测试框架核对**：[JUnit 6.1.3](https://docs.junit.org/6.1.3/overview.html)与 [Maven 构建支持](https://docs.junit.org/6.1.3/running-tests/build-support.html)：本章纯 JUnit 工程固定 JUnit 6.1.3、Surefire 3.5.5、Java 25。
+- **测试框架核对**：[JUnit 6.1.3](https://docs.junit.org/6.1.3/overview.html)与 [Maven 构建支持](https://docs.junit.org/6.1.3/running-tests/build-support.html)：本章纯 JUnit 工程固定 JUnit 6.1.3、Surefire 3.5.5、当前学习 JDK。
 - **集成测试核对**：[Spring 6.2 MockMvc](https://docs.spring.io/spring-framework/reference/6.2/testing/mockmvc.html)与 [Boot 3.5 测试支持](https://docs.spring.io/spring-boot/3.5/reference/testing/index.html)：MVC 工程的测试依赖由 Boot 3.5.16 管理，不手动叠加前面纯 JUnit 工程的版本。
-- **按需补充**：[Mockito 官方入口](https://site.mockito.org/)与 [Pact 文档](https://docs.pact.io/)；Java 25 的实际客户端/工具版本需核对兼容性。
+- **按需补充**：[Mockito 官方入口](https://site.mockito.org/)与 [Pact 文档](https://docs.pact.io/)；当前学习 JDK 的实际客户端/工具版本需核对兼容性。
 - **Java 8 兼容核查**：[JUnit 5.10.2 文档](https://docs.junit.org/5.10.2/user-guide/)用于对应旧工程，JUnit 6 不能在 Java 8 上运行。
 
-已完成的运行验证仅覆盖 Java 8 目标的纯 Java 综合校验，四种结果通过。新的 Java 25 编译命令、JUnit 6.1.3 与 Boot 3.5.16 组合只做静态核对；当前没有 JDK 25，尚未执行新版构建、MockMvc、数据库或并发集成测试。
+纯 Java RuleCheck 已在当前学习 JDK 中编译运行，trim、blank、duplicate、available 四种结果通过，原 Java 8 目标记录保留。JUnit 依赖和类定义已静态核对；MVC 工程的离线 Maven verify 因父 POM 缓存不完整未完成，JUnit、MockMvc、数据库与并发集成测试仍待依赖齐备后执行。
 
 [返回 Roadmap](/11-测试与质量保障/README/) · [返回总纲](/)

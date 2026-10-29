@@ -14,7 +14,7 @@
 | 用环境配置控制行为 | Spring 配置读取 | 覆盖规则和生效环境由服务端工程决定 |
 | 请求拦截与统一错误提示 | Filter、Interceptor、异常处理与 AOP | 它们工作在不同位置，不能互相代替 |
 
-先学协议与对象协作，再学习框架如何连接它们。通用学习主线采用 Java 25，完整工程固定 Spring Boot 3.5.16，Spring Framework 6.2.x 由 Boot 依赖管理。Java 8 业务案例保留原项目的依赖和语法限制，详见[学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+先学协议与对象协作，再学习框架如何连接它们。通用学习主线采用当前学习 JDK，完整工程固定 Spring Boot 3.5.16，Spring Framework 6.2.x 由 Boot 依赖管理。Java 8 业务案例保留原项目的依赖和语法限制，详见[学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
 ## 一 请求和响应是一份明确的约定
 
@@ -275,7 +275,7 @@ GET /hello?name=%20%20 进入 Service 后被拒绝，得到 400 和 `{"error":"n
 
 前面的类型已按完整文件整理到 [examples/hello-http](/assets/03-HTTP与Spring服务开发/examples/hello-http/pom.xml)。它只用内存对象，不连接数据库或公司平台。
 
-POM 的业务依赖为 `spring-boot-starter-web` 与 `spring-boot-starter-validation`，父版本固定 3.5.16，Java 编译目标为 25。完整入口 `Application.java`：
+POM 的业务依赖为 `spring-boot-starter-web` 与 `spring-boot-starter-validation`，父版本固定 3.5.16，Java 编译目标遵循统一学习基线。完整入口 `Application.java`：
 
 ```java
 package study.web;
@@ -290,7 +290,7 @@ public class Application {
 }
 ```
 
-入口在 study.web 包中，相关类型也在此包下，便于组件扫描找到。完整 POM、Controller 和其他类均已给出；需事先准备 JDK 25、Maven 以及依赖缓存或获准访问的仓库。
+入口在 study.web 包中，相关类型也在此包下，便于组件扫描找到。完整 POM、Controller 和其他类均已给出；需事先准备当前学习 JDK、Maven 以及依赖缓存或获准访问的仓库。
 
 ```bash
 cd ./03-HTTP与Spring服务开发/examples/hello-http
@@ -328,10 +328,10 @@ curl -i -H 'Content-Type: text/plain' -d 'Vue' http://localhost:18083/greetings
 - **中文主读**：[廖雪峰 Spring 开发](https://liaoxuefeng.com/books/java/spring/index.html)、[IoC 容器](https://liaoxuefeng.com/books/java/spring/ioc/index.html)与 [Spring MVC](https://liaoxuefeng.com/books/java/spring/web/mvc/index.html)：按对象协作、注入、绑定和异常顺序阅读。
 - **中文主读**：[廖雪峰 Spring Boot 开发](https://liaoxuefeng.com/books/java/springboot/index.html)：补启动、配置和打包；示例依赖以本章固定版本为准。
 - **现代 Java 补充**：[Dev.java](https://dev.java/learn/)：对象、注解、异常与 JVM 背景，可配合浏览器翻译。
-- **框架核对**：[Spring Boot 3.5 系统要求](https://docs.spring.io/spring-boot/3.5/system-requirements.html)、[Spring MVC 6.2](https://docs.spring.io/spring-framework/reference/6.2/web/webmvc.html)与 [Spring 容器](https://docs.spring.io/spring-framework/reference/6.2/core/beans.html)：本例锁定 Boot 3.5.16，使用 Java 25；Framework 6.2.x 由 Boot 管理，官方当前要求 6.2.19 或以上。
+- **框架核对**：[Spring Boot 3.5 系统要求](https://docs.spring.io/spring-boot/3.5/system-requirements.html)、[Spring MVC 6.2](https://docs.spring.io/spring-framework/reference/6.2/web/webmvc.html)与 [Spring 容器](https://docs.spring.io/spring-framework/reference/6.2/core/beans.html)：本例锁定 Boot 3.5.16，使用当前学习 JDK；Framework 6.2.x 由 Boot 管理，官方当前要求 6.2.19 或以上。
 - **协议核对**：[HTTP 语义 RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html)。
-- **Java 8 兼容核查**：[Spring Boot 2.7 文档](https://docs.spring.io/spring-boot/docs/2.7.18/reference/htmlsingle/)仅用于相应遗留项目；不能把本章的 Java 25 与 Jakarta 配置直接复制回去。
+- **Java 8 兼容核查**：[Spring Boot 2.7 文档](https://docs.spring.io/spring-boot/docs/2.7.18/reference/htmlsingle/)仅用于相应遗留项目；不能把本章的学习环境与 Jakarta 配置直接复制回去。
 
-本例的 POM、Jakarta 注解和文档已按 Java 25 / Boot 3.5.16 静态核对。当前环境未检测到 JDK 25，尚未构建、启动 Spring 或执行 HTTP 集成测试；预期结果需在所列环境中验证。
+本例的 POM、Jakarta 注解与文档已按学习基线静态核对。本机已有对应 JDK，离线 Maven verify 因父 POM 缓存不完整未完成；Spring 启动与 HTTP 集成测试仍需在依赖齐备的学习环境执行。预期请求响应不作为实测结论。
 
 [返回 Roadmap](/03-HTTP与Spring服务开发/README/) · [返回总纲](/)

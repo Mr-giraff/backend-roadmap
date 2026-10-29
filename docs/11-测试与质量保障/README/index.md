@@ -19,7 +19,7 @@
 
 目标是为行为正确性给出可重复的证据，并解释每项证据的范围。只需 [01](/01-Java语言与JVM基础/README/)、[02](/02-工程构建与研发流程/README/)基础即可开始断言和单元测试；MVC、数据库、并发与分布式测试在对应路线后继续。测试贯穿学习，不需要等系统设计学完。
 
-通用学习采用 Java 25；JUnit 与 MVC 的具体组合见案例。Java 8 业务工程按原依赖练习，版本策略见[学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+通用学习采用当前学习 JDK；JUnit 与 MVC 的具体组合见案例。Java 8 业务工程按原依赖练习，版本策略见[学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
 ## 学习方式与顺序
 
@@ -120,9 +120,9 @@ flowchart TD
 
 - **中文主读**：[廖雪峰单元测试](https://liaoxuefeng.com/books/java/unit-test/index.html)：断言、Fixture、异常与参数化测试，先理解验证行为的方法。
 - **现代 Java 补充**：[Dev.java](https://dev.java/learn/)：类、接口、异常与 Lambda 背景；JUnit 的具体版本及构建要求查官方资料。
-- **测试框架核对**：[JUnit 6.1.3](https://docs.junit.org/6.1.3/overview.html)与 [Maven 构建支持](https://docs.junit.org/6.1.3/running-tests/build-support.html)：本章纯 JUnit 工程固定 JUnit 6.1.3、Surefire 3.5.5、Java 25。
+- **测试框架核对**：[JUnit 6.1.3](https://docs.junit.org/6.1.3/overview.html)与 [Maven 构建支持](https://docs.junit.org/6.1.3/running-tests/build-support.html)：本章纯 JUnit 工程固定 JUnit 6.1.3、Surefire 3.5.5、当前学习 JDK。
 - **集成测试核对**：[Spring 6.2 MockMvc](https://docs.spring.io/spring-framework/reference/6.2/testing/mockmvc.html)与 [Boot 3.5 测试支持](https://docs.spring.io/spring-boot/3.5/reference/testing/index.html)：MVC 工程的测试依赖由 Boot 3.5.16 管理，不手动叠加前面纯 JUnit 工程的版本。
-- **按需补充**：[Mockito 官方入口](https://site.mockito.org/)与 [Pact 文档](https://docs.pact.io/)；Java 25 的实际客户端/工具版本需核对兼容性。
+- **按需补充**：[Mockito 官方入口](https://site.mockito.org/)与 [Pact 文档](https://docs.pact.io/)；当前学习 JDK 的实际客户端/工具版本需核对兼容性。
 - **Java 8 兼容核查**：[JUnit 5.10.2 文档](https://docs.junit.org/5.10.2/user-guide/)用于对应旧工程，JUnit 6 不能在 Java 8 上运行。
 
 [返回总纲](/)

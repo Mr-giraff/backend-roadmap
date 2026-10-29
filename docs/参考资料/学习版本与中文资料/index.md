@@ -8,24 +8,24 @@
 
 1. 先按每条 Roadmap 的知识顺序阅读本地最小示例。
 2. 用[廖雪峰 Java 教程](https://liaoxuefeng.com/books/java/introduction/index.html)作为中文主读，进入该 Roadmap 指向的具体章节。
-3. 用 [Dev.java](https://dev.java/learn/)补充现代 Java、JVM 与新 API，再用 [Java 25 API](https://docs.oracle.com/en/java/javase/25/docs/api/index.html)核对版本边界。
+3. 用 [Dev.java](https://dev.java/learn/)补充现代 Java、JVM 与新 API，再用 [Java 21 API](https://docs.oracle.com/en/java/javase/21/docs/api/index.html)核对版本边界。
 4. 框架、数据库、消息和引擎的具体保证，继续查各路线保留的官方专项资料；有可靠官方中文版本时优先中文。
 
-廖雪峰的安装章节已采用 [JDK 25](https://liaoxuefeng.com/books/java/quick-start/dev-env/install-jdk/index.html)，但站内章节的版本标注并非完全同步。Dev.java 也覆盖其他现代版本，因此两者都不能替代 Java 25 的具体 API/语言版本核对。
+[廖雪峰安装章节](https://liaoxuefeng.com/books/java/quick-start/dev-env/install-jdk/index.html)用于理解环境配置流程；教程与 Dev.java 可能采用其他现代版本，本计划安装与 API 核对统一以 Java 21 为准。
 
 ## 学习与业务使用两条版本线
 
 | 场景 | 版本要求 | 实际执行方式 |
 | --- | --- | --- |
-| 通用 Java 学习与新建练习 | Java 25 LTS，使用正式特性 | JDK 25 编译和运行，通常使用 `--release 25` |
+| 通用 Java 学习与新建练习 | Java 21 LTS，使用正式特性 | JDK 21 编译和运行，通常使用 `--release 21` |
 | 真实存量业务案例 | 按实际工程保持 Java 8 兼容 | 仅使用 Java 8 语言/API，依赖、字节码和运行环境分别核对 |
-| 独立 Spring 学习工程 | Java 25 + Spring Boot 3.5.16 / Framework 6.2.x | 按示例 POM 运行，不将其配置直接复制到 Java 8 业务工程 |
-| 独立 JUnit 学习工程 | Java 25，使用文中锁定的 JUnit/Surefire | 普通 JUnit 与 Boot 管理的 MVC 测试工程分开，不盲目混装版本 |
-| Spark、Flink、Hive、Hadoop 等引擎 | 各自发行版支持的 JDK | 单独准备匹配环境，不因 Java 学习主线为 25 就升级引擎运行时 |
+| 独立 Spring 学习工程 | Java 21 + Spring Boot 3.5.16 / Framework 6.2.x | 按示例 POM 运行，不将其配置直接复制到 Java 8 业务工程 |
+| 独立 JUnit 学习工程 | Java 21，使用文中锁定的 JUnit/Surefire | 普通 JUnit 与 Boot 管理的 MVC 测试工程分开，不盲目混装版本 |
+| Spark、Flink、Hive、Hadoop 等引擎 | 各自发行版支持的 JDK | 单独准备匹配环境，不因 Java 学习主线为 21 就升级引擎运行时 |
 
-Java 25 是本计划选定的长期支持学习基线；LTS 信息见 [Oracle 支持路线](https://www.oracle.com/java/technologies/java-se-support-roadmap.html)。主线不要求启用预览特性。
+Java 21 是本计划选定的长期支持学习基线；LTS 信息见 [Oracle 支持路线](https://www.oracle.com/java/technologies/java-se-support-roadmap.html)。主线不要求启用预览特性。
 
-基础代码继续保留传统 class/main 等跨版本写法，它们在 Java 25 中仍可使用。学习新语言并不要求把每段示例都改成新语法。
+基础代码继续保留传统 class/main 等跨版本写法，它们在 Java 21 中仍可使用。学习新语言并不要求把每段示例都改成新语法。
 
 ## 本阶段学习优先级
 
@@ -52,12 +52,12 @@ javac -version
 mvn -version
 ```
 
-主线应确认 java、javac、Maven 实际选择 JDK 25，IDE 的项目与运行 JDK 也要对齐。JDK 11 不能通过写 `--release 25` 编译成 Java 25；必须先有对应编译器。
+主线应确认 java、javac、Maven 实际选择 JDK 21，IDE 的项目与运行 JDK 也要对齐。本机终端已核对为 JDK 21.0.13.0.2，Maven 3.8.1 也运行在该 JDK 上。JDK 11 不能通过写 `--release 21` 编译成 Java 21；必须先有对应编译器。
 
 主线示例：
 
 ```bash
-javac --release 25 -encoding UTF-8 Demo.java
+javac --release 21 -encoding UTF-8 Demo.java
 java Demo
 ```
 
@@ -69,17 +69,17 @@ macOS/zsh 如需将环境变量提供给非交互脚本，按本项目约定写�
 
 | 内容 | 中文主读 | 补充与精确核对 |
 | --- | --- | --- |
-| Java、集合、IO、并发 | 廖雪峰对应章节 | Dev.java、Java 25 API 与语言规范 |
+| Java、集合、IO、并发 | 廖雪峰对应章节 | Dev.java、Java 21 API 与语言规范 |
 | Maven、JDBC、Spring、测试 | 廖雪峰对应章节 | Maven、Spring、JUnit 的版本化官方资料 |
 | 微服务框架 | 廖雪峰 Spring Cloud 作为入门补充 | Spring Cloud、Dubbo、Nacos 的专项官方资料；按公司版本核对 |
 | 安全、缓存、消息 | 廖雪峰基础与 Redis 集成章节 | APISIX、Spring Security、OWASP、Redis、Kafka 的专项官方资料 |
 | 分布式、系统设计 | 廖雪峰 Spring Cloud 等案例作为中文切入 | 故障模型、一致性、容量与 SLO 继续以专项资料和实验验证 |
 | 大数据组件 | 廖雪峰 SQL/JDBC 作为前置，官方中文引擎文档作为专项主读 | 连接器、SQL 方言、恢复和运行 JDK 按引擎版本核对 |
 
-[Java 8 社区中文译本](https://pingfangx.github.io/java-tutorials/)保留为存量兼容资料，不作为 Java 25 主读。中文优先不等于用一套通用教程解释所有组件的运行保证。
+[Java 8 社区中文译本](https://pingfangx.github.io/java-tutorials/)保留为存量兼容资料，不作为 Java 21 主读。中文优先不等于用一套通用教程解释所有组件的运行保证。
 
 ## 验证范围
 
-当前学习目标为 Java 25。已有 Java 8 目标的编译与运行记录仍按其实际版本保存，不能改写为 Java 25 已通过。版本配置、示例与依赖的实际核对见[示例验证说明](/参考资料/示例验证说明/)。
+当前学习目标为 Java 21。纯 Java 样本已有本机 JDK 21 的编译运行证据；Java 8 目标的既有记录按实际版本保留，两类证据分别标注。版本配置、示例与依赖的实际核对见[示例验证说明](/参考资料/示例验证说明/)。
 
 [返回总纲](/)

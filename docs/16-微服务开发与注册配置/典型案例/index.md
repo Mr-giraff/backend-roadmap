@@ -16,7 +16,7 @@
 
 本篇从一次“读取账户展示名”开始。先分清进程，再理解配置、发现与调用，最后把身份和失败处理串起来。[README](/16-微服务开发与注册配置/README/)定义必学范围。
 
-通用 Java 学习使用 25；下面的 Java 业务写法保持 Java 8 语法与常用 API。无框架样本可独立编译，Spring Cloud Alibaba、Nacos 和 Dubbo 片段需放进版本匹配的学习工程。它们不是一份可以直接混入任意 POM 的完整工程；Java 8 存量工程继续沿用实际依赖组合。
+通用 Java 示例遵循本计划的统一基线；下面的 Java 业务写法保持 Java 8 语法与常用 API。无框架样本可独立编译，Spring Cloud Alibaba、Nacos 和 Dubbo 片段需放进版本匹配的学习工程。它们不是一份可以直接混入任意 POM 的完整工程；Java 8 存量工程继续沿用实际依赖组合。
 
 ## 一 方法写法相似执行位置可能不同
 
@@ -273,7 +273,7 @@ public class Application {
 }
 ```
 
-这是两份独立应用各自的入口示意。提供方实现与消费方业务类分别打包到自己的应用，双方共享接口和 DTO。Boot、Cloud、Dubbo、Nacos 依赖与服务器应先按官方样本的版本组合准备，记录依赖树；本篇未给出一套已验证的 Java 25 双服务 POM。
+这是两份独立应用各自的入口示意。提供方实现与消费方业务类分别打包到自己的应用，双方共享接口和 DTO。Boot、Cloud、Dubbo、Nacos 依赖与服务器应先按官方样本的版本组合准备，记录依赖树；本篇提供接入片段，完整双服务 POM 需在匹配的学习环境中准备并验证。
 
 注解、配置与扫描的关系见 [Dubbo Spring Boot 接入](https://dubbo.apache.org/zh-cn/overview/mannual/java-sdk/tasks/develop/springboot/)。阅读遗留工程时还可能遇到旧包下的 `@Service` / `@Reference`，先看 import 和依赖版本，再解释行为。
 
@@ -345,7 +345,7 @@ String traceId = org.apache.dubbo.rpc.RpcContext.getServerAttachment()
 规则是：有可信身份、有 `account:read` 权限，而且目标账户属于该身份的租户，才返回展示名。账户不存在或不属于该租户都使用本例的 `FORBIDDEN` 结果，避免把其他租户的对象是否存在暴露出去；实际产品的拒绝策略另行约定。
 
 ```bash
-javac --release 25 -d /tmp/lesson16 examples/AccountContractExample.java
+javac --release 21 -d /tmp/lesson16 examples/AccountContractExample.java
 java -cp /tmp/lesson16 AccountContractExample
 ```
 
@@ -394,6 +394,8 @@ sequenceDiagram
 | 配置变更 | 刷新生效后返回新的前缀 | Nacos、应用配置、Bean、接口四处 |
 
 401/403 是此处练习的接口约定；真实工程可能使用统一业务码，需要同时记录 HTTP 状态与业务响应，不直接套用。
+
+无框架样本已在当前学习 JDK 中编译运行，普通调用、合法访问、错误租户、缺权限和缺身份五种结果符合预期；这不作为 Dubbo、Nacos 或网关联调通过的证据。
 
 ## 九 练习与验收
 

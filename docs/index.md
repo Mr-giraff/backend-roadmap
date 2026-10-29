@@ -31,7 +31,7 @@
 
 ## 如何使用
 
-**Java 学习主线使用 Java 25，中文主读廖雪峰，Dev.java 补充。** 公司存量业务保持 Java 8 兼容；Spring Cloud、Dubbo、Nacos 和大数据组件按实际依赖选择配套版本。详见[学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+**学习主线使用 JDK 21，中文主读廖雪峰，Dev.java 补充。** 公司存量业务保持 Java 8 兼容；Spring Cloud、Dubbo、Nacos 和大数据组件按实际依赖选择配套版本。详见[学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
 每条路线的 README 定范围、顺序和验收；典型案例先给技能迁移表，再依次讲概念、最小例子和相邻结果，最后用综合案例串联。学到一个当前会用的节点，就回到代码中验证。
 
@@ -82,7 +82,7 @@ flowchart TD
 | Spark | 批处理怎样拆成执行任务，数据交换和倾斜为什么影响耗时 | [路线](/15-大数据组件与数据链路/03-Spark/README/) · [案例](/15-大数据组件与数据链路/03-Spark/典型案例/) |
 | Flink | 持续输入如何按时间计算，状态怎样保存、恢复和继续输出 | [路线](/15-大数据组件与数据链路/04-Flink/README/) · [案例](/15-大数据组件与数据链路/04-Flink/典型案例/) |
 
-按“固定输入 → 预期结果 → 实际执行 → 计划/运行信息 → 一种失败或性能现象”验收。阅读深度以理解执行机制和定位问题为目标，不要求读引擎源码。组件运行 JDK 独立匹配，不能强行使用 Java 25。
+按“固定输入 → 预期结果 → 实际执行 → 计划/运行信息 → 一种失败或性能现象”验收。阅读深度以理解执行机制和定位问题为目标，不要求读引擎源码。组件运行 JDK 独立匹配，不能强行使用 Java 21。
 
 ## 使用层与按需专题
 
@@ -112,9 +112,9 @@ MySQL 优先查询、关联、分页、常用约束、索引用途和 Java/MyBat
 
 ## 资料和工程基线
 
-- **中文主读**：[廖雪峰 Java 教程](https://liaoxuefeng.com/books/java/introduction/index.html)；**现代 Java 补充**：[Dev.java](https://dev.java/learn/)；正式 API 按 [Java 25 文档](https://docs.oracle.com/en/java/javase/25/docs/api/index.html)核对。
+- **中文主读**：[廖雪峰 Java 教程](https://liaoxuefeng.com/books/java/introduction/index.html)；**现代 Java 补充**：[Dev.java](https://dev.java/learn/)；正式 API 按 [Java 21 文档](https://docs.oracle.com/en/java/javase/21/docs/api/index.html)核对。
 - 专项按实际技术补官方资料：Spring、Spring Cloud、Dubbo、Nacos、APISIX、Kafka 及各数据引擎。通用中文教程不替代专项配置和运行语义。
-- 通用学习使用 Java 25，公司业务保持 Java 8 兼容。新旧框架的注解、配置和依赖组合分别核对，学习工程不作为公司升级指令。
+- 通用学习使用 Java 21，公司业务保持 Java 8 兼容。新旧框架的注解、配置和依赖组合分别核对，学习工程不作为公司升级指令。
 - [Java Roadmap](https://roadmap.sh/java)和 [Backend Roadmap](https://roadmap.sh/backend)用于查知识覆盖；[掘金参考文章](https://juejin.cn/post/7652621263219376168)用于借鉴类别、作用和类比的表达顺序。
 
 ## 学习进度

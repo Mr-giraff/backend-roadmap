@@ -57,13 +57,13 @@ lsof -nP -iTCP:18080 -sTCP:LISTEN
 cd ./13-部署运维与故障排查
 demo_dir=/tmp/roadmap-ops-lab
 mkdir -p "$demo_dir/classes"
-javac --release 25 -encoding UTF-8 -d "$demo_dir/classes" examples/OpsDemo.java
+javac --release 21 -encoding UTF-8 -d "$demo_dir/classes" examples/OpsDemo.java
 java -Ddemo.version=v1 -cp "$demo_dir/classes" OpsDemo > "$demo_dir/v1.log" 2>&1 &
 demo_pid=$!
 ps -p "$demo_pid" -o pid=,args=
 ```
 
-上述主线命令需要 JDK 25。公司服务的诊断工具按其实际运行 JDK 选择。先等日志出现 listening，再请求：
+上述主线命令需要当前学习 JDK。公司服务的诊断工具按其实际运行 JDK 选择。先等日志出现 listening，再请求：
 
 ```bash
 cat "$demo_dir/v1.log"
@@ -258,15 +258,15 @@ mysql -h 127.0.0.1 -u roadmap -p roadmap_ops_restore \
 3. 对慢 SQL、慢下游、线程池耗尽分别列出两种相互印证的证据；具备对应学习环境后再注入故障。
 4. 实际恢复一次隔离备份，核对结构、记录和业务读取，并记录 RTO、恢复点与缺失范围。
 
-本地 OpsDemo 已有 Java 8 兼容目标编译记录，Java 25 目标尚未执行，也未在这里启动端口；HTTP、jcmd 采样、数据库备份和恢复均为待在独立学习环境执行的实验。
+OpsDemo 已在当前学习 JDK 中按本计划目标编译，原 Java 8 兼容编译记录保留；本轮未启动监听端口。HTTP 请求、jcmd 采样、数据库备份与恢复仍需在独立学习环境执行。
 
-通用 Java 学习按 Java 25；公司业务案例保留 Java 8 兼容要求。中文主读顺序与环境边界见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+学习环境、存量业务兼容要求与中文资料顺序见[学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
 ## 参考资料
 
 - **中文主读基础**：[廖雪峰 日志入门](https://liaoxuefeng.com/books/java/exception/jdk-logging/index.html)：认识日志与代码位置；JVM 诊断、发布和恢复继续读专项资料。
 - **Java 补充**：[Dev.java 核心 JDK 工具](https://dev.java/learn/jvm/core-tools/)与 [JFR、监控和排查](https://dev.java/learn/jvm/monitoring-troubleshooting/)。
-- **Java 25 规范核对（英文）**：[JDK 25 故障排查指南](https://docs.oracle.com/en/java/javase/25/troubleshoot/)：工具匹配实际运行 JDK；公司 Java 8 服务使用对应版本工具和文档。
+- **规范核对（英文）**：[JDK 故障排查指南](https://docs.oracle.com/en/java/javase/21/troubleshoot/)：工具匹配实际运行 JDK；公司 Java 8 服务使用对应版本工具和文档。
 - **运行专项（英文）**：[OpenTelemetry](https://opentelemetry.io/docs/concepts/observability-primer/)、[Kubernetes 探针](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)、[Docker 镜像](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-an-image/)。
 - **恢复专项（英文）**：[MySQL mysqldump](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html)、[Google SRE 服务目标](https://sre.google/sre-book/service-level-objectives/)。
 

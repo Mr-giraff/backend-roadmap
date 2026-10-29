@@ -21,7 +21,7 @@
 
 前置是 [01](/01-Java语言与JVM基础/README/)的对象、集合、异常、Lambda 与运行模型。线程实验可以独立进行；服务端共享对象结合 [03](/03-HTTP与Spring服务开发/README/)，数据库竞争结合 [06](/06-事务与数据一致性/README/)。
 
-学习主线使用 Java 25，平台线程、线程池和虚拟线程都要学习；公司 Java 8 业务案例不直接使用虚拟线程等新 API。版本边界见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+学习主线使用当前学习 JDK，平台线程、线程池和虚拟线程都要学习；公司 Java 8 业务案例不直接使用虚拟线程等新 API。版本边界见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
 ## 学习方式与顺序
 
@@ -36,7 +36,7 @@ flowchart TD
     E --> F["6 Future 超时与取消"]
     F --> G["7 CompletableFuture 编排"]
     G --> H["8 上下文与清理"]
-    H --> V["9 Java 25 虚拟线程"]
+    H --> V["9 虚拟线程"]
     V --> I["综合 故障与资源实验"]
     I --> J["练习与验收"]
 ```
@@ -125,7 +125,7 @@ flowchart TD
 
 最小例子：[上下文](/07-并发与异步编程/典型案例/#八-上下文跟着任务传递复用线程前后要清理)。过关证据：后一任务只看到自身上下文或明确的空值。
 
-### 9. Java 25 虚拟线程
+### 9. 虚拟线程
 
 目标：为等待型任务选择合适的线程模型，并保留资源边界。
 
@@ -133,7 +133,7 @@ flowchart TD
 - [ ] **理解** 虚拟线程不自动保证共享状态安全，也不增加 CPU、数据库或远端配额。
 - [ ] **设计** 比较平台线程池与虚拟线程，用连接池或 Semaphore 限制下游并发；公司 Java 8 另用兼容机制。
 
-最小例子：[虚拟线程](/07-并发与异步编程/典型案例/#九-java-25-虚拟线程)。过关证据：解释适用工作负载、任务收尾和下游限制，Java 25 环境运行后再记录通过。
+最小例子：[虚拟线程](/07-并发与异步编程/典型案例/#九-虚拟线程)。过关证据：解释适用工作负载、任务收尾和下游限制，当前学习 JDK 环境运行后再记录通过。
 
 ## 二 综合案例 结果正确与资源有界
 
@@ -158,13 +158,13 @@ flowchart TD
 | 数据库与多实例冲突 | [06](/06-事务与数据一致性/README/)、[09](/09-分布式系统与服务协作/README/) | 区分进程内锁、数据库约束与跨系统协调 |
 | 故障和持续负载 | [11](/11-测试与质量保障/README/)、[13](/13-部署运维与故障排查/README/) | 线程转储、死锁、CPU、队列延迟、连接与内存证据 |
 | 深入内存模型 | 常用同步已能解释 | CAS、多变量协调、并发集合迭代保证；不要求先实现无锁结构 |
-| 现代上下文与编排 | Java 25 虚拟线程基础 | 按所用 JDK 的正式/预览状态继续学习上下文与任务编排；公司 Java 8 使用其可用机制 |
+| 现代上下文与编排 | 当前学习 JDK 虚拟线程基础 | 按所用 JDK 的正式/预览状态继续学习上下文与任务编排；公司 Java 8 使用其可用机制 |
 
 ## 参考资料
 
 - **中文主读**：[廖雪峰 多线程](https://liaoxuefeng.com/books/java/threading/index.html)与 [使用虚拟线程](https://liaoxuefeng.com/books/java/threading/virtual-thread/index.html)：同步、线程池、异步结果和现代线程模型。
 - **Java 补充**：[Dev.java 虚拟线程](https://dev.java/learn/new-features/virtual-threads/)：任务模型、阻塞与资源限制。
-- **Java 25 API 核对（英文）**：[并发包](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/package-summary.html)、[ThreadPoolExecutor](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html)、[Future](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/Future.html)、[CompletableFuture](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CompletableFuture.html)。
-- **规范核对（英文）**：[Java 25 线程与锁](https://docs.oracle.com/javase/specs/jls/se25/html/jls-17.html)；公司 Java 8 实现另对照 [Java 8 并发 API](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/package-summary.html)。
+- **API 核对（英文）**：[并发包](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/package-summary.html)、[ThreadPoolExecutor](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html)、[Future](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/Future.html)、[CompletableFuture](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/CompletableFuture.html)。
+- **规范核对（英文）**：[线程与锁](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html)；公司 Java 8 实现另对照 [Java 8 并发 API](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/package-summary.html)。
 
 [返回总纲](/)

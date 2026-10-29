@@ -12,7 +12,7 @@
 
 ## 目标与前置条件
 
-目标是能解释并实现一个行为明确的 HTTP 接口。先完成 [01](/01-Java语言与JVM基础/README/)的类、接口、泛型、异常，以及 [02](/02-工程构建与研发流程/README/)的启动与配置。基本对象协作不要求先完成 04；业务分层与 04 交替学习。通用学习示例使用 Java 25、Boot 3.5.16 / Framework 6.2.x；Java 8 业务案例仍按原项目依赖和兼容要求练习。
+目标是能解释并实现一个行为明确的 HTTP 接口。先完成 [01](/01-Java语言与JVM基础/README/)的类、接口、泛型、异常，以及 [02](/02-工程构建与研发流程/README/)的启动与配置。基本对象协作不要求先完成 04；业务分层与 04 交替学习。通用学习示例使用当前学习 JDK、Boot 3.5.16 / Framework 6.2.x；Java 8 业务案例仍按原项目依赖和兼容要求练习。
 
 中文阅读与版本策略见[学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
@@ -118,8 +118,8 @@ flowchart TD
 - **中文主读**：[廖雪峰 Spring 开发](https://liaoxuefeng.com/books/java/spring/index.html)、[IoC 容器](https://liaoxuefeng.com/books/java/spring/ioc/index.html)与 [Spring MVC](https://liaoxuefeng.com/books/java/spring/web/mvc/index.html)：按对象协作、注入、绑定和异常顺序阅读。
 - **中文主读**：[廖雪峰 Spring Boot 开发](https://liaoxuefeng.com/books/java/springboot/index.html)：补启动、配置和打包；示例依赖以本章固定版本为准。
 - **现代 Java 补充**：[Dev.java](https://dev.java/learn/)：对象、注解、异常与 JVM 背景，可配合浏览器翻译。
-- **框架核对**：[Spring Boot 3.5 系统要求](https://docs.spring.io/spring-boot/3.5/system-requirements.html)、[Spring MVC 6.2](https://docs.spring.io/spring-framework/reference/6.2/web/webmvc.html)与 [Spring 容器](https://docs.spring.io/spring-framework/reference/6.2/core/beans.html)：本例锁定 Boot 3.5.16，使用 Java 25；Framework 6.2.x 由 Boot 管理，官方当前要求 6.2.19 或以上。
+- **框架核对**：[Spring Boot 3.5 系统要求](https://docs.spring.io/spring-boot/3.5/system-requirements.html)、[Spring MVC 6.2](https://docs.spring.io/spring-framework/reference/6.2/web/webmvc.html)与 [Spring 容器](https://docs.spring.io/spring-framework/reference/6.2/core/beans.html)：本例锁定 Boot 3.5.16，使用当前学习 JDK；Framework 6.2.x 由 Boot 管理，官方当前要求 6.2.19 或以上。
 - **协议核对**：[HTTP 语义 RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html)。
-- **Java 8 兼容核查**：[Spring Boot 2.7 文档](https://docs.spring.io/spring-boot/docs/2.7.18/reference/htmlsingle/)仅用于相应遗留项目；不能把本章的 Java 25 与 Jakarta 配置直接复制回去。
+- **Java 8 兼容核查**：[Spring Boot 2.7 文档](https://docs.spring.io/spring-boot/docs/2.7.18/reference/htmlsingle/)仅用于相应遗留项目；不能把本章的学习环境与 Jakarta 配置直接复制回去。
 
 [返回总纲](/)

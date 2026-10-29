@@ -310,11 +310,11 @@ public class SecurityDemo {
 
 ```bash
 mkdir -p /tmp/study-12-classes
-javac --release 25 -encoding UTF-8 -d /tmp/study-12-classes examples/*.java
+javac --release 21 -encoding UTF-8 -d /tmp/study-12-classes examples/*.java
 java -cp /tmp/study-12-classes SecurityDemo
 ```
 
-主线需使用 JDK 25。预期分别为 true、false、true、false。说明规则同时核对动作、租户和项目，而不只看角色。
+主线需使用当前学习 JDK。预期分别为 true、false、true、false。说明规则同时核对动作、租户和项目，而不只看角色。
 
 真实服务还需在已认证入口调用规则，验证 SQL 和批量查询确实带范围，并检查缓存、导出、异步与内部入口。单元对象结果没有证明这些基础设施已经正确接入。
 
@@ -328,7 +328,7 @@ java -cp /tmp/study-12-classes SecurityDemo
 
 验收包括授权矩阵、允许与拒绝的最终数据结果、可信身份来源及日志样例，不能只验证按钮是否可见。
 
-通用 Java 学习按 Java 25；公司业务案例保留 Java 8 兼容要求。中文主读顺序与环境边界见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+学习环境、存量业务兼容要求与中文资料顺序见[学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
 ## 参考资料与验证范围
 
@@ -337,6 +337,6 @@ java -cp /tmp/study-12-classes SecurityDemo
 - **授权与协议专项（英文）**：[OWASP Authorization](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)、[REST Security](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html)。
 - **输入与秘密专项（英文）**：[SQL Injection Prevention](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html)、[Password Storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)、[SSRF Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html)。
 
-本地授权示例已有 Java 8 兼容目标的编译运行记录；Java 25 目标尚未执行。只读、编辑、跨项目、跨租户和未认证身份的边界检查通过。认证链、真实数据库、密码库、网关与跨服务身份传递需在对应环境验证，本地 Actor 不能替代这些验证。
+本地授权源码已在当前学习 JDK 中编译运行，正常读取、禁止编辑、跨租户、跨项目、无身份和无资源边界通过；原 Java 8 目标记录保留。认证链、真实数据库、密码库、网关与跨服务身份传递需在对应环境验证，测试 Actor 不能替代真实认证。
 
 [返回 Roadmap](/12-安全与权限/README/) · [返回总纲](/)

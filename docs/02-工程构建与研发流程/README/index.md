@@ -19,7 +19,7 @@
 
 目标是能独立启动、构建和交付一个 Java 工程，并区分源码、依赖、配置和环境问题。
 
-与 [01 Java](/01-Java语言与JVM基础/README/)交叉学习。开始时只需认识类、main 入口和输出语句；读取配置和综合案例时，再补齐对象、异常与资源关闭。独立学习工程统一使用 Java 25，并记录 Maven、IDE 与运行 JDK；旧项目另按既有兼容目标处理。统一约定见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+与 [01 Java](/01-Java语言与JVM基础/README/)交叉学习。开始时只需认识类、main 入口和输出语句；读取配置和综合案例时，再补齐对象、异常与资源关闭。独立学习工程统一使用当前学习 JDK，并记录 Maven、IDE 与运行 JDK；旧项目另按既有兼容目标处理。统一约定见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
 ## 学习方式与顺序
 
@@ -76,7 +76,7 @@ flowchart TD
 
 - [ ] **理解** groupId、artifactId、version 怎样标识一份产物，与 Java package 区分。
 - [ ] **理解** release 编译目标、编码、插件的作用；公司父 POM 版本不等于 Spring Boot 版本。
-- [ ] **实现** 从实际 POM 找到工程名称、版本和 `maven.compiler.release=25`，说明构建插件从哪里取得。
+- [ ] **实现** 从实际 POM 找到工程名称、版本和 `maven.compiler.release=21`，说明构建插件从哪里取得。
 
 最小例子：[完整单模块 POM](/02-工程构建与研发流程/典型案例/#四-pomxml-说明这个工程怎样构建)。过关证据：逐项解释示例 POM，而不是只复制 XML。
 
@@ -161,7 +161,7 @@ flowchart TD
 ## 参考资料
 
 - **中文主读：** [廖雪峰 Maven 基础](https://liaoxuefeng.com/books/java/maven/index.html)：依赖、构建流程、插件和多模块。
-- **中文主读：** [安装 JDK](https://liaoxuefeng.com/books/java/quick-start/dev-env/install-jdk/index.html)、[classpath 与 JAR](https://liaoxuefeng.com/books/java/oop/basic/classpath-jar/index.html)、[class 版本](https://liaoxuefeng.com/books/java/oop/basic/class-version/index.html)：对齐 JDK 25、运行入口与兼容目标。
+- **中文主读：** [安装 JDK](https://liaoxuefeng.com/books/java/quick-start/dev-env/install-jdk/index.html)、[classpath 与 JAR](https://liaoxuefeng.com/books/java/oop/basic/classpath-jar/index.html)、[class 版本](https://liaoxuefeng.com/books/java/oop/basic/class-version/index.html)：对齐当前学习 JDK、运行入口与兼容目标。
 - **官方补充：** [Dev.java JDK 工具](https://dev.java/learn/jvm/core-tools/)；[Java 模块系统](https://dev.java/learn/organizing/modules/)用于区分 JPMS 与 Maven 构建模块。
 - **精确规则查阅：** [Maven release 编译选项](https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-release.html)、[构建生命周期](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html)、[依赖机制](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html)。
 

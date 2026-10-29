@@ -262,7 +262,7 @@ LIMIT 2;
 3. 生成十万条分布不均的数据，比较索引前后执行计划，报告扫描量和写入代价，不只比较一次耗时。
 4. 为已有重复编码的数据增加唯一约束，先做检测与清理方案，说明旧应用继续写入时的兼容要求。
 
-通用 Java 学习按 Java 25；公司业务案例保留 Java 8 兼容要求。中文主读顺序与环境边界见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+学习环境、存量业务兼容要求与中文资料顺序见[学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
 ## 参考与验证范围
 
@@ -271,6 +271,6 @@ LIMIT 2;
 - **专项核对（英文）**：[MySQL CREATE TABLE](https://dev.mysql.com/doc/refman/8.0/en/create-table.html)、[SELECT](https://dev.mysql.com/doc/refman/8.0/en/select.html)、[EXPLAIN](https://dev.mysql.com/doc/refman/8.0/en/explain.html)：约束、查询计划和版本行为。
 - **迁移与事务边界（英文）**：[Flyway 版本化迁移](https://documentation.red-gate.com/fd/versioned-migrations-273973333.html)、[MySQL 隐式提交](https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html)：工具按工程选型。
 
-SQL 及预期结果按 MySQL 8.0.16+ InnoDB 语义编写，尚未在本机 MySQL 实例执行；JDBC 方法已有 Java 8 目标编译证据，尚未按 Java 25 编译或连接数据库。需要在独立学习库核对版本、排序规则、约束和执行计划。
+SQL 及预期结果按 MySQL 8.0.16+ InnoDB 语义编写，尚未在本机 MySQL 实例执行；JDBC 方法已在当前学习 JDK 中提取为临时包装类并编译，原 Java 8 目标编译记录保留。数据库连接、约束、排序规则、查询计划与并发行为仍需在独立学习库验证。
 
 [返回本节 Roadmap](/05-数据库设计与SQL/README/) · [返回总纲](/)

@@ -15,7 +15,7 @@
 | 用环境变量改变行为 | 使用资源文件、JVM 参数和环境变量 | 覆盖顺序由程序或框架定义 |
 | 用断点、日志和 Git 交付改动 | 相同的调试与协作思路 | 多核对编译目标、运行 JDK 与实际加载的包 |
 
-先学工具与工程的基本概念，再读最后的双模块综合案例。独立示例以 JDK 25 为学习环境，保留显式类和 main 的基础写法；类、方法、异常和资源关闭可对照 [01 典型案例](/01-Java语言与JVM基础/典型案例/)。
+先学工具与工程的基本概念，再读最后的双模块综合案例。独立示例采用统一学习环境，保留显式类和 main 的基础写法；类、方法、异常和资源关闭可对照 [01 典型案例](/01-Java语言与JVM基础/典型案例/)。
 
 当前学习范围：前面先跑通最小工程；双模块案例后继续做 Maven 核心补练，把依赖声明、版本来源和实际加载的 JAR 对齐。
 
@@ -37,7 +37,7 @@ javac -version
 mvn -version
 ```
 
-主线学习应确认三条输出都指向 JDK 25，IDE 也使用同一学习 JDK。三条输出分别说明运行 Java、编译 Java和运行 Maven 时选用了什么工具。Maven 自己也运行在 JDK 上，所以它显示的 JDK 可能与前两条不同；IDE 还有独立的项目和运行配置。
+主线学习应确认三条输出都指向当前学习 JDK，IDE 也使用同一学习 JDK。三条输出分别说明运行 Java、编译 Java和运行 Maven 时选用了什么工具。Maven 自己也运行在 JDK 上，所以它显示的 JDK 可能与前两条不同；IDE 还有独立的项目和运行配置。
 
 ## 二 先编译一个文件，再运行它
 
@@ -68,7 +68,7 @@ public class Hello {
 ```bash
 cd ./02-工程构建与研发流程/examples/single-source
 mkdir -p /tmp/study-02-hello
-javac --release 25 -encoding UTF-8 -d /tmp/study-02-hello Hello.java
+javac --release 21 -encoding UTF-8 -d /tmp/study-02-hello Hello.java
 java -cp /tmp/study-02-hello Hello
 ```
 
@@ -137,7 +137,7 @@ POM 是 Maven 的工程配置文件，可以局部联系 package.json：两者�
     <artifactId>hello-demo</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
-        <maven.compiler.release>25</maven.compiler.release>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <build>
@@ -159,12 +159,12 @@ POM 是 Maven 的工程配置文件，可以局部联系 package.json：两者�
 | groupId | 工程所属的组织标识：study.backend |
 | artifactId | 这份构建产物的名称：hello-demo |
 | version | 版本：1.0-SNAPSHOT，表示开发中的版本 |
-| maven.compiler.release | 使用 Java 25 语言、公共 API 与字节码目标 |
+| maven.compiler.release | 指定学习基线的语言、公共 API 与字节码目标 |
 | maven-compiler-plugin | 负责源码编译的插件，固定使用 3.16.0 |
 
 `groupId/artifactId/version` 一起标识一份产物，也叫 Maven 坐标。它与源码中的 `package study.hello` 是两套名称：前者定位依赖包，后者定位类。
 
-Maven 通过插件执行具体任务。这个 POM 没有外部业务依赖，但 Maven 插件仍需来自本地缓存或配置的仓库。构建这份 POM 需要 Maven 使用 JDK 25；`release=25` 不能让旧 JDK 自动获得新编译能力。
+Maven 通过插件执行具体任务。这个 POM 没有外部业务依赖，但 Maven 插件仍需来自本地缓存或配置的仓库。构建这份 POM 需要 Maven 使用当前学习 JDK；`release=21` 不能让旧 JDK 自动获得新编译能力。
 
 ## 五 compile、package、install 各自产生什么
 
@@ -436,7 +436,7 @@ mvn -pl application dependency:tree -Dincludes=study.backend:greeting-contract
 mvn -pl application help:effective-pom -Doutput=target/effective-pom.xml
 ```
 
-依赖树用于确认解析出的 `study.backend:greeting-contract:jar:1.0-SNAPSHOT`；effective POM 用于查看继承、属性和插件合并后的配置。输出文件位于 application 的 target 目录。命令需要匹配的 JDK 25 与可用 Maven 插件；这里定义预期检查，不记为本机已执行。
+依赖树用于确认解析出的 `study.backend:greeting-contract:jar:1.0-SNAPSHOT`；effective POM 用于查看继承、属性和插件合并后的配置。输出文件位于 application 的 target 目录。命令需要匹配的当前学习 JDK 与可用 Maven 插件；这里定义预期检查，不记为本机已执行。
 
 练习：在学习副本中使用上述集中版本配置，去掉 application 的版本声明，比较构建和依赖树；随后只移除 dependencyManagement 并观察缺失版本错误。每次只改一处，说明“版本没解析出来”和“运行时没有 JAR”的区别。
 
@@ -444,12 +444,12 @@ mvn -pl application help:effective-pom -Doutput=target/effective-pom.xml
 
 ## 环境与参考资料
 
-学习主线使用 JDK 25，终端的 java、javac、Maven 运行 JDK 与 IDE 运行配置都需要核对。POM 使用 `maven.compiler.release=25`，同时限制语言、公共 API 和字节码目标；仅安装较新 JDK 不会自动把所有工程目标改成 25。配置约定见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+学习主线使用当前学习 JDK，终端的 java、javac、Maven 运行 JDK 与 IDE 运行配置都需要核对。POM 使用 `maven.compiler.release=21`，同时限制语言、公共 API 和字节码目标；仅安装较新 JDK 不会自动改变工程的编译目标。配置约定见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
-验证记录：单文件、单模块和原双模块的 Java 8 兼容检查已在既有可用 JDK 上完成，原双模块也有离线 Maven 构建、运行与配置验证。本次 POM 与主线命令改用 25 目标；本机未检测到 JDK 25，因此未执行当前配置的 Java 25 编译或 Maven 构建，不把既有检查写成新目标已通过。实际 JDK 8、IDE 和发布环境仍需对应环境验证。
+验证记录：Hello、单模块和双模块的普通 Java 源码已用当前学习 JDK 直接编译运行；参数、配置覆盖、缺资源和缺公共包路径已核对。离线 Maven verify 因插件依赖缓存不完整未完成，不能将直接 javac 验证当作 Maven 构建通过。原 Java 8 兼容与双模块构建记录保留；IDE、真实 JDK 8 与发布环境仍需独立验证。
 
 - **中文主读：** [廖雪峰 Maven 基础](https://liaoxuefeng.com/books/java/maven/index.html)、[classpath 与 JAR](https://liaoxuefeng.com/books/java/oop/basic/classpath-jar/index.html)、[class 版本](https://liaoxuefeng.com/books/java/oop/basic/class-version/index.html)。
-- **中文环境说明：** [廖雪峰安装 JDK](https://liaoxuefeng.com/books/java/quick-start/dev-env/install-jdk/index.html)的安装章节使用 JDK 25；站内其他章节仍可能有不同版本标注，按当前练习配置核对。非交互脚本所需环境变量遵守 `~/.zshenv` 约定。
+- **中文环境说明：** [廖雪峰安装 JDK](https://liaoxuefeng.com/books/java/quick-start/dev-env/install-jdk/index.html)用于理解安装与配置步骤；教程可能采用其他版本，本计划按当前学习 JDK 核对环境。非交互脚本所需环境变量遵守 `~/.zshenv` 约定。
 - **官方补充：** [Dev.java JDK 工具](https://dev.java/learn/jvm/core-tools/)与[模块系统](https://dev.java/learn/organizing/modules/)。
 - **构建规则查阅：** [Maven release 选项](https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-release.html)、[生命周期](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html)、[多模块](https://maven.apache.org/guides/mini/guide-multiple-modules.html)、[依赖机制](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html)。
 

@@ -26,7 +26,7 @@
 
 SQL 样本按 Spark 3.5 系列资料讲解，先使用兼容 JDK 的隔离学习环境。`local[2]` 提供两个本地执行线程，用于小实验；多机网络、独立执行进程和资源调度要在集群运行时验证。
 
-通用 Java 25 不决定 Spark 运行 JDK。记录 Spark、JDK、Catalog、连接器和存储配置；迁移到公司版本前核对语法和依赖兼容。
+通用当前学习 JDK 不决定 Spark 运行 JDK。记录 Spark、JDK、Catalog、连接器和存储配置；迁移到公司版本前核对语法和依赖兼容。
 
 先学 Spark SQL 与执行过程，再按任务补 Java/Scala API、数据格式和作业提交。完整 RDD API、源码、复杂调优不作为本单元前置。
 

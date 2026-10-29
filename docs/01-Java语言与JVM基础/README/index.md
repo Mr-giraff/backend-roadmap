@@ -19,7 +19,7 @@
 
 ## 前置条件与学习方法
 
-已有 JS 编程经验即可开始；与 [02 工程构建](/02-工程构建与研发流程/README/)交叉完成编译和运行的入门部分。独立学习主线使用 Java 25，版本与资料顺序见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。旧项目另按其兼容目标核对。
+已有 JS 编程经验即可开始；与 [02 工程构建](/02-工程构建与研发流程/README/)交叉完成编译和运行的入门部分。独立学习主线使用当前学习 JDK，版本与资料顺序见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。旧项目另按其兼容目标核对。
 
 按下面四步推进，每完成一阶段再勾选对应能力：
 
@@ -59,7 +59,7 @@ flowchart TD
 - [ ] **实现** 条件、循环和数组遍历；区分编译错误与运行异常。
 - [ ] **实现** 局部变量 var 类型推断与 switch 表达式，能够解释推断后的固定类型。
 
-主线补充：[现代写法阅读与对照](/01-Java语言与JVM基础/典型案例/#java-25-主线补充)。过关证据：为类型不匹配、final 再赋值、文本比较各给出一个最小例子，预测并核对结果。
+主线补充：[现代写法阅读与对照](/01-Java语言与JVM基础/典型案例/#现代-java-写法补充)。过关证据：为类型不匹配、final 再赋值、文本比较各给出一个最小例子，预测并核对结果。
 
 ### 2. 方法、类与对象
 
@@ -165,8 +165,8 @@ flowchart TD
 
 - **中文主读：** [廖雪峰 Java 快速入门](https://liaoxuefeng.com/books/java/quick-start/index.html)、[面向对象](https://liaoxuefeng.com/books/java/oop/index.html)：对应类型、方法、类和接口。
 - **中文主读：** [泛型](https://liaoxuefeng.com/books/java/generics/index.html)、[集合](https://liaoxuefeng.com/books/java/collection/index.html)、[函数式编程](https://liaoxuefeng.com/books/java/functional/index.html)：对应容器类型与批量处理。
-- **Java 25 主线补充：** [廖雪峰记录类](https://liaoxuefeng.com/books/java/oop/core/record/index.html)、[switch 表达式](https://liaoxuefeng.com/books/java/quick-start/flow/switch/index.html)；[Dev.java 语言基础](https://dev.java/learn/language/constructs/)与[集合和 Stream](https://dev.java/learn/api/collections-and-streams/)用于补充现代特性和核对边界。
-- **精确语义查阅：** [Java 25 BigDecimal API](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/math/BigDecimal.html)；英文 API 用来核对具体方法，不替代中文入门主读。
+- **现代 Java 写法补充：** [廖雪峰记录类](https://liaoxuefeng.com/books/java/oop/core/record/index.html)、[switch 表达式](https://liaoxuefeng.com/books/java/quick-start/flow/switch/index.html)；[Dev.java 语言基础](https://dev.java/learn/language/constructs/)与[集合和 Stream](https://dev.java/learn/api/collections-and-streams/)用于补充现代特性和核对边界。
+- **精确语义查阅：** [当前学习 JDK BigDecimal API](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/math/BigDecimal.html)；英文 API 用来核对具体方法，不替代中文入门主读。
 - **旧项目兼容查阅：** [Oracle Java 8 教程](https://docs.oracle.com/javase/tutorial/java/)，仅用于确认 Java 8 可用语法与 API。
 
 [返回总纲](/)

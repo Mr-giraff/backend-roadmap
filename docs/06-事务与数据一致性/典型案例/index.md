@@ -14,7 +14,7 @@
 | 禁止重复点击 | 条件更新、唯一约束、幂等 | 单个页面不能约束其他用户与服务实例 |
 | 统一封装调用行为 | Spring 事务代理 | 必须通过代理进入；线程与异常会影响事务 |
 
-先学习数据库本地事务，再学习锁与 Spring。SQL 面向 MySQL 8.0.16+ InnoDB，Spring 示例采用 Java 25 / Spring Framework 6.2.19。Java 8 业务案例仍查原项目事务配置，不直接升级或套用本章依赖。所有写入只用于独立学习库；不要将学习 SQL 发往公司业务库。
+先学习数据库本地事务，再学习锁与 Spring。SQL 面向 MySQL 8.0.16+ InnoDB，Spring 示例采用当前学习 JDK / Spring Framework 6.2.19。Java 8 业务案例仍查原项目事务配置，不直接升级或套用本章依赖。所有写入只用于独立学习库；不要将学习 SQL 发往公司业务库。
 
 当前学习范围：起步先观察一次提交和一次失败回滚，再确认业务规则与事务范围。跨服务恢复需要实际场景时继续进入 09。
 
@@ -294,8 +294,8 @@ SELECT ROW_COUNT() AS changed;
 - **现代 Java 补充**：[Dev.java](https://dev.java/learn/)：异常、线程与对象模型；数据库和框架事务语义仍查下面的专项资料。
 - **数据库核对**：[MySQL 隔离级别](https://dev.mysql.com/doc/refman/8.0/en/innodb-transaction-isolation-levels.html)、[锁](https://dev.mysql.com/doc/refman/8.0/en/innodb-locking.html)与[死锁](https://dev.mysql.com/doc/refman/8.0/en/innodb-deadlocks.html)。
 - **框架核对**：[Spring 6.2 声明式事务](https://docs.spring.io/spring-framework/reference/6.2/data-access/transaction/declarative.html)与 [DataSourceTransactionManager 6.2.19](https://docs.spring.io/spring-framework/docs/6.2.19/javadoc-api/org/springframework/jdbc/datasource/DataSourceTransactionManager.html)：代理、传播、线程与资源边界。
-- **Java 8 兼容核查**：[Spring 5.2 事务文档](https://docs.spring.io/spring-framework/docs/5.2.6.RELEASE/spring-framework-reference/data-access.html#transaction-declarative)用于对照相应遗留版本，不作为 Java 25 学习工程依赖。
+- **Java 8 兼容核查**：[Spring 5.2 事务文档](https://docs.spring.io/spring-framework/docs/5.2.6.RELEASE/spring-framework-reference/data-access.html#transaction-declarative)用于对照相应遗留版本，不作为当前学习工程依赖。
 
-SQL 与 Spring 示例已按官方语义静态核对，未在本机 MySQL 或 Java 25 / Spring 6.2 容器执行。运行需先满足独立库、版本和依赖前提；预期结果不是实测结论。
+SQL 与 Spring 示例已按官方语义静态核对，未在本机 MySQL 或当前学习 JDK / Spring 6.2 容器执行。运行需先满足独立库、版本和依赖前提；预期结果不是实测结论。
 
 [返回本节 Roadmap](/06-事务与数据一致性/README/) · [返回总纲](/)

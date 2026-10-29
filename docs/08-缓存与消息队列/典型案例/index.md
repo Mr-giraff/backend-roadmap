@@ -135,7 +135,7 @@ Kafka 保存事件，消费者按自己的进度读取。生产者不必等待�
 
 ## 六 先观察一条消息怎样进入 Kafka
 
-以下命令在已经解压的 Kafka **4.2** 分发目录执行，假设独立学习 broker 在 `127.0.0.1:9092` 可用，且 topic 名未被其他练习使用。服务启动可按 [官方 Quick Start](https://kafka.apache.org/42/getting-started/quickstart/)准备；本章不自动格式化数据目录或搭建生产集群。4.2 官方支持 Java 25；公司 Java 8 工程另按实际框架和客户端版本选择依赖。
+以下命令在已经解压的 Kafka **4.2** 分发目录执行，假设独立学习 broker 在 `127.0.0.1:9092` 可用，且 topic 名未被其他练习使用。服务启动可按 [官方 Quick Start](https://kafka.apache.org/42/getting-started/quickstart/)准备；本章不自动格式化数据目录或搭建生产集群。JDK 支持范围按所选发行版的官方文档核对；公司 Java 8 工程另按实际框架和客户端版本选择依赖。
 
 创建两分区、单副本的学习 topic：
 

@@ -226,11 +226,11 @@ public class ArchitectureDemo {
 
 ```bash
 mkdir -p /tmp/study-04-classes
-javac --release 25 -encoding UTF-8 -d /tmp/study-04-classes examples/*.java
+javac --release 21 -encoding UTF-8 -d /tmp/study-04-classes examples/*.java
 java -cp /tmp/study-04-classes ArchitectureDemo
 ```
 
-输出 `PUBLISHED`。主线需使用 JDK 25；公司 Java 8 兼容实验另用独立编译目录核查。
+输出 `PUBLISHED`。主线需使用当前学习 JDK；公司 Java 8 兼容实验另用独立编译目录核查。
 
 | 改动 | 结果 | 规则来自哪里 |
 | --- | --- | --- |
@@ -256,7 +256,7 @@ java -cp /tmp/study-04-classes ArchitectureDemo
 
 CQRS 区分读写职责，事件溯源用事件保存状态演变，六边形架构强调内外边界；它们解决不同问题，不是四个必须叠加的目录结构。
 
-通用 Java 学习按 Java 25；公司业务案例保留 Java 8 兼容要求。中文主读顺序与环境边界见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+学习环境、存量业务兼容要求与中文资料顺序见[学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
 ## 参考资料与验证范围
 
@@ -265,6 +265,6 @@ CQRS 区分读写职责，事件溯源用事件保存状态演变，六边形架
 - **专项核对（英文）**：[Service Layer](https://martinfowler.com/eaaCatalog/serviceLayer.html)、[Repository](https://martinfowler.com/eaaCatalog/repository.html)、[DTO](https://martinfowler.com/eaaCatalog/dataTransferObject.html)：职责和模式原意。
 - **进阶参考**：[Microsoft DDD 指南](https://learn.microsoft.com/zh-cn/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/ddd-oriented-microservice)：中文概念说明，语言示例不直接迁入 Java。
 
-已有兼容性验证为 Java 8 目标编译与本机运行，输出 PUBLISHED；Java 25 目标尚未执行。重复发布、空名称和不存在编号的拒绝路径已检查。它是单进程内存实现，真实数据库、Spring 注入、并发和事务需在对应路线中另行验证。
+完整源码已在当前学习 JDK 中编译运行，正常发布、重复、空名称、不存在编号和失败后状态不变均通过；原 Java 8 兼容记录保留。这是单进程内存实现，真实数据库、Spring 注入、并发和事务需在对应路线中另行验证。
 
 [返回 Roadmap](/04-分层架构与业务建模/README/) · [返回总纲](/)

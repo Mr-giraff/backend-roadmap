@@ -14,7 +14,7 @@
 | Promise、Promise.all | Future、CompletableFuture | 等待可能阻塞；取消或超时不等于工作停止 |
 | 将用户和项目传给请求 | 显式上下文传递、ThreadLocal | 线程池会复用线程，残留数据可能串请求 |
 
-按“线程 → 共享状态 → 同步 → 集合 → 线程池 → 结果与取消 → 上下文 → 虚拟线程”学习。主线使用 Java 25；基础写法保留跨版本可读性，公司 Java 8 不直接使用现代 API。版本边界见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+按“线程 → 共享状态 → 同步 → 集合 → 线程池 → 结果与取消 → 上下文 → 虚拟线程”学习。主线使用当前学习 JDK；基础写法保留跨版本可读性，公司 Java 8 不直接使用现代 API。版本边界见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
 当前学习范围：从当前问题需要的最小实验开始：计数竞争、取消、线程池或身份清理。虚拟线程属于后续扩展，不影响公司 Java 8 业务的基础练习。
 
@@ -234,7 +234,7 @@ public class ComposeExample {
 
 输出 6。thenApply 依赖前一个结果；两个独立结果可用 thenCombine 合并，异常处理可用 handle/exceptionally。先写清任务之间的依赖，再决定哪些值得并行。
 
-Java 25 可用 orTimeout 或 completeOnTimeout 限定 CompletableFuture 的完成结果，但它们不自动停止底层任务；当前实验用 get(timeout, unit) 单独观察等待超时，各下游调用仍需自己的时限。公司 Java 8 没有前两种 API。
+当前学习 JDK 可用 orTimeout 或 completeOnTimeout 限定 CompletableFuture 的完成结果，但它们不自动停止底层任务；当前实验用 get(timeout, unit) 单独观察等待超时，各下游调用仍需自己的时限。公司 Java 8 没有前两种 API。
 
 `CompletableFuture.cancel(true)` 不会因此中断底层计算。完整示例取消 Future 后，底层任务仍在等待，打印 `running=true`；显式打开闸门后它才结束。
 
@@ -260,9 +260,9 @@ tenantId 是这里显式捕获的测试上下文；实际身份从可信认证�
 
 没有清理可能残留，直接换线程则可能丢失。异步任务也不会自动共享调用方 Spring 本地事务；需要明确传递必要字段，并为持久化步骤定义自己的事务边界。
 
-## 九 Java 25 虚拟线程
+## 九 虚拟线程
 
-虚拟线程让大量会等待的任务可以各自拥有一条轻量执行路径。它属于 Java 25 学习主线；线程安全、取消和数据库连接上限仍需按前面的方法单独保证。
+虚拟线程让大量会等待的任务可以各自拥有一条轻量执行路径。它属于当前学习主线；线程安全、取消和数据库连接上限仍需按前面的方法单独保证。
 
 下面是完整的 [VirtualThreadExample.java](/assets/07-并发与异步编程/examples/VirtualThreadExample.java)：
 
@@ -283,17 +283,17 @@ public class VirtualThreadExample {
 
 `newVirtualThreadPerTaskExecutor` 为每个提交的任务创建虚拟线程；本例返回“当前任务是否在虚拟线程中运行”。ExecutorService 的 try-with-resources 会在退出时关闭执行器并等待已提交任务结束，get 则取得结果。
 
-在本章节目录、已经选好 JDK 25 的终端执行：
+在本章节目录、已经选好当前学习 JDK 的终端执行：
 
 ```bash
 mkdir -p /tmp/study07-virtual
-javac --release 25 -encoding UTF-8 -d /tmp/study07-virtual examples/VirtualThreadExample.java
+javac --release 21 -encoding UTF-8 -d /tmp/study07-virtual examples/VirtualThreadExample.java
 java -cp /tmp/study07-virtual VirtualThreadExample
 ```
 
-预期输出 `virtual=true`。本机没有 JDK 25，这个现代示例尚未编译运行；不要用旧例子的 Java 8 兼容验证替代它。
+输出 `virtual=true`。VirtualThreadExample 已在当前学习 JDK 中按本计划编译目标编译运行；它证明这个任务使用虚拟线程，不代替真实负载或下游资源验证。
 
-虚拟线程适合大量等待型任务，不会增加 CPU 核心或下游连接配额，也不能解决共享状态竞争。不要为了复用而给虚拟线程设固定池；需要限制同时访问数据库等资源时，仍要用连接池或 Semaphore 等机制控制。公司 Java 8 没有这组 API，业务案例使用其可用的线程与执行器机制。
+虚拟线程适合大量等待型任务，不会增加 CPU 核心或下游连接配额，也不能解决共享状态竞争。本节对应的[版本化 JDK 指南](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html)说明：虚拟线程在 `synchronized` 内执行阻塞操作时可能固定其载体线程，影响可伸缩性。实际使用时按应用 JDK 匹配指南与运行记录核对。不要为了复用而给虚拟线程设固定池；需要限制同时访问数据库等资源时，仍要用连接池或 Semaphore 等机制控制。公司 Java 8 没有这组 API，业务案例使用其可用的线程与执行器机制。
 
 先读[廖雪峰虚拟线程](https://liaoxuefeng.com/books/java/threading/virtual-thread/index.html)，再用[Dev.java](https://dev.java/learn/new-features/virtual-threads/)核对任务模型；结构化并发等能力按所用 JDK 的正式/预览状态另行学习，默认不启用预览。
 
@@ -304,11 +304,11 @@ java -cp /tmp/study07-virtual VirtualThreadExample
 ```bash
 cd ./07-并发与异步编程
 mkdir -p /tmp/study07-examples
-javac --release 25 -encoding UTF-8 -d /tmp/study07-examples examples/ConcurrencyExamples.java
+javac --release 21 -encoding UTF-8 -d /tmp/study07-examples examples/ConcurrencyExamples.java
 java -cp /tmp/study07-examples ConcurrencyExamples
 ```
 
-以上主线命令需要 JDK 25；公司 Java 8 的兼容检查另行执行。预期输出：
+以上主线命令需要当前学习 JDK；公司 Java 8 的兼容检查另行执行。预期输出：
 
 ```text
 lost update=1
@@ -335,9 +335,9 @@ next task context=null
 
 - **中文主读**：[廖雪峰 多线程](https://liaoxuefeng.com/books/java/threading/index.html)与 [使用虚拟线程](https://liaoxuefeng.com/books/java/threading/virtual-thread/index.html)：同步、线程池、异步结果和现代线程模型。
 - **Java 补充**：[Dev.java 虚拟线程](https://dev.java/learn/new-features/virtual-threads/)：任务模型、阻塞与资源限制。
-- **Java 25 API 核对（英文）**：[并发包](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/package-summary.html)、[ThreadPoolExecutor](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html)、[Future](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/Future.html)、[CompletableFuture](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CompletableFuture.html)。
-- **规范核对（英文）**：[Java 25 线程与锁](https://docs.oracle.com/javase/specs/jls/se25/html/jls-17.html)；公司 Java 8 实现另对照 [Java 8 并发 API](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/package-summary.html)。
+- **API 核对（英文）**：[并发包](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/package-summary.html)、[ThreadPoolExecutor](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html)、[Future](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/Future.html)、[CompletableFuture](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/CompletableFuture.html)。
+- **规范核对（英文）**：[线程与锁](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html)；公司 Java 8 实现另对照 [Java 8 并发 API](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/package-summary.html)。
 
-已有兼容性验证：正文的四个完整小程序及 ConcurrencyExamples 以 `javac --release 8` 编译并运行，综合程序连续五轮输出与上表一致。Java 25 主线与虚拟线程示例尚未在本机执行。它验证进程内的特定线程交错，不代替持续负载、HTTP 下游或真实 JDK 8 环境的验证。
+已有 Java 8 兼容记录覆盖正文四个完整小程序和 ConcurrencyExamples。当前学习 JDK 已重新编译运行 ConcurrencyExamples 与 VirtualThreadExample，七项并发输出和 virtual=true 均符合预期。它们验证进程内的特定交错与线程模型；持续负载、HTTP 下游和真实 JDK 8 仍需独立实验。
 
 [返回本节 Roadmap](/07-并发与异步编程/README/) · [返回总纲](/)
