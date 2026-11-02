@@ -15,9 +15,9 @@
 | 用环境变量改变行为 | 使用资源文件、JVM 参数和环境变量 | 覆盖顺序由程序或框架定义 |
 | 用断点、日志和 Git 交付改动 | 相同的调试与协作思路 | 多核对编译目标、运行 JDK 与实际加载的包 |
 
-先学工具与工程的基本概念，再读最后的双模块综合案例。独立示例采用统一学习环境，保留显式类和 main 的基础写法；类、方法、异常和资源关闭可对照 [01 典型案例](/01-Java语言与JVM基础/典型案例/)。
+从当前工程的构建、依赖或运行问题进入，先理解工具承担的职责，再读双模块案例。独立示例采用统一学习环境，保留显式类和 main 的基础写法；类、方法、异常和资源关闭可对照 [01 典型案例](/01-Java语言与JVM基础/典型案例/)。
 
-当前学习范围：前面先跑通最小工程；双模块案例后继续做 Maven 核心补练，把依赖声明、版本来源和实际加载的 JAR 对齐。
+阅读重点是把源码、构建配置、依赖版本、制品和实际运行进程对齐。短命令与参考工程用于解释机制，实际交付仍核对本项目采用的构建和启动方式。
 
 ## 一 JDK 提供工具，JVM 负责执行程序
 
@@ -29,7 +29,7 @@ JDK 是 Java 开发工具集合，包含编译器等工具以及运行所需能�
 | java | 启动 JVM，执行指定入口类 | `node app.js` 启动程序的职责 |
 | mvn | 让 Maven 按配置组织构建 | 用构建工具串起检查、编译与打包 |
 
-先在任意目录核对：
+构建或运行出现环境差异时，以下命令分别报告对应工具：
 
 ```bash
 java -version
@@ -63,7 +63,7 @@ public class Hello {
 
 ### 编译结果与屏幕输出分开观察
 
-进入单文件示例目录执行：
+下面的命令形态解释编译与启动的边界，目录和入口在实际工程中由脚本或构建配置给出：
 
 ```bash
 cd ./02-工程构建与研发流程/examples/single-source
@@ -178,7 +178,7 @@ Maven 将构建分成一系列阶段。指定后面的阶段，会先执行它�
 | mvn install | 继续把本工程产物安装到本地 Maven 仓库 | 不会 |
 | java -cp ... 入口类 | 启动程序，执行 main | 会 |
 
-先进入这个单模块工程，完成构建与运行：
+参考工程的构建与启动命令分别为：
 
 ```bash
 cd ./02-工程构建与研发流程/examples/single-module
@@ -204,7 +204,7 @@ java -cp target/hello-demo-1.0-SNAPSHOT.jar study.hello.Main Learner
 
 `npm install` 常用于取得依赖；`mvn install` 会把**本工程构建出来的产物**放进本地 Maven 仓库，让其他工程引用。执行构建时，Maven也可能按需取得所需依赖，两件事要分开理解。
 
-本例学习构建与运行，不需要执行 install。首次构建若插件缓存不足，需要访问已配置的仓库；缓存齐全时可用 `mvn -o package` 离线构建。[Maven 生命周期](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html)
+当前工程是否需要 install 取决于其他模块怎样取得这份产物。首次构建若插件缓存不足，需要访问已配置的仓库；缓存齐全时可用 `mvn -o package` 离线构建。[Maven 生命周期](https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html)
 
 ## 六 资源文件提供默认值，启动参数覆盖它
 
@@ -246,7 +246,7 @@ public class ConfigMain {
 
 `System.getProperty(键, 默认值)` 先找 JVM 系统属性，没有才取给定默认值。因此本程序规定的顺序是“JVM 系统属性 → 配置文件”。这个顺序由这里的代码实现，不是所有 Java 程序的默认规则。
 
-在单模块工程目录重新构建后运行：
+配置来源可以从启动参数及代码中对应：
 
 ```bash
 mvn package
@@ -265,7 +265,7 @@ java -Dgreeting.prefix=Hi -cp target/classes study.hello.ConfigMain
 
 前端已经熟悉断点和调用栈，Java 可以直接沿用同样的思路。
 
-用 IDEA 打开单模块工程的 pom.xml，在 Main 中的输出语句打断点。运行参数填 Learner，观察 `args[0]` 和 name，都应为 Learner；再沿调用栈确认当前执行的是 `study.hello.Main.main`。
+处理真实请求时，从入口或失败位置查看入参、局部变量和调用栈，并确认调试的进程、源码及制品属于同一版本。IDE 中看到的文件，不一定就是进程实际加载的类。
 
 | 现象 | 所处阶段 | 首先核对 |
 | --- | --- | --- |
@@ -364,7 +364,7 @@ flowchart LR
 
 ### 4. 构建后同时提供两个包
 
-完整入口 Main 还会读取配置并打印应用名，配置流程与前一节相同。运行整个工程：
+完整入口 Main 还读取配置并打印应用名。下列命令形态说明同一个 JVM 怎样同时使用应用包与公共包，实际项目使用对应的构建和启动脚本：
 
 ```bash
 cd ./02-工程构建与研发流程/examples/build-demo
@@ -381,25 +381,24 @@ app=roadmap-demo
 Hello, Vue veteran
 ```
 
-`:` 是 macOS/Linux 的类路径分隔符。现在故意只提供应用 JAR：
-
-```bash
-java -cp "$demo_app_jar" study.application.Main
-```
-
-预期出现与 `study/contract/GreetingRequest` 有关的 NoClassDefFoundError。原因是进程找不到公共类；补齐公共 JAR 后能运行。两个模块在这里共同组成一个程序，没有额外启动第二个服务。
+`:` 是 macOS/Linux 的类路径分隔符。若实际类路径缺少公共 JAR，进程可能报与 `study/contract/GreetingRequest` 有关的 NoClassDefFoundError；应核对加载路径与版本。两个模块共同组成一个程序，不代表启动了第二个服务。
 
 跨仓修改公共包时，也要核对新包是否已构建、消费方引用什么版本、运行时究竟加载哪一份文件。同一 SNAPSHOT 版本名可能对应不同内容，交付记录应能追到实际构建。[Maven 依赖机制](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html)
 
-## 九 练习与验收
+## 九 业务验证
 
-1. 在单模块工程中传入自己的名字，分别用 target/classes 和 JAR 启动。两次应得到相同问候，能解释这两种类路径分别提供了什么。
-2. 把资源文件前缀改为 Welcome，重新构建并运行 `study.hello.ConfigMain`。不带 -D 时应输出 `Welcome, Vue veteran`；带 `-Dgreeting.prefix=Hi` 时仍输出 `Hi, Vue veteran`，能指出覆盖行为来自哪行代码。
-3. 运行双模块工程时去掉公共 JAR，再补回。能根据缺失类的名称定位依赖，说明“代码包依赖”与“另一个服务调用”的区别。
+围绕当前工程的构建、依赖升级或配置变更保留证据：
 
-先用自己的话解释编译、打包、运行三步，再对照本文的输出验证。完整能力范围与进度仍按 [02 Roadmap](/02-工程构建与研发流程/README/)检查。
+| 交付问题 | 需要核对什么 |
+| --- | --- |
+| 发布的代码是不是这次改动 | 提交、构建日志、检查报告、制品版本和启动文件能关联 |
+| 新配置是否生效 | 配置来源、覆盖关系和实际业务行为一致，日志不暴露秘密 |
+| 公共包是否被正确使用 | 提供方产物与消费方解析、编译和运行时依赖一致，接口兼容 |
+| 故障是否修复 | 依据实际错误定位源码、依赖、工具或配置，核对同一业务输入的结果 |
 
-## 十 Maven 核心补练 依赖版本从哪里来
+构建成功、启动成功和业务正确分别判断。交付说明应让另一人知道环境、依赖、配置变化与实际验证范围。
+
+## 十 Maven 依赖版本从哪里来
 
 前面已经用 dependencies 引入公共模块。现在比较“管理版本”和“真正引入”两个动作，它们像前端集中约定依赖版本与某个应用实际引用依赖的区别。
 
@@ -428,7 +427,7 @@ java -cp "$demo_app_jar" study.application.Main
 
 结果是：父配置提供版本，子模块决定使用它。只有 dependencyManagement、没有实际 dependency，不会让 GreetingRequest 自动进入类路径。已有示例采用子模块显式指定版本的写法，两种布局都需要核对最终解析结果。
 
-在双模块根目录，先安装学习产物，再查看 application：
+实际依赖升级中，可结合依赖树和有效 POM 核对解析来源；以下命令形态针对参考工程 application：
 
 ```bash
 mvn install
@@ -438,7 +437,7 @@ mvn -pl application help:effective-pom -Doutput=target/effective-pom.xml
 
 依赖树用于确认解析出的 `study.backend:greeting-contract:jar:1.0-SNAPSHOT`；effective POM 用于查看继承、属性和插件合并后的配置。输出文件位于 application 的 target 目录。命令需要匹配的当前学习 JDK 与可用 Maven 插件；这里定义预期检查，不记为本机已执行。
 
-练习：在学习副本中使用上述集中版本配置，去掉 application 的版本声明，比较构建和依赖树；随后只移除 dependencyManagement 并观察缺失版本错误。每次只改一处，说明“版本没解析出来”和“运行时没有 JAR”的区别。
+版本未解析、编译期缺类和运行时缺 JAR 属于不同问题。回到实际工程，先找父配置和声明，再核对解析结果与运行文件，避免用升级全部依赖或清缓存代替定位。
 
 进入微服务后，同样方法用于核对 Spring Cloud BOM、Dubbo 接口包和实际客户端版本。BOM 管版本，不证明框架组合或公司 Java 8 环境已兼容。[Maven 依赖管理](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html)
 

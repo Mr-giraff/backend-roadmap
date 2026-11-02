@@ -8,19 +8,19 @@
 
 | 前端已经会的内容 | Java 中的对应能力 | 学习时重点看什么 |
 | --- | --- | --- |
-| 变量、字符串、条件和循环 | 类型声明、String、控制流 | 相同逻辑换成什么语法 |
+| 变量、字符串、条件和循环 | 值、类型、数据范围与控制流 | 数据能表示什么、空值和相等性怎样定义 |
 | 函数、class、对象 | 方法、类、构造方法 | 类型、访问范围、类与实例的关系 |
 | 约定对象提供哪些方法 | Java 接口 | “接口”在这里是类型契约，与 HTTP API 分开理解 |
-| 可复用的数据结构 | 泛型 | 用类型参数限制容器中存放的数据 |
-| Array、Map、Set | List、Map、Set | 先掌握增删查，再学批量处理 |
+| 可复用的数据结构 | 容器与类型约束 | 元素契约、查询方式和数据规模 |
+| Array、Map、Set | 顺序、索引与唯一性 | 容器操作是否符合业务的排序、查找和去重规则 |
 | 箭头函数、filter/map | Lambda、Stream | 函数的类型要求，以及结果何时生成 |
 | try/catch | 异常处理、资源关闭 | 哪些失败要处理，哪些要向调用方报告 |
 
-当前学习范围：先用前六节的最小例子建立读码能力，再把类、集合和异常映射回接口实现。现代特性按统一学习基线练习，回到 Java 8 工程时核对可用写法。
+本篇是配合主教程使用的代码阅读材料。先从 [Roadmap](/01-Java语言与JVM基础/README/)选择当前业务问题，理解背后的概念，再按需查看这里的 Java 写法与前端迁移差异。代码由自己或 AI 编写，都需要能解释数据、状态和失败如何流转；回到 Java 8 工程时另行核对可用语法和 API。
 
 ## 阅读顺序与运行方式
 
-先按“基本语法 → 方法 → 对象 → 接口 → 泛型 → 集合 → Lambda → Stream → 异常”阅读。每节只解释当前概念，目录处理的综合案例放在最后。学习环境统一使用当前学习 JDK，先核对 `java -version` 与 `javac -version`；基础示例保留显式类和 main，现代写法在对应基础之后补齐。
+各节按写法索引排列，可根据 Roadmap 的概念入口选择阅读。目录综合案例展示这些概念如何共同实现一条业务规则。学习环境统一使用当前学习 JDK，构建和启动按 [02 工程构建](/02-工程构建与研发流程/README/)准备；基础示例保留显式类和 main。
 
 前端的 `console.log` 在这里对应 `System.out.println`。下面这个完整文件可以作为运行短示例的起点，文件名为 `Hello.java`：
 
@@ -34,7 +34,7 @@ public class Hello {
 
 在文件所在目录运行 `javac -encoding UTF-8 Hello.java`，再运行 `java Hello`，得到 `Hello, Vue`。第一条命令编译，第二条命令执行。工具的细节在 [02](/02-工程构建与研发流程/典型案例/)讲解。
 
-后文标为“使用”的 Java 语句放在 Hello 的 main 方法内。普通类、接口和枚举可定义在 Hello 类外，放在同一目录的 Java 文件中；辅助方法按提示放在 Hello 类内、main 外。每节分别运行，新增类型后编译该目录全部 `.java` 文件。
+后文标为“使用”的 Java 语句放在 Hello 的 main 方法内。普通类、接口和枚举可定义在 Hello 类外，放在同一目录的 Java 文件中；辅助方法按提示放在 Hello 类内、main 外。短示例用于解释概念；需要运行时，避免将不同小节中的同名类型放在同一目录。
 
 ## 一 变量与类型
 
@@ -164,27 +164,35 @@ public class MethodExample {
 
 ## 四 类、对象与构造方法
 
-类定义一类对象有什么数据和行为，对象保存某一次创建得到的数据。先比较同一个 Person：
+类定义一类对象有什么数据和行为，对象保存某一次创建得到的数据。下面用同一个 Person 比较默认名称与指定名称两种创建方式：
 
 ```javascript
 class Person {
-  constructor(name) {
+  // JS 只能声明一个 constructor，用默认参数支持省略名称。
+  constructor(name = '匿名') {
     this.name = name;
   }
+
   sayHi() {
     return '你好 ' + this.name;
   }
 }
-const person = new Person('张三');
-console.log(person.sayHi());
+console.log(new Person().sayHi());       // 你好 匿名
+console.log(new Person('张三').sayHi()); // 你好 张三
 ```
 
-Java 的完整类型定义如下：
+Java 的完整类型定义如下，放在 Hello 类外：
 
 ```java
 class Person {
-    private final String name;
+    private final String name; // 外部不能直接访问，初始化后不能重新赋值。
 
+    // Java 没有参数默认值语法，用不同参数列表的构造方法提供默认值。
+    Person() {
+        this("匿名"); // 调用下面的带参构造方法，复用初始化逻辑。
+    }
+
+    // 构造方法与类同名，不写返回类型；this.name 是字段，name 是参数。
     Person(String name) {
         this.name = name;
     }
@@ -198,13 +206,15 @@ class Person {
 在 main 中使用：
 
 ```java
-Person person = new Person("张三");
-System.out.println(person.sayHi());
+System.out.println(new Person().sayHi());       // 你好 匿名
+System.out.println(new Person("张三").sayHi()); // 你好 张三
 ```
 
-两边都输出 `你好 张三`。`Person(String name)` 是构造方法，创建对象时执行；名称与类名相同，不写返回类型。`this.name` 指这个对象的字段，右侧 name 是传入的参数。
+两边输出相同。Java 的两个构造方法构成“重载”：参数数量、类型或类型排列顺序不同才算，只有参数名不同不算。
 
-字段的 `private` 让外部不能直接读写它，`final` 让它在赋值后不能再次赋值。访问范围先掌握：public 允许公开访问，private 限于本类；不写修饰符通常表示同包可访问，protected 还涉及子类访问规则。
+如果 Java 类没有声明任何构造方法，编译器会提供无参构造方法；一旦自己声明了构造方法，就不会再自动补充。因此本例如果删掉 `Person()`，`new Person()` 会编译失败。
+
+访问范围先掌握：public 允许公开访问，private 限于本类；不写修饰符通常表示同包可访问，protected 还涉及子类访问规则。
 
 ### 修改字段与替换参数
 
@@ -248,17 +258,17 @@ System.out.println(counter.value);
 
 ## 五 继承、接口与枚举
 
-### 1. 继承在已有类型上增加或替换行为
+### 1. 继承与组合表达不同的关系
 
-extends 的基本意图与 JS 的 class 继承相近。这个例子只比较方法覆盖：
+先看业务对象之间是什么关系，再选择代码写法：继承表示“属于同一种类型”，组合表示“通过持有其他对象协作”。只因为两个类有相似字段，就让它们继承同一个父类，容易把无关的职责绑在一起。
+
+前端已有的 class 经验可以帮助理解 `extends` 与方法重写：
 
 ```javascript
 class Animal { sound() { return '声音'; } }
 class Dog extends Animal { sound() { return '汪'; } }
 console.log(new Dog().sound());
 ```
-
-Java 类型定义：
 
 ```java
 class Animal {
@@ -270,7 +280,17 @@ class Dog extends Animal {
 }
 ```
 
-使用 `System.out.println(new Dog().sound());`，同样输出 `汪`。`@Override` 让编译器检查是否正确重写了父类或实现了接口的方法。
+`new Dog().sound()` 返回 `汪`。`@Override` 让编译器检查重写关系，实际 Dog 对象提供自己的行为；调用者可以通过父类型约定使用它。在业务代码中，重点看调用方依赖什么契约、实现负责哪些行为、共享了哪些状态。
+
+| 概念 | 阅读 Java 代码时要理解什么 |
+| --- | --- |
+| 继承 | 子类型需要满足父类型的约定；Java 类最多有一个直接父类，Object 没有父类 |
+| 组合 | 一个对象持有另一个对象并调用其能力；例如 Dog 持有 Collar，狗并不是一种项圈 |
+| 封装 | private 字段不能由独立子类直接读取；通过方法控制状态访问，protected 还涉及同包与跨包访问规则 |
+| 构造与生命周期 | 构造方法负责初始化，`this(...)` 调用本类构造方法，`super(...)` 调用父类构造方法；构造方法不会被子类继承 |
+| 多态与类型转换 | 变量类型约束可以调用哪些方法，实际对象决定重写实例方法的实现；强制转换不会改变对象本身，错误转换可能在运行时失败 |
+
+完整语义按需读[继承](https://liaoxuefeng.com/books/java/oop/basic/inherit/index.html)与[多态](https://liaoxuefeng.com/books/java/oop/basic/polymorphic/index.html)。读 AI 生成的代码时，也要检查是否为复用少量代码引入了不合理的继承、暴露了内部状态，或假定某个对象一定具有特定子类型。
 
 ### 2. 接口先规定能做什么，再由类实现
 
@@ -296,6 +316,8 @@ System.out.println(greeter.greet("张三"));
 ```
 
 输出 `你好 张三`。变量使用 Greeter 接口类型，具体行为来自 FriendlyGreeter 实现。这里的接口是 Java 类型契约；你熟悉的 HTTP API 是另一层概念。
+
+接口重点约定能力，抽象类还可以承载共享实现与状态；默认方法则让接口提供部分实现。具体语法按需查教程，阅读业务代码时先确定调用方依赖什么、替换实现是否仍满足约定。
 
 ### 3. 枚举给固定状态起明确的名字
 
@@ -577,11 +599,11 @@ Hello.java  -- javac -->  Hello.class  -- java -->  执行 main
 
 JDK 提供编译器等开发工具及运行能力；JVM 执行字节码。源码写错可能在编译阶段被拒绝，文件不存在等问题则发生在运行阶段。
 
-本例先掌握程序如何开始执行、调用如何进入方法、对象怎样被引用。堆、线程栈、类加载、GC 与 JIT 的深入实验继续按 [Roadmap](/01-Java语言与JVM基础/README/)推进。
+本例先掌握程序如何开始执行、调用如何进入方法、对象怎样被引用。堆、线程栈、类加载、GC 与 JIT 的深入机制按实际运行问题继续查 [Roadmap](/01-Java语言与JVM基础/README/)。
 
 ## 现代 Java 写法补充
 
-前面的显式类型、普通类和 main 仍是当前学习 JDK 的合法写法。掌握它们后，按下面顺序继续阅读现代写法，不再把这些内容全部当作选学：
+前面的显式类型、普通类和 main 仍是当前学习 JDK 的合法写法。读到现代写法时，重点确认它是否改变类型约束、状态可变性或执行行为，具体语法随用随查：
 
 | 已学概念 | 中文主读 | 要掌握的差异 |
 | --- | --- | --- |
@@ -639,17 +661,19 @@ java -cp /tmp/study-java01-classes DirectoryImportExample examples/directories.t
 
 导入示例应报告第 3、4、5 行错误，最终为 `有效 2 行，无效 3 行`。与最小异常示例比较，说明哪些失败允许继续、哪些失败必须结束本次操作。
 
-## 十三 练习与验收
+## 十三 业务验证
 
-| 练习 | 先预测什么 | 验收依据 |
+改动业务逻辑时，检查它是否兑现输入、状态和失败处理的约定。下面的目录与导入程序只演示内存处理和文件校验，不能证明真实服务的权限、数据库事务或远端调用正确。
+
+| 业务情况 | 应确认的结果 | 对应材料 |
 | --- | --- | --- |
-| 往 Map 中两次 put 同一名字 | get 读到第一次还是第二次的年龄 | 读到第二次；能解释覆盖与拒绝重复是不同规则 |
-| 把 Stream 的过滤条件改为大于 3 | 结果列表是什么 | 得到 `[8, 10]`，能逐步说明变化 |
-| 给 `Box<String>` 传整数 | 编译能否通过 | 编译失败，能指出类型约束来自哪里 |
-| 把 TMP 改为 ACTIVE | 可用目录列表如何变化 | 出现 ODS、ADS、TMP 三个名称 |
-| 读取不存在的文件 | 与一行坏数据有何区别 | 能说明读取失败与行校验失败的处理层次 |
+| 返回可用目录 | 只返回 ACTIVE 目录，名称、编号与状态符合约定 | DirectoryExample 的过滤与索引逻辑 |
+| 同一编号重复出现 | 明确拒绝，不静默覆盖原记录 | DirectoryExample 的 putIfAbsent 与错误处理 |
+| 导入中包含不合法行 | 按约定记录行号与原因，合法行和失败行统计正确 | DirectoryImportExample 的行校验 |
+| 整个文件无法读取 | 报告整体失败，不能当作空文件导入成功 | DirectoryImportExample 的读取边界 |
+| 真实服务中的越权、写入失败和远端重试 | 检查允许与拒绝、持久化状态、外部副作用，以及是否重复执行 | 结合 [06 事务](/06-事务与数据一致性/README/)、[12 权限](/12-安全与权限/README/)、[09 服务协作](/09-分布式系统与服务协作/README/)检查实际需求 |
 
-用自己的话讲一遍“类型怎样约束数据，集合怎样保存数据，Lambda/Stream 怎样处理数据，异常怎样表达失败”。讲到不清楚的地方，回到对应小节的最小示例验证。
+保留当前需求的输入、预期、实际结果与必要日志。需要处理金额、时间、共享状态或资源限制时，再补对应边界。验证范围由当前需求的规则、状态与副作用决定。
 
 ## 参考与验证范围
 
@@ -658,6 +682,6 @@ java -cp /tmp/study-java01-classes DirectoryImportExample examples/directories.t
 - **官方补充：** [Dev.java 语言基础](https://dev.java/learn/language/constructs/)、[泛型与模式匹配](https://dev.java/learn/language/fp/)、[集合和 Stream](https://dev.java/learn/api/collections-and-streams/)。
 - **兼容查阅：** [Oracle Java 8 教程](https://docs.oracle.com/javase/tutorial/java/)用于旧项目兼容范围核对；主线版本与资料顺序见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
-验证记录：DirectoryExample、ValuesExample、DirectoryImportExample 已在当前学习 JDK 中按本计划编译目标编译运行，缺文件、缺参数及无效输入路径已核对。正文 20 组概念示例的 Java 8 兼容检查仍按原记录保留；不据此宣称全部嵌入代码或现代语法片段已执行。具体工具版本与范围见[示例验证说明](/参考资料/示例验证说明/)；IDE 和生产环境仍需另行验证。
+验证范围与执行记录见[示例验证说明](/参考资料/示例验证说明/)。参考源码、正文片段和真实业务分别核验；读懂示例后，仍要检查实际需求的规则、状态与副作用。
 
 [返回本节 Roadmap](/01-Java语言与JVM基础/README/) · [返回总纲](/)

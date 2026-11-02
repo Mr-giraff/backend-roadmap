@@ -6,10 +6,13 @@
 
 ## 阅读顺序
 
-1. 先按每条 Roadmap 的知识顺序阅读本地最小示例。
-2. 用[廖雪峰 Java 教程](https://liaoxuefeng.com/books/java/introduction/index.html)作为中文主读，进入该 Roadmap 指向的具体章节。
-3. 用 [Dev.java](https://dev.java/learn/)补充现代 Java、JVM 与新 API，再用 [Java 21 API](https://docs.oracle.com/en/java/javase/21/docs/api/index.html)核对版本边界。
-4. 框架、数据库、消息和引擎的具体保证，继续查各路线保留的官方专项资料；有可靠官方中文版本时优先中文。
+1. 先确定当前业务问题需要理解哪些概念与保证；[01 Java 路线](/01-Java语言与JVM基础/README/)提供概念、教程与代码阅读入口。
+2. 读对应的详细教程。Java 基础以[廖雪峰 Java 教程](https://liaoxuefeng.com/books/java/introduction/index.html)为中文主读；用 [Dev.java](https://dev.java/learn/)补充现代 Java、JVM 与新 API，再用 [Java 21 API](https://docs.oracle.com/en/java/javase/21/docs/api/index.html)核对版本边界。具体语法和 API 随用随查。
+3. 回到本地典型案例和项目代码，重点解释数据、状态、契约、执行与失败处理，核对前端经验的适用边界。
+4. 在实际需求中检查输入输出、权限、数据状态和副作用，保留预期、实际结果及必要日志。
+5. 框架、数据库、消息和引擎的具体保证，继续查各路线保留的官方专项资料；有可靠官方中文版本时优先中文。
+
+短示例辅助理解概念，真实需求负责检验应用。AI 可以辅助写代码和查语法，代码行为、工程约束与业务结果仍需自己判断。
 
 [廖雪峰安装章节](https://liaoxuefeng.com/books/java/quick-start/dev-env/install-jdk/index.html)用于理解环境配置流程；教程与 Dev.java 可能采用其他现代版本，本计划安装与 API 核对统一以 Java 21 为准。
 
@@ -73,7 +76,7 @@ macOS/zsh 如需将环境变量提供给非交互脚本，按本项目约定写�
 | Maven、JDBC、Spring、测试 | 廖雪峰对应章节 | Maven、Spring、JUnit 的版本化官方资料 |
 | 微服务框架 | 廖雪峰 Spring Cloud 作为入门补充 | Spring Cloud、Dubbo、Nacos 的专项官方资料；按公司版本核对 |
 | 安全、缓存、消息 | 廖雪峰基础与 Redis 集成章节 | APISIX、Spring Security、OWASP、Redis、Kafka 的专项官方资料 |
-| 分布式、系统设计 | 廖雪峰 Spring Cloud 等案例作为中文切入 | 故障模型、一致性、容量与 SLO 继续以专项资料和实验验证 |
+| 分布式、系统设计 | 廖雪峰 Spring Cloud 等案例作为中文切入 | 故障模型、一致性、容量与 SLO 结合专项资料和实际运行证据核对 |
 | 大数据组件 | 廖雪峰 SQL/JDBC 作为前置，官方中文引擎文档作为专项主读 | 连接器、SQL 方言、恢复和运行 JDK 按引擎版本核对 |
 
 [Java 8 社区中文译本](https://pingfangx.github.io/java-tutorials/)保留为存量兼容资料，不作为 Java 21 主读。中文优先不等于用一套通用教程解释所有组件的运行保证。

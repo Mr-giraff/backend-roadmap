@@ -16,91 +16,34 @@
 
 按“线程 → 共享状态 → 同步 → 集合 → 线程池 → 结果与取消 → 上下文 → 虚拟线程”学习。主线使用当前学习 JDK；基础写法保留跨版本可读性，公司 Java 8 不直接使用现代 API。版本边界见 [学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
-当前学习范围：从当前问题需要的最小实验开始：计数竞争、取消、线程池或身份清理。虚拟线程属于后续扩展，不影响公司 Java 8 业务的基础练习。
+从服务中的共享对象、后台任务和下游等待进入，解释执行者、状态所有权、资源上限与失败收尾。具体 API 随项目写法查阅，虚拟线程按实际 JDK 和工作负载选择。
 
 ## 一 线程让另一条执行路径开始工作
 
-Thread 负责一条执行路径，start 请求启动它，join 等待它结束。完整的 ThreadExample.java：
+一个请求等待数据库或远程服务时，它的执行线程可能阻塞；其他请求能否继续，取决于服务的线程与资源模型。Thread 表示一条执行路径，`start()` 请求启动它，`join()` 等待其结束；直接调用 `run()` 仍是当前线程中的普通方法调用。
 
-```java
-public class ThreadExample {
-    public static void main(String[] args) throws InterruptedException {
-        Thread worker = new Thread(() -> System.out.println("worker"));
-        worker.start();
-        worker.join();
-        System.out.println("main finished");
-    }
-}
-```
+前端 Promise 描述异步结果，不等于为每个回调创建线程。并发指任务时间上有交错，并行指同一时刻可能同时运行，阻塞指当前线程等待期间不能继续执行后面的工作。阅读代码先定位执行器、任务提交与等待位置，再判断会同时访问什么。
 
-预期先输出 worker，再输出 main finished。直接调用 worker.run() 只是当前线程执行普通方法，不会因此启动新线程。
+## 二 共享状态中的读改写可能交错
 
-前端 Promise 描述异步结果，不等于为每个回调创建一个线程。并发指任务时间上有交错，并行指同一时刻可能同时运行，阻塞指当前线程在等待中不能继续执行后面的工作。
+假设两个请求都要把剩余额度减一，但实现把读取和写入分开：
 
-## 二 共享变量的加一包含三个动作
-
-`count++` 可以拆为“读旧值 → 加一 → 写回”。两个线程都从 0 读起时，可能这样交错：
-
-| 时间 | 线程 A | 线程 B | 共享值 |
+| 时间 | 请求 A | 请求 B | 已保存余额 |
 | --- | --- | --- | --- |
-| 1 | 读到 0 | | 0 |
-| 2 | | 读到 0 | 0 |
-| 3 | 写回 1 | | 1 |
-| 4 | | 写回 1 | 1 |
+| 1 | 读到 20 | | 20 |
+| 2 | | 读到 20 | 20 |
+| 3 | 写回 19 | | 19 |
+| 4 | | 写回 19 | 19 |
 
-两个加一最后只留下 1，叫丢失更新。下面是可重复观察它的完整最小程序；两个工作线程都会先读完，再由主线程允许写回：
+两次业务扣减只留下了一次变化，叫丢失更新。`count++` 同样包含读取、计算、写回，不能把一行代码当作不可分割的动作。
 
-```java
-import java.util.concurrent.CountDownLatch;
-
-public class LostUpdateExample {
-    public static void main(String[] args) throws InterruptedException {
-        int[] count = {0};
-        CountDownLatch bothRead = new CountDownLatch(2);
-        CountDownLatch write = new CountDownLatch(1);
-        Runnable task = () -> {
-            int old = count[0];
-            bothRead.countDown();
-            try {
-                write.await();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-            count[0] = old + 1;
-        };
-        Thread first = new Thread(task);
-        Thread second = new Thread(task);
-        first.start();
-        second.start();
-        bothRead.await();
-        write.countDown();
-        first.join();
-        second.join();
-        System.out.println(count[0]);
-    }
-}
-```
-
-预期为 1。CountDownLatch 是等待条件满足的同步工具：countDown 减少计数，await 等到计数归零。这不是靠 sleep 碰运气，也没有让少量线程池等待大量尚未运行的任务。
-
-shared 的含义是两个线程能访问同一份对象。局部变量引用的对象也可能共享；Spring 单例 Bean 的可变字段和 static 集合尤其需要检查。
+共享指多个线程能访问同一个对象；局部变量引用的对象也可能共享。检查 Spring 单例 Bean 的可变字段、static 集合和外部缓存，先问清数据由谁持有、谁能修改、哪条规则必须共同成立。跨实例扣减还要由数据库约束或条件更新等机制保护，不能只加 JVM 内锁。
 
 ## 三 锁、volatile 与原子类分别保证什么
 
 ### 1. synchronized 保护一段共同操作
 
-下面是完整计数器类型：
-
-```java
-class SafeCounter {
-    private int value;
-    synchronized void increment() { value++; }
-    synchronized int get() { return value; }
-}
-```
-
-所有线程对同一个 SafeCounter 调用 increment，就会轮流进入受同一对象锁保护的方法。4 个线程各调用 1000 次，结束后 get 应为 4000。
+同步块或同步方法让使用同一锁的线程轮流执行临界区。业务若要求两个字段保持关系，读写这两个字段的所有相关路径都必须遵守同一保护规则。
 
 锁不仅互斥，还建立先前写入对后续获取同一锁的线程可见的关系。锁错对象，或有一条路径绕过锁，都可能破坏保证。
 
@@ -118,16 +61,7 @@ Java 内存模型中的 happens-before 描述哪些先前写入对后续操作�
 
 ### 3. AtomicInteger 直接提供原子加一
 
-先导入 `java.util.concurrent.atomic.AtomicInteger`，再使用：
-
-```java
-AtomicInteger count = new AtomicInteger();
-count.incrementAndGet();
-count.incrementAndGet();
-System.out.println(count.get());
-```
-
-输出 2。incrementAndGet 保证该次加一整体原子化；多个原子变量组合成“余额总和不变”时，仍需围绕完整业务规则协调。
+AtomicInteger 的 incrementAndGet 等方法保证单次操作原子化；但两个原子变量分别修改，不能自动保证“余额总和不变”。选择工具时，先确定业务规则跨越几个对象、几个操作和几个提交边界。
 
 ReentrantLock 可提供显式锁操作，释放应放 finally。选择锁或原子类前，先尝试局部变量、不可变对象和明确所有权来减少共享。
 
@@ -150,28 +84,15 @@ BlockingQueue 可用于生产消费；Semaphore 限制同时进入的任务数�
 
 ## 五 线程池要同时限制运行和排队数量
 
-线程池复用线程并限制并发。下面是一个线程、一个排队位置、满载后明确拒绝的完整创建代码：
+线程池复用线程并控制同时执行的任务。排队任务仍占用内存与等待时间，队列满时需要明确拒绝或降级结果；线程数也不能超过数据库连接和下游配额所能承受的范围。
 
-```java
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-ThreadPoolExecutor pool = new ThreadPoolExecutor(
-        1, 1, 0L, TimeUnit.MILLISECONDS,
-        new ArrayBlockingQueue<>(1),
-        new ThreadPoolExecutor.AbortPolicy());
-```
-
-前三行是文件顶部的 import；创建语句放 main 或业务初始化处。这里核心和最大线程都为 1，因此行为容易观察：
-
-| 当时状态 | 新任务结果 |
+| 状态 | 对业务的影响 |
 | --- | --- |
-| 工作线程空闲 | 开始执行 |
-| 工作线程忙，队列空 | 进入唯一排队位置 |
-| 工作线程忙，队列也满 | 抛 RejectedExecutionException |
+| 执行位置可用 | 任务开始执行并占用下游资源 |
+| 执行位置忙，仍可排队 | 用户等待变长，需要有排队时限和容量 |
+| 执行与队列均已满 | 拒绝或降级必须明确返回，不能静默丢任务 |
 
-[完整程序](/assets/07-并发与异步编程/examples/ConcurrencyExamples.java)用闸门让第一个任务保持运行，再提交第二、第三个任务，稳定验证第三个被拒绝；无需用任意睡眠推测是否已满。
+在项目代码中沿 ThreadPoolExecutor 的配置追到提交方，核对核心/最大线程、队列、拒绝策略与任务生命周期；参数取值来自实际流量、耗时和资源预算。
 
 用完执行 shutdown 停止接收新任务，并等待在途任务结束；超过关闭时限时再考虑 shutdownNow，它发送中断而非强制杀掉任意代码。
 
@@ -179,64 +100,26 @@ ThreadPoolExecutor pool = new ThreadPoolExecutor(
 
 ## 六 Future 区分提交、完成与取结果
 
-Future 表示稍后完成的结果。先看一个完整程序：
+Future 表示稍后可取得的结果。submit 只说明任务已经交给执行器，get 可能阻塞等待，也会把任务失败带给调用方。任务仍在排队、正在执行、已经完成和调用方已经取得结果，是不同状态。
 
-```java
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+### 超时与取消对应不同的业务后果
 
-public class FutureExample {
-    public static void main(String[] args) throws Exception {
-        ExecutorService pool = Executors.newSingleThreadExecutor();
-        try {
-            Future<Integer> result = pool.submit(() -> 2 + 3);
-            System.out.println(result.get());
-        } finally {
-            pool.shutdown();
-        }
-    }
-}
-```
+`future.get(timeout, unit)` 只限制本次等待，超时后任务可能继续运行。`cancel(true)` 可以请求中断，但中断是协作信号；忽略中断的代码、部分 IO 和已提交的远端副作用，不会因为 Future 变为取消状态就自动消失。
 
-输出 5。submit 交出任务，get 等待结果；get 可能阻塞当前线程，也会把任务异常带给调用方。这个单任务例子使用便捷工厂，生产任务队列仍按第五节显式确定容量。
-
-### 超时与取消分开观察
-
-`future.get(20, TimeUnit.MILLISECONDS)` 只限制这次等待。20ms 到了会抛 TimeoutException，底层任务可能仍在运行。
-
-[完整示例](/assets/07-并发与异步编程/examples/ConcurrencyExamples.java)让任务等待闸门，取结果超时后打印 `taskDone=false`；随后调用 Future.cancel(true)，任务在可中断的等待中退出并执行 finally，观察到 cleanup=true。
-
-这只能证明该示例会响应中断。中断是协作信号，忽略中断的循环、某些 IO 或远程副作用，不会因为 Future 被取消就自动停止。
+例如用户取消导出，需要分别确认接口返回、后台任务、数据库状态和临时文件。任务的 finally 清理能处理本地资源，却不能自动撤销已经完成的外部操作。截止时间应覆盖排队和各下游调用，具体恢复约定结合 [09](/09-分布式系统与服务协作/README/)。
 
 ## 七 CompletableFuture 组合多个结果
 
-它可以表达先后依赖和结果合并。下面的完整小程序先算 2，再乘 3：
+聚合接口可能先查询一份基础信息，再并行取得互不依赖的补充数据。先画依赖，再决定哪些步骤值得并行：
 
-```java
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-public class ComposeExample {
-    public static void main(String[] args) throws Exception {
-        ExecutorService pool = Executors.newFixedThreadPool(2);
-        try {
-            CompletableFuture<Integer> first = CompletableFuture.supplyAsync(() -> 2, pool);
-            CompletableFuture<Integer> result = first.thenApply(value -> value * 3);
-            System.out.println(result.get());
-        } finally {
-            pool.shutdown();
-        }
-    }
-}
+```text
+基础信息 → 补充来源 A ─┐
+        → 补充来源 B ─┴→ 合并结果
 ```
 
-输出 6。thenApply 依赖前一个结果；两个独立结果可用 thenCombine 合并，异常处理可用 handle/exceptionally。先写清任务之间的依赖，再决定哪些值得并行。
+thenApply 表达对前一步结果的转换，thenCombine 合并两个结果，handle/exceptionally 处理完成或失败。选择执行器、允许缺失的结果、异常如何返回和总体时限，都属于接口契约。
 
-当前学习 JDK 可用 orTimeout 或 completeOnTimeout 限定 CompletableFuture 的完成结果，但它们不自动停止底层任务；当前实验用 get(timeout, unit) 单独观察等待超时，各下游调用仍需自己的时限。公司 Java 8 没有前两种 API。
-
-`CompletableFuture.cancel(true)` 不会因此中断底层计算。完整示例取消 Future 后，底层任务仍在等待，打印 `running=true`；显式打开闸门后它才结束。
+orTimeout 或 completeOnTimeout 可以限定 CompletableFuture 的完成结果，但不自动停止底层任务；公司 Java 8 没有这两个 API。`CompletableFuture.cancel(true)` 也不会因此中断底层计算。阅读异步代码时，应继续找到实际任务和下游的停止、清理与副作用边界。
 
 ## 八 上下文跟着任务传递，复用线程前后要清理
 
@@ -256,7 +139,7 @@ Runnable task = () -> {
 task.run();
 ```
 
-tenantId 是这里显式捕获的测试上下文；实际身份从可信认证上下文取得。这里先直接调用任务，打印 tenant-A 后清理。完整示例在同一线程再运行下一任务，读取到 null。
+tenantId 只示意显式传入的上下文；实际身份必须从可信认证上下文取得。这里的重点是任务执行前设置、finally 中清理，不能把线程本身当作用户身份。
 
 没有清理可能残留，直接换线程则可能丢失。异步任务也不会自动共享调用方 Spring 本地事务；需要明确传递必要字段，并为持久化步骤定义自己的事务边界。
 
@@ -264,34 +147,7 @@ tenantId 是这里显式捕获的测试上下文；实际身份从可信认证�
 
 虚拟线程让大量会等待的任务可以各自拥有一条轻量执行路径。它属于当前学习主线；线程安全、取消和数据库连接上限仍需按前面的方法单独保证。
 
-下面是完整的 [VirtualThreadExample.java](/assets/07-并发与异步编程/examples/VirtualThreadExample.java)：
-
-```java
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-public class VirtualThreadExample {
-    public static void main(String[] args) throws Exception {
-        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            Future<Boolean> result = executor.submit(() -> Thread.currentThread().isVirtual());
-            System.out.println("virtual=" + result.get());
-        }
-    }
-}
-```
-
-`newVirtualThreadPerTaskExecutor` 为每个提交的任务创建虚拟线程；本例返回“当前任务是否在虚拟线程中运行”。ExecutorService 的 try-with-resources 会在退出时关闭执行器并等待已提交任务结束，get 则取得结果。
-
-在本章节目录、已经选好当前学习 JDK 的终端执行：
-
-```bash
-mkdir -p /tmp/study07-virtual
-javac --release 21 -encoding UTF-8 -d /tmp/study07-virtual examples/VirtualThreadExample.java
-java -cp /tmp/study07-virtual VirtualThreadExample
-```
-
-输出 `virtual=true`。VirtualThreadExample 已在当前学习 JDK 中按本计划编译目标编译运行；它证明这个任务使用虚拟线程，不代替真实负载或下游资源验证。
+在项目代码中找到逐任务虚拟线程执行器、结果等待与关闭位置。执行器退出时需要等待已提交工作结束，仍应检查任务是否可能长期等待。具体 API 写法参考 [VirtualThreadExample.java](/assets/07-并发与异步编程/examples/VirtualThreadExample.java) 与版本化文档，不以一次线程类型输出判断业务容量。
 
 虚拟线程适合大量等待型任务，不会增加 CPU 核心或下游连接配额，也不能解决共享状态竞争。本节对应的[版本化 JDK 指南](https://docs.oracle.com/en/java/javase/21/core/virtual-threads.html)说明：虚拟线程在 `synchronized` 内执行阻塞操作时可能固定其载体线程，影响可伸缩性。实际使用时按应用 JDK 匹配指南与运行记录核对。不要为了复用而给虚拟线程设固定池；需要限制同时访问数据库等资源时，仍要用连接池或 Semaphore 等机制控制。公司 Java 8 没有这组 API，业务案例使用其可用的线程与执行器机制。
 
@@ -299,37 +155,30 @@ java -cp /tmp/study07-virtual VirtualThreadExample
 
 ## 十 综合案例 让并发结果正确且资源有界
 
-完整源码 [ConcurrencyExamples.java](/assets/07-并发与异步编程/examples/ConcurrencyExamples.java)将上述机制分别放进小实验，不连接外部服务：
+以一个聚合接口为例：它需要查询三份外部信息，允许一份非关键数据缺失，并且不能挤占同一服务中的其他请求。
 
-```bash
-cd ./07-并发与异步编程
-mkdir -p /tmp/study07-examples
-javac --release 21 -encoding UTF-8 -d /tmp/study07-examples examples/ConcurrencyExamples.java
-java -cp /tmp/study07-examples ConcurrencyExamples
-```
+| 业务问题 | 设计中的体现 |
+| --- | --- |
+| 哪些调用依赖前一步结果 | 任务依赖图决定串行和并行 |
+| 总体多久应有明确结果 | 整体截止时间分配给排队、调用、重试和组装 |
+| 哪份数据可以缺失 | 关键失败与部分返回分别定义，不能吞掉异常伪装成功 |
+| 资源耗尽时怎样处理 | 执行器、队列、连接及下游并发有预算，拒绝有用户结果 |
+| 请求结束以后还有什么继续运行 | 记录在途任务、清理与外部副作用，必要时进入恢复流程 |
+| 身份与追踪怎样隔离 | 必要上下文显式传递，复用线程前后清理 |
 
-以上主线命令需要当前学习 JDK；公司 Java 8 的兼容检查另行执行。预期输出：
+工具选择需要回到这些要求；公共线程池或更多线程不会自动补齐业务保证。
 
-```text
-lost update=1
-atomic count=4000
-bounded pool rejected=true
-timeout: taskDone=false
-future cancellation: cleanup=true
-completable cancellation: running=true
-next task context=null
-```
+## 十一 业务验证
 
-每一行都对应明确保证：错误更新被重现、原子更新正确、队列有上限、等待超时不等于完成、取消需要看实际收尾、上下文没有带入下一任务。
+| 当前需求涉及的风险 | 应保留的证据 |
+| --- | --- |
+| 并发修改共享状态 | 不变量、关键交错、最终数据和所有访问路径的保护规则 |
+| 下游慢或过载 | 活动线程、排队时间、拒绝、连接占用及用户结果 |
+| 超时或取消 | 调用方结果、实际任务终态、资源释放与仍在发生的副作用 |
+| 线程复用与异步身份 | 可信身份来源、传递路径及不同请求的隔离结果 |
+| 关闭与恢复 | 停止接收、在途任务收尾和未完成工作的归属 |
 
-随后可建立一个学习用聚合接口：并行请求三份模拟数据，定义总体时限、允许缺失的结果及失败返回。先画任务依赖和资源预算，再引入真实 HTTP；不把默认公共池当所有业务共享的无限资源。
-
-## 十一 练习与验收
-
-1. 用同步屏障让两个线程先读后写，解释为什么错误计数即使偶尔正确也没有安全保证。
-2. 用锁和原子类各完成一个正确计数器，再为“两个字段保持关系”定义共同临界区。
-3. 增加提交速率和下游等待，记录活动线程、队列、拒绝数、吞吐和延迟，验证上界与关闭行为。
-4. 注入异常、超时、取消和上下文复用，核对任务终态、清理证据与仍在发生的副作用。
+验证范围按实际改动风险选择。并发正确性不能由某次输出正确推断，任务取消也不能只检查 Future 状态。
 
 ## 参考与验证范围
 
@@ -338,6 +187,6 @@ next task context=null
 - **API 核对（英文）**：[并发包](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/package-summary.html)、[ThreadPoolExecutor](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html)、[Future](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/Future.html)、[CompletableFuture](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/CompletableFuture.html)。
 - **规范核对（英文）**：[线程与锁](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html)；公司 Java 8 实现另对照 [Java 8 并发 API](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/package-summary.html)。
 
-已有 Java 8 兼容记录覆盖正文四个完整小程序和 ConcurrencyExamples。当前学习 JDK 已重新编译运行 ConcurrencyExamples 与 VirtualThreadExample，七项并发输出和 virtual=true 均符合预期。它们验证进程内的特定交错与线程模型；持续负载、HTTP 下游和真实 JDK 8 仍需独立实验。
+参考源码的已有编译与运行记录见[示例验证说明](/参考资料/示例验证说明/)，其范围限于选定进程内机制。业务中的持续负载、真实下游、身份隔离及取消后的副作用，仍需对应实现和运行证据。
 
 [返回本节 Roadmap](/07-并发与异步编程/README/) · [返回总纲](/)

@@ -14,7 +14,7 @@
 | 用环境配置控制行为 | Spring 配置读取 | 覆盖规则和生效环境由服务端工程决定 |
 | 请求拦截与统一错误提示 | Filter、Interceptor、异常处理与 AOP | 它们工作在不同位置，不能互相代替 |
 
-先学协议与对象协作，再学习框架如何连接它们。通用学习主线采用当前学习 JDK，完整工程固定 Spring Boot 3.5.16，Spring Framework 6.2.x 由 Boot 依赖管理。Java 8 业务案例保留原项目的依赖和语法限制，详见[学习版本与中文资料](/参考资料/学习版本与中文资料/)。
+从一次请求的输入、对象协作和失败结果理解框架的职责。通用学习主线采用当前学习 JDK，完整工程固定 Spring Boot 3.5.16，Spring Framework 6.2.x 由 Boot 依赖管理。Java 8 业务案例保留原项目的依赖和语法限制，详见[学习版本与中文资料](/参考资料/学习版本与中文资料/)。
 
 ## 一 请求和响应是一份明确的约定
 
@@ -225,7 +225,7 @@ fetch('/greetings', {
 
 ## 六 区分框架拒绝与业务拒绝
 
-错误可能发生在方法执行前，也可能来自业务方法。对照四种可重复输入：
+错误可能发生在方法执行前，也可能来自业务方法。下面的协议情况说明失败位置：
 
 | 输入 | 预期状态 | 发生位置 |
 | --- | --- | --- |
@@ -273,55 +273,37 @@ GET /hello?name=%20%20 进入 Service 后被拒绝，得到 400 和 `{"error":"n
 
 ## 八 综合案例 启动一个完整 HTTP 工程
 
-前面的类型已按完整文件整理到 [examples/hello-http](/assets/03-HTTP与Spring服务开发/examples/hello-http/pom.xml)。它只用内存对象，不连接数据库或公司平台。
+[HTTP 参考工程](/assets/03-HTTP与Spring服务开发/examples/hello-http/pom.xml)把前面的类型放在同一应用中，只使用内存对象。POM 的业务依赖为 spring-boot-starter-web 与 spring-boot-starter-validation，父版本固定 3.5.16，Java 编译目标遵循统一学习基线。
 
-POM 的业务依赖为 `spring-boot-starter-web` 与 `spring-boot-starter-validation`，父版本固定 3.5.16，Java 编译目标遵循统一学习基线。完整入口 `Application.java`：
+阅读时从 Application 的启动入口进入组件扫描，再沿 Controller → GreetingService → GreetingFormatter 追踪一次请求。lesson.prefix 来自配置，绑定与校验发生在业务调用之前，ApiErrors 将特定业务异常映射为响应。
 
-```java
-package study.web;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+| 一次请求中的问题 | 参考工程中的位置 | 实际服务还要确认什么 |
+| --- | --- | --- |
+| 路径和参数怎样进入方法 | Controller 的映射与绑定 | 网关重写、过滤链、资源存在性与对象授权 |
+| 对象与实现从哪里来 | 配置类、扫描与构造器依赖 | 生效条件、Bean 作用域和共享可变状态 |
+| 数据为什么被拒绝 | 参数转换、校验与 Service 规则 | 项目业务码及前后端错误契约 |
+| 最终发生了什么 | 当前只返回问候结果 | 真实数据库写入、事务、下游调用和副作用 |
 
-@SpringBootApplication
-public class Application {
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-}
-```
+实际工程的构建、启动与配置按 [02](/02-工程构建与研发流程/README/)核对。这个参考应用用于说明单进程请求处理，不能证明认证授权、事务或跨服务链路已经正确。
 
-入口在 study.web 包中，相关类型也在此包下，便于组件扫描找到。完整 POM、Controller 和其他类均已给出；需事先准备当前学习 JDK、Maven 以及依赖缓存或获准访问的仓库。
+## 九 业务验证
 
-```bash
-cd ./03-HTTP与Spring服务开发/examples/hello-http
-mvn package
-java -jar target/hello-http-1.0-SNAPSHOT.jar
-```
+当前接口变更需要核对正常、边界和失败路径，范围由需求决定：
 
-另开终端，在本地验证：
+| 业务变化 | 应保留的证据 |
+| --- | --- |
+| 输入和错误契约 | 原始请求、绑定后的值、实际状态和响应；错误发生在框架还是业务方法 |
+| 字段兼容 | 旧请求仍可使用，新字段不允许客户端修改内部身份、租户和状态 |
+| 配置或注入变化 | 实际生效配置、选择的实现及返回行为一致 |
+| 客户端超时或依赖失败 | 服务端最终状态、已完成写入和外部副作用另有证据 |
 
-```bash
-curl -i 'http://localhost:18083/hello?name=Vue'
-curl -i -H 'Content-Type: application/json' -d '{"name":"Vue"}' http://localhost:18083/greetings
-curl -i -H 'Content-Type: text/plain' -d 'Vue' http://localhost:18083/greetings
-```
-
-前两项应返回 200 和 message，第三项应返回 415。`application.properties` 设置 `server.port=18083` 和 `lesson.prefix=Hello`；把前缀改成 Hi 后重启，再核对配置与响应。
-
-## 九 练习与验收
-
-1. 用第六节输入表验证状态码，并通过断点记录是否进入 Controller 和 Service。
-2. 给 POST 请求增加一个可选备注字段，旧请求不传仍应有效；不要顺便接受客户端提交的内部角色或租户字段。
-3. 将配置前缀改成 Hi，再故意移除格式化 Bean，区分“运行结果改变”和“启动依赖缺失”。
-4. 模拟客户端提前超时，确认服务端最终是否执行；不能由客户端报错推断服务端已经回滚。
-
-验收保存请求、响应、断点或日志位置、实际配置和运行版本。只看 HTTP 200 或只看注解存在，都不足以证明完整行为。
+请求、响应、日志位置、实际配置和运行版本对应保存。只看 HTTP 200 或注解存在，不足以证明完整行为。
 
 ## 十 从单个接口进入微服务学习
 
-先用本章工程证明：请求能到达 Controller、依赖来自 Spring、配置影响返回值、错误能追到发生位置。接下来在 [16 的账户查询案例](/16-微服务开发与注册配置/典型案例/)中，把“当前进程调用一个对象”扩展为“通过代理调用另一个服务”。
+能够解释请求到达位置、依赖来源、配置和错误行为后，可结合当前项目继续读 [16 的账户查询案例](/16-微服务开发与注册配置/典型案例/)，把“当前进程调用一个对象”扩展为“通过代理调用另一个服务”。
 
-对照观察四项变化：配置可由 Nacos 导入，目标地址可由服务发现获取，普通接口字段可被注入为 Dubbo 代理，入口身份需要按约定跨服务传递并再次核实资源权限。当前的问候接口只覆盖单应用请求处理，不据此认定已经完成认证或跨服务联调。
+跨服务代码还需要理解四项变化：配置可由 Nacos 导入，目标地址可由服务发现获取，普通接口字段可被注入为 Dubbo 代理，入口身份需要按约定跨服务传递并再次核实资源权限。当前的问候接口只覆盖单应用请求处理，不据此认定已经完成认证或跨服务联调。
 
 ## 参考资料与验证范围
 

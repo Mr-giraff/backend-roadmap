@@ -14,7 +14,7 @@
 | 回归旧页面调用 | 接口契约与兼容测试 | 类型、空值、错误码和大整数同样属于契约 |
 | 根据异常复现问题 | 故障与并发测试 | 需要可控制的故障点及最终状态证据 |
 
-先用一个确定的业务规则学习断言，再逐层引入框架和依赖。后面的“名称可用性”综合案例不预设真实数据库存在。
+从名称规则的预期与拒绝行为理解测试证据，再按当前需求选择框架和依赖边界。后面的“名称可用性”案例不预设真实数据库存在。
 
 当前学习范围：先验证一个规则的正常与拒绝结果，再加入接口和依赖边界；完整测试体系按当前需求的风险逐步补齐。
 
@@ -60,7 +60,7 @@ public class RuleCheck {
 }
 ```
 
-预期输出 `RuleCheck: PASS`；若误删 trim，检查会失败。它证明了给定输入的结果，不证明 HTTP 参数绑定或数据库保存。
+这个检查比较规范化后的名称与预期值，只证明给定输入的规则结果，不证明 HTTP 参数绑定或数据库保存。
 
 ## 二 JUnit 把检查组织成可重复执行的测试
 
@@ -90,30 +90,7 @@ class NameRulesTest {
 
 两个测试分别验证正常结果与明确拒绝。`assertThrows` 接收一段待执行代码，检查它是否抛出指定异常；不会把任意失败都当成正确。
 
-在独立学习工程中，完整 POM 可写为：
-
-```xml
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>study</groupId><artifactId>quality-demo</artifactId><version>1.0-SNAPSHOT</version>
-  <properties>
-    <maven.compiler.release>21</maven.compiler.release>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-  <dependencies>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId>
-      <version>6.1.3</version><scope>test</scope>
-    </dependency>
-  </dependencies>
-  <build><plugins>
-    <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-compiler-plugin</artifactId><version>3.16.0</version></plugin>
-    <plugin><groupId>org.apache.maven.plugins</groupId><artifactId>maven-surefire-plugin</artifactId><version>3.5.5</version></plugin>
-  </plugins></build>
-</project>
-```
-
-将 NameRules 放在 src/main/java，测试放在 src/test/java，再执行 `mvn test`。预期发现两个测试并通过；依赖与插件要事先可用，不能把“没有发现测试”当成验证完成。
+项目中的 JUnit、编译插件与 Surefire 应按现有构建组合核对。测试源码与构建报告需要能相互对应：断言写在文件里，并不等于构建已经发现和执行。具体依赖与插件写法按 [JUnit 构建支持](https://docs.junit.org/6.1.3/running-tests/build-support.html)查阅。
 
 ## 三 一个测试只证明它实际经过的边界
 
@@ -167,13 +144,13 @@ assertEquals("ADS", checker.requireAvailable(" ADS "));
 
 它证明：名称先规范化、存在时拒绝、不存在时返回有效名称。它没有证明真实查询是否带租户条件，也没有证明并发创建一定唯一。
 
-Mock 工具可以配置返回值和核对交互，但不应把 NameChecker 本身替换掉，再宣称已验证它的规则。先用手写替身理解边界，再按项目需要使用 Mockito 等工具。
+Mock 工具可以配置返回值和核对交互，但不应把 NameChecker 本身替换掉，再宣称已验证它的规则。手写替身和 Mockito 等工具都服务于同一个边界判断，按项目需要选择。
 
 ## 五 集成测试检查真实转换和提交
 
 ### 1. HTTP 绑定需要经过 MVC
 
-普通方法调用不会执行路径匹配和参数绑定。下面用一个独立的最小 MVC 测试工程，验证“路径字符串能否转成 Long”。它与第二节的纯 JUnit 工程分开，不需要把两份 POM 拼在一起，也不需要启动 03 的 HTTP 工程。
+普通方法调用不会执行路径匹配和参数绑定。下面的 MVC 参考代码检查接口编号的类型契约：合法数字可以进入业务方法，不能转换的输入应被拒绝。参考工程与纯 JUnit 版本配置分开，不将两份依赖管理混在一起。
 
 完整文件结构：
 
@@ -184,34 +161,6 @@ examples/mvc-test/
 ```
 
 [完整 POM](/assets/11-测试与质量保障/examples/mvc-test/pom.xml)采用统一学习 JDK及 Spring Boot 3.5.16 依赖管理。web 提供 MVC 等类型，starter-test 提供 JUnit 和 Spring 测试能力；本节的测试依赖版本由父 POM 管理，不再手动指定前面纯 JUnit 工程的 6.1.3。
-
-```xml
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.16</version>
-    </parent>
-    <groupId>study</groupId>
-    <artifactId>mvc-test</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <properties>
-        <java.version>21</java.version>
-    </properties>
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-</project>
-```
 
 [EchoControllerTest.java](/assets/11-测试与质量保障/examples/mvc-test/src/test/java/study/test/EchoControllerTest.java) 是完整测试类，包含被测 Controller 和全部 import：
 
@@ -261,14 +210,7 @@ class EchoControllerTest {
 | /echo/12 | 200，响应体为 12 | 路径匹配、参数转换及响应写入经过 MVC |
 | /echo/abc | 400 | 无法转成 Long 的参数在业务方法正常执行前被拒绝 |
 
-在这个独立工程目录执行：
-
-```bash
-cd ./11-测试与质量保障/examples/mvc-test
-mvn test
-```
-
-预期发现两个测试并通过。运行使用兼容 JDK 和 Maven，依赖与插件从本地缓存或所配置仓库取得。
+是否执行及通过，以构建报告为准；源码和预期表只是选定契约的说明。
 
 standaloneSetup 在测试进程内验证 MVC，不监听真实 HTTP 端口，也不会自动加载公司网关或完整安全链。本节仅完成源码、依赖配置和 XML 的静态核对，尚未执行 Maven 测试。
 
@@ -307,21 +249,13 @@ standaloneSetup 在测试进程内验证 MVC，不监听真实 HTTP 端口，也
 | 提交后丢弃响应 | 已提交记录、客户端超时 | 客户端超时就没有创建 |
 | 重投同一消息 | 消费去重记录与业务数据 | 日志只出现一次就一定幂等 |
 
-并发与跨服务测试分别依赖 07、09 的实现，先通过它们的最小实验，再将故障加入业务流程。
+并发与跨服务的验证范围取决于当前需求；结合 [07](/07-并发与异步编程/README/)、[09](/09-分布式系统与服务协作/README/)理解实际交错、提交点与恢复约定。
 
 ## 八 综合案例 名称可用性检查
 
 现在把规则、业务协调和可控依赖组合：NameRules 负责名称格式，NameChecker 负责查询后的决定，NameCatalog 是依赖边界。
 
-[examples/RuleCheck.java](/assets/11-测试与质量保障/examples/RuleCheck.java) 提供无外部框架的完整校验，覆盖正常值、空名称、已有名称和可用名称。在章节目录运行：
-
-```bash
-mkdir -p /tmp/study-11-classes
-javac --release 21 -encoding UTF-8 -d /tmp/study-11-classes examples/*.java
-java -cp /tmp/study-11-classes RuleCheck
-```
-
-以上主线命令需要当前学习 JDK。预期输出 `RuleCheck: PASS (trim, blank, duplicate, available)`。
+[RuleCheck.java](/assets/11-测试与质量保障/examples/RuleCheck.java)保留这几个业务分支的参考断言，覆盖正常值、空名称、已有名称和可用名称：
 
 | 证据 | 可以说明 |
 | --- | --- |
@@ -332,14 +266,16 @@ java -cp /tmp/study-11-classes RuleCheck
 
 随后再把目录查询换成真实数据库实现，为 SQL、租户与并发规则补集成测试。不能把这四项结果扩大成“创建功能已经在生产可用”。
 
-## 九 练习与验收
+## 九 业务验证
 
-1. 故意删掉 trim，让原测试失败；恢复实现后用同一断言确认修复。
-2. 对空字符串、全空格、null、中文和较长名称列预期，再决定哪些属于本规则、哪些要补业务要求。
-3. 使用真实测试数据库验证唯一约束，并保留最终行数；这项随 05、06 完成。
-4. 给旧接口增加可选筛选参数，保留旧请求样本并比较新旧结果与错误。
+| 当前改动的规则或风险 | 相应证据 |
+| --- | --- |
+| 名称格式、空值与拒绝 | 需求定义的输入、预期值或异常类型，以及对应断言 |
+| 租户与唯一约束 | 真实查询和测试数据库的约束、冲突及提交后数据 |
+| 旧调用方兼容 | 提供和消费双方的旧请求、响应与错误契约回归 |
+| 并发、超时或重投 | 已明确的关键顺序、各提交点与最终状态，包含外部副作用 |
 
-验收时为每个测试写一句“证明什么、尚未经过什么边界”。覆盖率可辅助发现遗漏，不替代业务与故障场景。
+每份测试证据应说明“证明什么、尚未经过什么边界”。已有缺陷用原始输入保留回归，覆盖率用来辅助找遗漏；测试范围随业务风险选择，不以测试框架 API 数量衡量掌握程度。
 
 ## 参考资料与验证范围
 
