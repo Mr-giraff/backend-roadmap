@@ -4,260 +4,296 @@
     "link": "/"
   },
   {
-    "text": "00 能力模型与成长阶段",
-    "collapsed": false,
+    "text": "00-能力模型与成长阶段",
+    "link": "/00-能力模型与成长阶段/README/",
+    "collapsed": true,
+    "items": []
+  },
+  {
+    "text": "01-Java学习路线",
+    "link": "/01-Java学习路线/README/",
+    "collapsed": true,
     "items": [
       {
-        "text": "学习路线",
-        "link": "/00-能力模型与成长阶段/README/"
+        "text": "01-语言与开发环境",
+        "link": "/01-Java学习路线/01-语言与开发环境/README/",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "Java 语言与 JVM 基础典型案例",
+            "link": "/01-Java学习路线/01-语言与开发环境/典型案例/"
+          }
+        ]
+      },
+      {
+        "text": "02-常用语言能力与标准库",
+        "link": "/01-Java学习路线/02-常用语言能力与标准库/README/",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "常用语言能力与标准库典型案例",
+            "link": "/01-Java学习路线/02-常用语言能力与标准库/典型案例/"
+          }
+        ]
+      },
+      {
+        "text": "03-工程构建与协作",
+        "link": "/01-Java学习路线/03-工程构建与协作/README/",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "工程构建与研发流程典型案例",
+            "link": "/01-Java学习路线/03-工程构建与协作/典型案例/"
+          }
+        ]
+      },
+      {
+        "text": "04-数据库与持久化",
+        "link": "/01-Java学习路线/04-数据库与持久化/README/",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "数据库与持久化典型案例",
+            "link": "/01-Java学习路线/04-数据库与持久化/典型案例/"
+          },
+          {
+            "text": "JDBC与持久层工具",
+            "link": "/01-Java学习路线/04-数据库与持久化/JDBC与持久层工具/README/",
+            "collapsed": true,
+            "items": [
+              {
+                "text": "JDBC 参数绑定案例",
+                "link": "/01-Java学习路线/04-数据库与持久化/JDBC与持久层工具/典型案例/"
+              }
+            ]
+          },
+          {
+            "text": "MySQL基础与部署",
+            "link": "/01-Java学习路线/04-数据库与持久化/MySQL基础与部署/README/",
+            "collapsed": true,
+            "items": [
+              {
+                "text": "数据库设计与 SQL 典型案例",
+                "link": "/01-Java学习路线/04-数据库与持久化/MySQL基础与部署/典型案例/"
+              }
+            ]
+          },
+          {
+            "text": "数据变更与事务",
+            "link": "/01-Java学习路线/04-数据库与持久化/数据变更与事务/README/",
+            "collapsed": true,
+            "items": [
+              {
+                "text": "事务与数据一致性典型案例",
+                "link": "/01-Java学习路线/04-数据库与持久化/数据变更与事务/典型案例/"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "text": "05-Web与Spring服务开发",
+        "link": "/01-Java学习路线/05-Web与Spring服务开发/README/",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "HTTP 与 Spring 服务开发典型案例",
+            "link": "/01-Java学习路线/05-Web与Spring服务开发/典型案例/"
+          },
+          {
+            "text": "业务分层与建模",
+            "link": "/01-Java学习路线/05-Web与Spring服务开发/业务分层与建模/README/",
+            "collapsed": true,
+            "items": [
+              {
+                "text": "分层架构与业务建模典型案例",
+                "link": "/01-Java学习路线/05-Web与Spring服务开发/业务分层与建模/典型案例/"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "text": "06-测试与安全",
+        "link": "/01-Java学习路线/06-测试与安全/README/",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "测试与安全典型案例",
+            "link": "/01-Java学习路线/06-测试与安全/典型案例/"
+          },
+          {
+            "text": "测试与质量保障",
+            "link": "/01-Java学习路线/06-测试与安全/测试与质量保障/README/",
+            "collapsed": true,
+            "items": [
+              {
+                "text": "测试与质量保障典型案例",
+                "link": "/01-Java学习路线/06-测试与安全/测试与质量保障/典型案例/"
+              }
+            ]
+          },
+          {
+            "text": "身份认证与权限",
+            "link": "/01-Java学习路线/06-测试与安全/身份认证与权限/README/",
+            "collapsed": true,
+            "items": [
+              {
+                "text": "安全与权限典型案例",
+                "link": "/01-Java学习路线/06-测试与安全/身份认证与权限/典型案例/"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "text": "07-并发与JVM",
+        "link": "/01-Java学习路线/07-并发与JVM/README/",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "并发与异步编程典型案例",
+            "link": "/01-Java学习路线/07-并发与JVM/典型案例/"
+          }
+        ]
+      },
+      {
+        "text": "08-缓存、消息与服务协作",
+        "link": "/01-Java学习路线/08-缓存、消息与服务协作/README/",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "缓存与消息队列典型案例",
+            "link": "/01-Java学习路线/08-缓存、消息与服务协作/典型案例/"
+          },
+          {
+            "text": "Kafka消息队列",
+            "link": "/01-Java学习路线/08-缓存、消息与服务协作/Kafka消息队列/README/",
+            "collapsed": true,
+            "items": [
+              {
+                "text": "Kafka 消息队列典型案例",
+                "link": "/01-Java学习路线/08-缓存、消息与服务协作/Kafka消息队列/典型案例/"
+              }
+            ]
+          },
+          {
+            "text": "Redis缓存",
+            "link": "/01-Java学习路线/08-缓存、消息与服务协作/Redis缓存/README/",
+            "collapsed": true,
+            "items": [
+              {
+                "text": "Redis 缓存典型案例",
+                "link": "/01-Java学习路线/08-缓存、消息与服务协作/Redis缓存/典型案例/"
+              }
+            ]
+          },
+          {
+            "text": "微服务调用与注册配置",
+            "link": "/01-Java学习路线/08-缓存、消息与服务协作/微服务调用与注册配置/README/",
+            "collapsed": true,
+            "items": [
+              {
+                "text": "微服务开发与注册配置典型案例",
+                "link": "/01-Java学习路线/08-缓存、消息与服务协作/微服务调用与注册配置/典型案例/"
+              }
+            ]
+          },
+          {
+            "text": "服务间调用",
+            "link": "/01-Java学习路线/08-缓存、消息与服务协作/服务间调用/README/",
+            "collapsed": true,
+            "items": [
+              {
+                "text": "分布式系统与服务协作典型案例",
+                "link": "/01-Java学习路线/08-缓存、消息与服务协作/服务间调用/典型案例/"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "text": "09-部署与运行维护",
+        "link": "/01-Java学习路线/09-部署与运行维护/README/",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "部署运维与故障排查典型案例",
+            "link": "/01-Java学习路线/09-部署与运行维护/典型案例/"
+          }
+        ]
+      },
+      {
+        "text": "10-深入方向",
+        "link": "/01-Java学习路线/10-深入方向/README/",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "系统设计典型案例",
+            "link": "/01-Java学习路线/10-深入方向/典型案例/"
+          }
+        ]
       }
     ]
   },
   {
-    "text": "01 Java 语言与 JVM 基础",
-    "collapsed": false,
+    "text": "02-大数据学习路线",
+    "link": "/02-大数据学习路线/README/",
+    "collapsed": true,
     "items": [
       {
-        "text": "学习路线",
-        "link": "/01-Java语言与JVM基础/README/"
+        "text": "大数据组件与数据链路典型案例",
+        "link": "/02-大数据学习路线/典型案例/"
       },
       {
-        "text": "讲解与案例",
-        "link": "/01-Java语言与JVM基础/典型案例/"
-      }
-    ]
-  },
-  {
-    "text": "02 工程构建与研发流程",
-    "collapsed": false,
-    "items": [
-      {
-        "text": "学习路线",
-        "link": "/02-工程构建与研发流程/README/"
+        "text": "01-分布式计算基础",
+        "link": "/02-大数据学习路线/01-分布式计算基础/README/",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "分布式计算基础典型案例",
+            "link": "/02-大数据学习路线/01-分布式计算基础/典型案例/"
+          }
+        ]
       },
       {
-        "text": "讲解与案例",
-        "link": "/02-工程构建与研发流程/典型案例/"
-      }
-    ]
-  },
-  {
-    "text": "03 HTTP 与 Spring 服务开发",
-    "collapsed": false,
-    "items": [
-      {
-        "text": "学习路线",
-        "link": "/03-HTTP与Spring服务开发/README/"
+        "text": "02-Hive",
+        "link": "/02-大数据学习路线/02-Hive/README/",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "Hive 典型案例",
+            "link": "/02-大数据学习路线/02-Hive/典型案例/"
+          }
+        ]
       },
       {
-        "text": "讲解与案例",
-        "link": "/03-HTTP与Spring服务开发/典型案例/"
-      }
-    ]
-  },
-  {
-    "text": "04 分层架构与业务建模",
-    "collapsed": false,
-    "items": [
-      {
-        "text": "学习路线",
-        "link": "/04-分层架构与业务建模/README/"
+        "text": "03-Spark",
+        "link": "/02-大数据学习路线/03-Spark/README/",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "Spark 典型案例",
+            "link": "/02-大数据学习路线/03-Spark/典型案例/"
+          }
+        ]
       },
       {
-        "text": "讲解与案例",
-        "link": "/04-分层架构与业务建模/典型案例/"
-      }
-    ]
-  },
-  {
-    "text": "05 数据库设计与 SQL",
-    "collapsed": false,
-    "items": [
-      {
-        "text": "学习路线",
-        "link": "/05-数据库设计与SQL/README/"
-      },
-      {
-        "text": "讲解与案例",
-        "link": "/05-数据库设计与SQL/典型案例/"
-      }
-    ]
-  },
-  {
-    "text": "06 事务与数据一致性",
-    "collapsed": false,
-    "items": [
-      {
-        "text": "学习路线",
-        "link": "/06-事务与数据一致性/README/"
-      },
-      {
-        "text": "讲解与案例",
-        "link": "/06-事务与数据一致性/典型案例/"
-      }
-    ]
-  },
-  {
-    "text": "07 并发与异步编程",
-    "collapsed": false,
-    "items": [
-      {
-        "text": "学习路线",
-        "link": "/07-并发与异步编程/README/"
-      },
-      {
-        "text": "讲解与案例",
-        "link": "/07-并发与异步编程/典型案例/"
-      }
-    ]
-  },
-  {
-    "text": "08 缓存与消息队列",
-    "collapsed": false,
-    "items": [
-      {
-        "text": "学习路线",
-        "link": "/08-缓存与消息队列/README/"
-      },
-      {
-        "text": "讲解与案例",
-        "link": "/08-缓存与消息队列/典型案例/"
-      }
-    ]
-  },
-  {
-    "text": "09 分布式系统与服务协作",
-    "collapsed": false,
-    "items": [
-      {
-        "text": "学习路线",
-        "link": "/09-分布式系统与服务协作/README/"
-      },
-      {
-        "text": "讲解与案例",
-        "link": "/09-分布式系统与服务协作/典型案例/"
-      }
-    ]
-  },
-  {
-    "text": "10 系统设计",
-    "collapsed": false,
-    "items": [
-      {
-        "text": "学习路线",
-        "link": "/10-系统设计/README/"
-      },
-      {
-        "text": "讲解与案例",
-        "link": "/10-系统设计/典型案例/"
-      }
-    ]
-  },
-  {
-    "text": "11 测试与质量保障",
-    "collapsed": false,
-    "items": [
-      {
-        "text": "学习路线",
-        "link": "/11-测试与质量保障/README/"
-      },
-      {
-        "text": "讲解与案例",
-        "link": "/11-测试与质量保障/典型案例/"
-      }
-    ]
-  },
-  {
-    "text": "12 安全与权限",
-    "collapsed": false,
-    "items": [
-      {
-        "text": "学习路线",
-        "link": "/12-安全与权限/README/"
-      },
-      {
-        "text": "讲解与案例",
-        "link": "/12-安全与权限/典型案例/"
-      }
-    ]
-  },
-  {
-    "text": "13 部署运维与故障排查",
-    "collapsed": false,
-    "items": [
-      {
-        "text": "学习路线",
-        "link": "/13-部署运维与故障排查/README/"
-      },
-      {
-        "text": "讲解与案例",
-        "link": "/13-部署运维与故障排查/典型案例/"
-      }
-    ]
-  },
-  {
-    "text": "15 大数据组件与数据链路",
-    "collapsed": false,
-    "items": [
-      {
-        "text": "学习路线",
-        "link": "/15-大数据组件与数据链路/README/"
-      },
-      {
-        "text": "分布式计算基础 Roadmap",
-        "link": "/15-大数据组件与数据链路/01-分布式计算基础/README/"
-      },
-      {
-        "text": "分布式计算基础典型案例",
-        "link": "/15-大数据组件与数据链路/01-分布式计算基础/典型案例/"
-      },
-      {
-        "text": "Hive Roadmap",
-        "link": "/15-大数据组件与数据链路/02-Hive/README/"
-      },
-      {
-        "text": "Hive 典型案例",
-        "link": "/15-大数据组件与数据链路/02-Hive/典型案例/"
-      },
-      {
-        "text": "Spark Roadmap",
-        "link": "/15-大数据组件与数据链路/03-Spark/README/"
-      },
-      {
-        "text": "Spark 典型案例",
-        "link": "/15-大数据组件与数据链路/03-Spark/典型案例/"
-      },
-      {
-        "text": "Flink Roadmap",
-        "link": "/15-大数据组件与数据链路/04-Flink/README/"
-      },
-      {
-        "text": "Flink 典型案例",
-        "link": "/15-大数据组件与数据链路/04-Flink/典型案例/"
-      },
-      {
-        "text": "讲解与案例",
-        "link": "/15-大数据组件与数据链路/典型案例/"
-      }
-    ]
-  },
-  {
-    "text": "16 微服务开发与注册配置",
-    "collapsed": false,
-    "items": [
-      {
-        "text": "学习路线",
-        "link": "/16-微服务开发与注册配置/README/"
-      },
-      {
-        "text": "讲解与案例",
-        "link": "/16-微服务开发与注册配置/典型案例/"
+        "text": "04-Flink",
+        "link": "/02-大数据学习路线/04-Flink/README/",
+        "collapsed": true,
+        "items": [
+          {
+            "text": "Flink 典型案例",
+            "link": "/02-大数据学习路线/04-Flink/典型案例/"
+          }
+        ]
       }
     ]
   },
   {
     "text": "参考资料",
-    "collapsed": false,
+    "collapsed": true,
     "items": [
       {
         "text": "学习版本与中文资料",

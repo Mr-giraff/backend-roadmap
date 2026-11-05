@@ -5,194 +5,259 @@
     "output": "00-能力模型与成长阶段/README/index.md"
   },
   {
-    "route": "/01-Java语言与JVM基础/README/",
-    "title": "Java 语言与 JVM 基础 Roadmap",
-    "output": "01-Java语言与JVM基础/README/index.md"
+    "route": "/01-Java学习路线/01-语言与开发环境/README/",
+    "title": "语言与开发环境",
+    "output": "01-Java学习路线/01-语言与开发环境/README/index.md"
   },
   {
-    "route": "/01-Java语言与JVM基础/典型案例/",
+    "route": "/01-Java学习路线/01-语言与开发环境/典型案例/",
     "title": "Java 语言与 JVM 基础典型案例",
-    "output": "01-Java语言与JVM基础/典型案例/index.md"
+    "output": "01-Java学习路线/01-语言与开发环境/典型案例/index.md"
   },
   {
-    "route": "/02-工程构建与研发流程/README/",
-    "title": "工程构建与研发流程 Roadmap",
-    "output": "02-工程构建与研发流程/README/index.md"
+    "route": "/01-Java学习路线/02-常用语言能力与标准库/README/",
+    "title": "常用语言能力与标准库",
+    "output": "01-Java学习路线/02-常用语言能力与标准库/README/index.md"
   },
   {
-    "route": "/02-工程构建与研发流程/典型案例/",
+    "route": "/01-Java学习路线/02-常用语言能力与标准库/典型案例/",
+    "title": "常用语言能力与标准库典型案例",
+    "output": "01-Java学习路线/02-常用语言能力与标准库/典型案例/index.md"
+  },
+  {
+    "route": "/01-Java学习路线/03-工程构建与协作/README/",
+    "title": "工程构建与协作",
+    "output": "01-Java学习路线/03-工程构建与协作/README/index.md"
+  },
+  {
+    "route": "/01-Java学习路线/03-工程构建与协作/典型案例/",
     "title": "工程构建与研发流程典型案例",
-    "output": "02-工程构建与研发流程/典型案例/index.md"
+    "output": "01-Java学习路线/03-工程构建与协作/典型案例/index.md"
   },
   {
-    "route": "/03-HTTP与Spring服务开发/README/",
-    "title": "HTTP 与 Spring 服务开发 Roadmap",
-    "output": "03-HTTP与Spring服务开发/README/index.md"
+    "route": "/01-Java学习路线/04-数据库与持久化/JDBC与持久层工具/README/",
+    "title": "JDBC 与持久层工具",
+    "output": "01-Java学习路线/04-数据库与持久化/JDBC与持久层工具/README/index.md"
   },
   {
-    "route": "/03-HTTP与Spring服务开发/典型案例/",
-    "title": "HTTP 与 Spring 服务开发典型案例",
-    "output": "03-HTTP与Spring服务开发/典型案例/index.md"
+    "route": "/01-Java学习路线/04-数据库与持久化/JDBC与持久层工具/典型案例/",
+    "title": "JDBC 参数绑定案例",
+    "output": "01-Java学习路线/04-数据库与持久化/JDBC与持久层工具/典型案例/index.md"
   },
   {
-    "route": "/04-分层架构与业务建模/README/",
-    "title": "分层架构与业务建模 Roadmap",
-    "output": "04-分层架构与业务建模/README/index.md"
-  },
-  {
-    "route": "/04-分层架构与业务建模/典型案例/",
-    "title": "分层架构与业务建模典型案例",
-    "output": "04-分层架构与业务建模/典型案例/index.md"
-  },
-  {
-    "route": "/05-数据库设计与SQL/README/",
+    "route": "/01-Java学习路线/04-数据库与持久化/MySQL基础与部署/README/",
     "title": "数据库设计与 SQL Roadmap",
-    "output": "05-数据库设计与SQL/README/index.md"
+    "output": "01-Java学习路线/04-数据库与持久化/MySQL基础与部署/README/index.md"
   },
   {
-    "route": "/05-数据库设计与SQL/典型案例/",
+    "route": "/01-Java学习路线/04-数据库与持久化/MySQL基础与部署/典型案例/",
     "title": "数据库设计与 SQL 典型案例",
-    "output": "05-数据库设计与SQL/典型案例/index.md"
+    "output": "01-Java学习路线/04-数据库与持久化/MySQL基础与部署/典型案例/index.md"
   },
   {
-    "route": "/06-事务与数据一致性/README/",
+    "route": "/01-Java学习路线/04-数据库与持久化/README/",
+    "title": "数据库与持久化",
+    "output": "01-Java学习路线/04-数据库与持久化/README/index.md"
+  },
+  {
+    "route": "/01-Java学习路线/04-数据库与持久化/典型案例/",
+    "title": "数据库与持久化典型案例",
+    "output": "01-Java学习路线/04-数据库与持久化/典型案例/index.md"
+  },
+  {
+    "route": "/01-Java学习路线/04-数据库与持久化/数据变更与事务/README/",
     "title": "事务与数据一致性 Roadmap",
-    "output": "06-事务与数据一致性/README/index.md"
+    "output": "01-Java学习路线/04-数据库与持久化/数据变更与事务/README/index.md"
   },
   {
-    "route": "/06-事务与数据一致性/典型案例/",
+    "route": "/01-Java学习路线/04-数据库与持久化/数据变更与事务/典型案例/",
     "title": "事务与数据一致性典型案例",
-    "output": "06-事务与数据一致性/典型案例/index.md"
+    "output": "01-Java学习路线/04-数据库与持久化/数据变更与事务/典型案例/index.md"
   },
   {
-    "route": "/07-并发与异步编程/README/",
-    "title": "并发与异步编程 Roadmap",
-    "output": "07-并发与异步编程/README/index.md"
+    "route": "/01-Java学习路线/05-Web与Spring服务开发/README/",
+    "title": "Web与Spring服务开发",
+    "output": "01-Java学习路线/05-Web与Spring服务开发/README/index.md"
   },
   {
-    "route": "/07-并发与异步编程/典型案例/",
-    "title": "并发与异步编程典型案例",
-    "output": "07-并发与异步编程/典型案例/index.md"
+    "route": "/01-Java学习路线/05-Web与Spring服务开发/业务分层与建模/README/",
+    "title": "分层架构与业务建模 Roadmap",
+    "output": "01-Java学习路线/05-Web与Spring服务开发/业务分层与建模/README/index.md"
   },
   {
-    "route": "/08-缓存与消息队列/README/",
-    "title": "缓存与消息队列 Roadmap",
-    "output": "08-缓存与消息队列/README/index.md"
+    "route": "/01-Java学习路线/05-Web与Spring服务开发/业务分层与建模/典型案例/",
+    "title": "分层架构与业务建模典型案例",
+    "output": "01-Java学习路线/05-Web与Spring服务开发/业务分层与建模/典型案例/index.md"
   },
   {
-    "route": "/08-缓存与消息队列/典型案例/",
-    "title": "缓存与消息队列典型案例",
-    "output": "08-缓存与消息队列/典型案例/index.md"
+    "route": "/01-Java学习路线/05-Web与Spring服务开发/典型案例/",
+    "title": "HTTP 与 Spring 服务开发典型案例",
+    "output": "01-Java学习路线/05-Web与Spring服务开发/典型案例/index.md"
   },
   {
-    "route": "/09-分布式系统与服务协作/README/",
-    "title": "分布式系统与服务协作 Roadmap",
-    "output": "09-分布式系统与服务协作/README/index.md"
+    "route": "/01-Java学习路线/06-测试与安全/README/",
+    "title": "测试与安全",
+    "output": "01-Java学习路线/06-测试与安全/README/index.md"
   },
   {
-    "route": "/09-分布式系统与服务协作/典型案例/",
-    "title": "分布式系统与服务协作典型案例",
-    "output": "09-分布式系统与服务协作/典型案例/index.md"
+    "route": "/01-Java学习路线/06-测试与安全/典型案例/",
+    "title": "测试与安全典型案例",
+    "output": "01-Java学习路线/06-测试与安全/典型案例/index.md"
   },
   {
-    "route": "/10-系统设计/README/",
-    "title": "系统设计 Roadmap",
-    "output": "10-系统设计/README/index.md"
-  },
-  {
-    "route": "/10-系统设计/典型案例/",
-    "title": "系统设计典型案例",
-    "output": "10-系统设计/典型案例/index.md"
-  },
-  {
-    "route": "/11-测试与质量保障/README/",
+    "route": "/01-Java学习路线/06-测试与安全/测试与质量保障/README/",
     "title": "测试与质量保障 Roadmap",
-    "output": "11-测试与质量保障/README/index.md"
+    "output": "01-Java学习路线/06-测试与安全/测试与质量保障/README/index.md"
   },
   {
-    "route": "/11-测试与质量保障/典型案例/",
+    "route": "/01-Java学习路线/06-测试与安全/测试与质量保障/典型案例/",
     "title": "测试与质量保障典型案例",
-    "output": "11-测试与质量保障/典型案例/index.md"
+    "output": "01-Java学习路线/06-测试与安全/测试与质量保障/典型案例/index.md"
   },
   {
-    "route": "/12-安全与权限/README/",
+    "route": "/01-Java学习路线/06-测试与安全/身份认证与权限/README/",
     "title": "安全与权限 Roadmap",
-    "output": "12-安全与权限/README/index.md"
+    "output": "01-Java学习路线/06-测试与安全/身份认证与权限/README/index.md"
   },
   {
-    "route": "/12-安全与权限/典型案例/",
+    "route": "/01-Java学习路线/06-测试与安全/身份认证与权限/典型案例/",
     "title": "安全与权限典型案例",
-    "output": "12-安全与权限/典型案例/index.md"
+    "output": "01-Java学习路线/06-测试与安全/身份认证与权限/典型案例/index.md"
   },
   {
-    "route": "/13-部署运维与故障排查/README/",
-    "title": "部署运维与故障排查 Roadmap",
-    "output": "13-部署运维与故障排查/README/index.md"
+    "route": "/01-Java学习路线/07-并发与JVM/README/",
+    "title": "并发与JVM",
+    "output": "01-Java学习路线/07-并发与JVM/README/index.md"
   },
   {
-    "route": "/13-部署运维与故障排查/典型案例/",
-    "title": "部署运维与故障排查典型案例",
-    "output": "13-部署运维与故障排查/典型案例/index.md"
+    "route": "/01-Java学习路线/07-并发与JVM/典型案例/",
+    "title": "并发与异步编程典型案例",
+    "output": "01-Java学习路线/07-并发与JVM/典型案例/index.md"
   },
   {
-    "route": "/15-大数据组件与数据链路/01-分布式计算基础/README/",
-    "title": "分布式计算基础 Roadmap",
-    "output": "15-大数据组件与数据链路/01-分布式计算基础/README/index.md"
+    "route": "/01-Java学习路线/08-缓存、消息与服务协作/Kafka消息队列/README/",
+    "title": "Kafka 消息队列",
+    "output": "01-Java学习路线/08-缓存、消息与服务协作/Kafka消息队列/README/index.md"
   },
   {
-    "route": "/15-大数据组件与数据链路/01-分布式计算基础/典型案例/",
-    "title": "分布式计算基础典型案例",
-    "output": "15-大数据组件与数据链路/01-分布式计算基础/典型案例/index.md"
+    "route": "/01-Java学习路线/08-缓存、消息与服务协作/Kafka消息队列/典型案例/",
+    "title": "Kafka 消息队列典型案例",
+    "output": "01-Java学习路线/08-缓存、消息与服务协作/Kafka消息队列/典型案例/index.md"
   },
   {
-    "route": "/15-大数据组件与数据链路/02-Hive/README/",
-    "title": "Hive Roadmap",
-    "output": "15-大数据组件与数据链路/02-Hive/README/index.md"
+    "route": "/01-Java学习路线/08-缓存、消息与服务协作/README/",
+    "title": "缓存、消息与服务协作",
+    "output": "01-Java学习路线/08-缓存、消息与服务协作/README/index.md"
   },
   {
-    "route": "/15-大数据组件与数据链路/02-Hive/典型案例/",
-    "title": "Hive 典型案例",
-    "output": "15-大数据组件与数据链路/02-Hive/典型案例/index.md"
+    "route": "/01-Java学习路线/08-缓存、消息与服务协作/Redis缓存/README/",
+    "title": "Redis 缓存",
+    "output": "01-Java学习路线/08-缓存、消息与服务协作/Redis缓存/README/index.md"
   },
   {
-    "route": "/15-大数据组件与数据链路/03-Spark/README/",
-    "title": "Spark Roadmap",
-    "output": "15-大数据组件与数据链路/03-Spark/README/index.md"
+    "route": "/01-Java学习路线/08-缓存、消息与服务协作/Redis缓存/典型案例/",
+    "title": "Redis 缓存典型案例",
+    "output": "01-Java学习路线/08-缓存、消息与服务协作/Redis缓存/典型案例/index.md"
   },
   {
-    "route": "/15-大数据组件与数据链路/03-Spark/典型案例/",
-    "title": "Spark 典型案例",
-    "output": "15-大数据组件与数据链路/03-Spark/典型案例/index.md"
+    "route": "/01-Java学习路线/08-缓存、消息与服务协作/典型案例/",
+    "title": "缓存与消息队列典型案例",
+    "output": "01-Java学习路线/08-缓存、消息与服务协作/典型案例/index.md"
   },
   {
-    "route": "/15-大数据组件与数据链路/04-Flink/README/",
-    "title": "Flink Roadmap",
-    "output": "15-大数据组件与数据链路/04-Flink/README/index.md"
-  },
-  {
-    "route": "/15-大数据组件与数据链路/04-Flink/典型案例/",
-    "title": "Flink 典型案例",
-    "output": "15-大数据组件与数据链路/04-Flink/典型案例/index.md"
-  },
-  {
-    "route": "/15-大数据组件与数据链路/README/",
-    "title": "大数据组件与数据链路 Roadmap",
-    "output": "15-大数据组件与数据链路/README/index.md"
-  },
-  {
-    "route": "/15-大数据组件与数据链路/典型案例/",
-    "title": "大数据组件与数据链路典型案例",
-    "output": "15-大数据组件与数据链路/典型案例/index.md"
-  },
-  {
-    "route": "/16-微服务开发与注册配置/README/",
+    "route": "/01-Java学习路线/08-缓存、消息与服务协作/微服务调用与注册配置/README/",
     "title": "微服务开发与注册配置 Roadmap",
-    "output": "16-微服务开发与注册配置/README/index.md"
+    "output": "01-Java学习路线/08-缓存、消息与服务协作/微服务调用与注册配置/README/index.md"
   },
   {
-    "route": "/16-微服务开发与注册配置/典型案例/",
+    "route": "/01-Java学习路线/08-缓存、消息与服务协作/微服务调用与注册配置/典型案例/",
     "title": "微服务开发与注册配置典型案例",
-    "output": "16-微服务开发与注册配置/典型案例/index.md"
+    "output": "01-Java学习路线/08-缓存、消息与服务协作/微服务调用与注册配置/典型案例/index.md"
+  },
+  {
+    "route": "/01-Java学习路线/08-缓存、消息与服务协作/服务间调用/README/",
+    "title": "分布式系统与服务协作 Roadmap",
+    "output": "01-Java学习路线/08-缓存、消息与服务协作/服务间调用/README/index.md"
+  },
+  {
+    "route": "/01-Java学习路线/08-缓存、消息与服务协作/服务间调用/典型案例/",
+    "title": "分布式系统与服务协作典型案例",
+    "output": "01-Java学习路线/08-缓存、消息与服务协作/服务间调用/典型案例/index.md"
+  },
+  {
+    "route": "/01-Java学习路线/09-部署与运行维护/README/",
+    "title": "部署与运行维护",
+    "output": "01-Java学习路线/09-部署与运行维护/README/index.md"
+  },
+  {
+    "route": "/01-Java学习路线/09-部署与运行维护/典型案例/",
+    "title": "部署运维与故障排查典型案例",
+    "output": "01-Java学习路线/09-部署与运行维护/典型案例/index.md"
+  },
+  {
+    "route": "/01-Java学习路线/10-深入方向/README/",
+    "title": "深入方向",
+    "output": "01-Java学习路线/10-深入方向/README/index.md"
+  },
+  {
+    "route": "/01-Java学习路线/10-深入方向/典型案例/",
+    "title": "系统设计典型案例",
+    "output": "01-Java学习路线/10-深入方向/典型案例/index.md"
+  },
+  {
+    "route": "/01-Java学习路线/README/",
+    "title": "Java 学习路线",
+    "output": "01-Java学习路线/README/index.md"
+  },
+  {
+    "route": "/02-大数据学习路线/01-分布式计算基础/README/",
+    "title": "分布式计算基础 Roadmap",
+    "output": "02-大数据学习路线/01-分布式计算基础/README/index.md"
+  },
+  {
+    "route": "/02-大数据学习路线/01-分布式计算基础/典型案例/",
+    "title": "分布式计算基础典型案例",
+    "output": "02-大数据学习路线/01-分布式计算基础/典型案例/index.md"
+  },
+  {
+    "route": "/02-大数据学习路线/02-Hive/README/",
+    "title": "Hive Roadmap",
+    "output": "02-大数据学习路线/02-Hive/README/index.md"
+  },
+  {
+    "route": "/02-大数据学习路线/02-Hive/典型案例/",
+    "title": "Hive 典型案例",
+    "output": "02-大数据学习路线/02-Hive/典型案例/index.md"
+  },
+  {
+    "route": "/02-大数据学习路线/03-Spark/README/",
+    "title": "Spark Roadmap",
+    "output": "02-大数据学习路线/03-Spark/README/index.md"
+  },
+  {
+    "route": "/02-大数据学习路线/03-Spark/典型案例/",
+    "title": "Spark 典型案例",
+    "output": "02-大数据学习路线/03-Spark/典型案例/index.md"
+  },
+  {
+    "route": "/02-大数据学习路线/04-Flink/README/",
+    "title": "Flink Roadmap",
+    "output": "02-大数据学习路线/04-Flink/README/index.md"
+  },
+  {
+    "route": "/02-大数据学习路线/04-Flink/典型案例/",
+    "title": "Flink 典型案例",
+    "output": "02-大数据学习路线/04-Flink/典型案例/index.md"
+  },
+  {
+    "route": "/02-大数据学习路线/README/",
+    "title": "大数据学习路线",
+    "output": "02-大数据学习路线/README/index.md"
+  },
+  {
+    "route": "/02-大数据学习路线/典型案例/",
+    "title": "大数据组件与数据链路典型案例",
+    "output": "02-大数据学习路线/典型案例/index.md"
   },
   {
     "route": "/参考资料/学习版本与中文资料/",

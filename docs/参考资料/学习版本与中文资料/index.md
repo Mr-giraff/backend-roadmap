@@ -6,7 +6,7 @@
 
 ## 阅读顺序
 
-1. 先确定当前业务问题需要理解哪些概念与保证；[01 Java 路线](/01-Java语言与JVM基础/README/)提供概念、教程与代码阅读入口。
+1. 先确定当前业务问题需要理解哪些概念与保证；[Java 路线](/01-Java学习路线/01-语言与开发环境/README/)提供概念、教程与代码阅读入口。
 2. 读对应的详细教程。Java 基础以[廖雪峰 Java 教程](https://liaoxuefeng.com/books/java/introduction/index.html)为中文主读；用 [Dev.java](https://dev.java/learn/)补充现代 Java、JVM 与新 API，再用 [Java 21 API](https://docs.oracle.com/en/java/javase/21/docs/api/index.html)核对版本边界。具体语法和 API 随用随查。
 3. 回到本地典型案例和项目代码，重点解释数据、状态、契约、执行与失败处理，核对前端经验的适用边界。
 4. 在实际需求中检查输入输出、权限、数据状态和副作用，保留预期、实际结果及必要日志。
