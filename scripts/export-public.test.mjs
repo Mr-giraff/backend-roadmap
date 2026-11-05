@@ -94,9 +94,9 @@ test('nested learning units keep the parent roadmap and distinct sidebar titles'
   fs.writeFileSync(path.join(source, '15/01-基础/典型案例.md'), '---\npublish: true\n---\n# 分布式计算基础典型案例\n');
   exportPublic(source, website);
   const sidebar = JSON.parse(fs.readFileSync(path.join(website, 'docs/.vitepress/sidebar.json'), 'utf8'));
-  const section = sidebar.find(item => item.text === '15 大数据');
-  assert.ok(section);
-  assert.deepEqual(section.items.map(item => item.text), [
-    '学习路线', '分布式计算基础 Roadmap', '分布式计算基础典型案例'
-  ]);
+  const section = sidebar.find(item => item.text === '15');
+  assert.equal(section.link, '/15/README/');
+  const unit = section.items.find(item => item.text === '01-基础');
+  assert.equal(unit.link, '/15/01-基础/README/');
+  assert.deepEqual(unit.items, [{ text: '分布式计算基础典型案例', link: '/15/01-基础/典型案例/' }]);
 });

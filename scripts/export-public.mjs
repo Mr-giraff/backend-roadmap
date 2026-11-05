@@ -3,12 +3,45 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import matter from 'gray-matter';
 
+const previousRoutes = JSON.parse(fs.readFileSync(new URL('./previous-routes.json', import.meta.url), 'utf8'));
+
+function sidebarFor(dir, notes) {
+  const overview = notes.find(note => note.relative === dir + '/README.md');
+  const items = notes.filter(note => path.posix.dirname(note.relative) === dir && note !== overview)
+    .map(note => ({ text: note.title, link: note.route }));
+  const subdirs = new Set(notes.map(note => note.relative.slice(dir.length + 1).split('/')).filter(parts => parts.length > 1).map(parts => parts[0]));
+  for (const name of [...subdirs].sort()) {
+    const subdir = dir + '/' + name;
+    items.push(sidebarFor(subdir, notes.filter(note => note.relative.startsWith(subdir + '/'))));
+  }
+  return { text: path.posix.basename(dir), ...(overview && { link: overview.route }), collapsed: true, items };
+}
+
+function exportPreviousRoutes(docs, pages) {
+  const published = new Set(pages.map(page => page.route));
+  for (const [old, { to, anchors = {} }] of Object.entries(previousRoutes)) {
+    const relative = target => path.posix.relative(old, target) + '/';
+    if (!published.has('/' + to + '/')) continue;
+    const fragments = Object.fromEntries(Object.entries(anchors)
+      .filter(([, target]) => published.has('/' + target + '/'))
+      .map(([id, target]) => [id, relative(target)]));
+    const next = relative(to);
+    const out = path.join(docs, 'public', old, 'index.html');
+    fs.mkdirSync(path.dirname(out), { recursive: true });
+    fs.writeFileSync(out, `<!doctype html><meta charset="utf-8"><title>章节已迁移</title>
+<a href="${next}">打开新章节</a><script>
+const id = decodeURIComponent(location.hash.slice(1)), moved = ${JSON.stringify(fragments)};
+location.replace((Object.hasOwn(moved, id) ? moved[id] : ${JSON.stringify(next)}) + location.search + location.hash);
+</script>`);
+  }
+}
+
 export function exportPublic(source, website) {
   const root = fs.realpathSync(source);
   const files = [];
   function walk(dir) {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
+      if (entry.name.startsWith('.') || ['node_modules', 'target', 'exercises'].includes(entry.name) || entry.name.endsWith('.class')) continue;
       const file = path.join(dir, entry.name);
       if (entry.isSymbolicLink()) throw new Error('源目录不允许包含符号链接');
       if (entry.isDirectory()) walk(file);
@@ -64,23 +97,19 @@ export function exportPublic(source, website) {
     fs.mkdirSync(path.dirname(output), { recursive: true });
     fs.copyFileSync(asset, output);
   }
-  const sections = [...new Set(notes.filter(note => !note.home).map(note => note.relative.split('/')[0]))].sort();
-  const sidebar = [{ text: '学习总览', link: '/' }, ...sections.map(section => {
-    const children = notes.filter(note => !note.home && note.relative.startsWith(section + '/'));
-    const roadmap = children.find(note => note.relative === section + '/README.md');
-    if (roadmap) {
-      children.splice(children.indexOf(roadmap), 1);
-      children.unshift(roadmap);
+  exportPreviousRoutes(docs, pages);
+  for (const [old, { to }] of Object.entries(previousRoutes)) {
+    if (!old.endsWith('/README')) continue;
+    const oldDir = path.posix.dirname(old);
+    const currentDir = path.posix.dirname(to);
+    for (const folder of ['examples', 'images']) {
+      const current = path.join(docs, 'public/assets', currentDir, folder);
+      if (fs.existsSync(current)) fs.cpSync(current, path.join(docs, 'public/assets', oldDir, folder), { recursive: true });
     }
-    return {
-      text: roadmap ? section.slice(0, 2) + ' ' + roadmap.title.replace(/\s*Roadmap$/, '') : section,
-      collapsed: false,
-      items: children.map(note => ({
-        text: note === roadmap ? '学习路线' : note.relative === section + '/典型案例.md' ? '讲解与案例' : note.title,
-        link: note.route
-      }))
-    };
-  })];
+  }
+  const sections = [...new Set(notes.filter(note => !note.home).map(note => note.relative.split('/')[0]))].sort();
+  const sidebar = [{ text: '学习总览', link: '/' }, ...sections.map(dir =>
+    sidebarFor(dir, notes.filter(note => note.relative.startsWith(dir + '/'))))];
   fs.writeFileSync(path.join(docs, '.vitepress/sidebar.json'), JSON.stringify(sidebar, null, 2) + '\n');
   fs.writeFileSync(path.join(docs, '.vitepress/pages.json'), JSON.stringify(pages.map(({ route, title, output }) => ({ route, title, output })), null, 2) + '\n');
   return { notes: pages.length, assets: assets.size };
